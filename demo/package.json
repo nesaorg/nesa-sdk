@@ -1,0 +1,8 @@
+{
+    "dependencies": {
+        "nesa.js": "git+https://github.com/nesaorg/nesa.js#68d3cabffa2cd89e8283472952f08e1ad70d1aac"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.30"
+    }
+}
