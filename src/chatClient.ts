@@ -476,6 +476,10 @@ class ChatClient {
   requestCloseHeartbeat() {
     socket.forceClose = true;
     socket.close();
+
+    setTimeout(() =>
+      console.log("socket.socket_open", socket.socket_open, { socket })
+    );
   }
 
   requestAgentInfo(result: any, readableStream: any) {
