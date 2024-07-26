@@ -190,27 +190,11 @@ class ChatClient {
 
         return params;
       } catch (error) {
-        console.log("getChainParamsError: ", error);
         this.lastUserMinimumLockPromise = undefined;
       }
     };
 
     this.lastUserMinimumLockPromise = getRequestParams();
-    // this.lastUserMinimumLockPromise = new Promise((resolve) => {
-    //   WalletOperation.requestParams(nesaClient)
-    //     .then((params) => {
-    //       this.chatProgressReadable &&
-    //         this.chatProgressReadable.push({
-    //           code: 301,
-    //           message: "Connected to Nesa chain",
-    //         });
-    //       resolve(params);
-    //     })
-    //     .catch((error) => {
-    //       console.log("getChainParamsError: ", error);
-    //       this.lastUserMinimumLockPromise = undefined;
-    //     });
-    // });
   }
 
   version() {
@@ -474,6 +458,7 @@ class ChatClient {
   }
 
   requestCloseHeartbeat() {
+    console.log("requestCloseHeartbeat");
     socket.forceClose = true;
     socket.close();
 
