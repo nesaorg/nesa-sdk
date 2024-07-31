@@ -13,7 +13,7 @@ import { socket } from "./socket";
 import { BigNumber } from "bignumber.js";
 import {
   CosmjsOfflineSigner,
-  suggestChain,
+  // suggestChain,
 } from "@leapwallet/cosmos-snap-provider";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 
@@ -100,7 +100,7 @@ class ChatClient {
               //     'npm:@leapwallet/metamask-cosmos-snap': {},
               //   },
               // });
-              await suggestChain(this.chainInfo, { force: false });
+              // await suggestChain(this.chainInfo, { force: false });
               const offlineSigner = new CosmjsOfflineSigner(
                 this.chainInfo.chainId
               );
@@ -108,9 +108,9 @@ class ChatClient {
               resolve(this.offLinesigner);
               this.getNesaClient();
             } else if (window?.keplr) {
-              const { keplr } = window;
-              await keplr.experimentalSuggestChain(this.chainInfo);
-              await keplr.enable(this.chainInfo.chainId);
+              // const { keplr } = window;
+              // await keplr.experimentalSuggestChain(this.chainInfo);
+              // await keplr.enable(this.chainInfo.chainId);
               this.offLinesigner = window.getOfflineSigner!(
                 this.chainInfo.chainId
               );
@@ -647,11 +647,10 @@ class ChatClient {
                           .then((result: any) => {
                             console.log("registerSession-result: ", result);
                             if (result?.transactionHash) {
-                              this.chatProgressReadable &&
-                                this.chatProgressReadable.push({
-                                  code: 302,
-                                  message: "Choosing an inference validator",
-                                });
+                              this.chatProgressReadable?.push({
+                                code: 302,
+                                message: "Choosing an inference validator",
+                              });
                               readableStream.push({
                                 code: 200,
                                 message: result?.transactionHash,
@@ -659,14 +658,12 @@ class ChatClient {
                               this.checkSignBroadcastResult(
                                 readableStream
                               ).catch(() => {});
-                              // resolve(result)
                             } else {
                               this.isRegisterSessioning = false;
                               readableStream.push({
                                 code: 312,
                                 message: JSON.stringify(result),
                               });
-                              // reject(result);
                             }
                           })
                           .catch((error) => {
@@ -691,7 +688,6 @@ class ChatClient {
                       code: 315,
                       message: error?.message || error.toString(),
                     });
-                    // reject(error)
                   });
               })
               .catch((error: any) => {
@@ -699,7 +695,6 @@ class ChatClient {
                   code: 316,
                   message: error?.message || error.toString(),
                 });
-                // reject(error)
               });
           })
           .catch((error: any) => {
@@ -707,7 +702,6 @@ class ChatClient {
               code: 317,
               message: error?.message || error.toString(),
             });
-            // reject(error)
           });
       }
     });
