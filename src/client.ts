@@ -243,27 +243,36 @@ export class NesaClient {
     const senderAddress = this.senderAddress;
     const registerSessionMsg = {
       typeUrl: "/agent.v1.MsgRegisterSession",
-      value: MsgRegisterSession.fromPartial({
-        account: senderAddress,
-        sessionId,
-        modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
-        lockBalance,
-        vrf,
-      }),
+      value: [
+        MsgRegisterSession.fromPartial({
+          account: senderAddress,
+          sessionId,
+          modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
+          lockBalance,
+          vrf,
+        }),
+        MsgRegisterSession.fromPartial({
+          account: senderAddress,
+          sessionId,
+          modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
+          lockBalance,
+          vrf,
+        }),
+      ],
     };
-    const registerSessionMsg2 = {
-      typeUrl: "/agent.v1.MsgRegisterSession",
-      value: MsgRegisterSession.fromPartial({
-        account: senderAddress,
-        sessionId,
-        modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
-        lockBalance,
-        vrf,
-      }),
-    };
+    // const registerSessionMsg2 = {
+    //   typeUrl: "/agent.v1.MsgRegisterSession",
+    //   value: MsgRegisterSession.fromPartial({
+    //     account: senderAddress,
+    //     sessionId,
+    //     modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
+    //     lockBalance,
+    //     vrf,
+    //   }),
+    // };
     const signResult = await this.sign.sign(
       senderAddress,
-      [registerSessionMsg, registerSessionMsg2],
+      [registerSessionMsg],
       fee,
       ""
     );
