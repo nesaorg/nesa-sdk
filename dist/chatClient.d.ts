@@ -1,6 +1,5 @@
 import { ChainInfo } from "@keplr-wallet/types";
 interface ConfigOptions {
-    modelName: string;
     lockAmount?: string;
     chainInfo?: ChainInfo;
     walletName?: string;
@@ -19,7 +18,6 @@ interface questionTypes {
     session_id?: string;
 }
 declare class ChatClient {
-    modelName: string;
     chainInfo: ChainInfo;
     lockAmount: string;
     singlePaymentAmount: string;
@@ -56,10 +54,10 @@ declare class ChatClient {
     checkSinglePaymentAmount(): string;
     requestChatQueue(readableStream: any, question: questionTypes): void;
     requestCloseHeartbeat(): void;
-    requestAgentInfo(result: any, readableStream: any): any;
-    checkSignBroadcastResult(readableStream?: any): Promise<unknown>;
+    requestAgentInfo(result: any, readableStream: any, modelName: string): any;
+    checkSignBroadcastResult(readableStream?: any, modelName?: string): Promise<unknown>;
     requestChatStatus(): Promise<unknown>;
     requestSession(): Promise<unknown>;
-    requestChat(question: questionTypes): Promise<unknown>;
+    requestChat(question: questionTypes, modelName: string): Promise<unknown>;
 }
 export default ChatClient;

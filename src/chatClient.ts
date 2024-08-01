@@ -18,7 +18,6 @@ import {
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 
 interface ConfigOptions {
-  modelName: string;
   lockAmount?: string;
   chainInfo?: ChainInfo;
   walletName?: string;
@@ -39,7 +38,6 @@ interface questionTypes {
 }
 
 class ChatClient {
-  public modelName: string;
   public chainInfo: ChainInfo;
   public lockAmount: string;
   public singlePaymentAmount: string;
@@ -68,7 +66,6 @@ class ChatClient {
   private tokenPrice: number;
 
   constructor(options: ConfigOptions) {
-    this.modelName = options?.modelName?.toLowerCase();
     this.chainInfo = options.chainInfo || defaultChainInfo;
     this.lockAmount = options.lockAmount || defaultLockAmount;
     this.signaturePayment = {};
@@ -94,13 +91,6 @@ class ChatClient {
         async (resolve, reject) => {
           try {
             if (this.walletName === "npm:@leapwallet/metamask-cosmos-snap") {
-              // await window?.ethereum.request({
-              //   method: 'wallet_requestSnaps',
-              //   params: {
-              //     'npm:@leapwallet/metamask-cosmos-snap': {},
-              //   },
-              // });
-              // await suggestChain(this.chainInfo, { force: false });
               const offlineSigner = new CosmjsOfflineSigner(
                 this.chainInfo.chainId
               );
@@ -108,9 +98,6 @@ class ChatClient {
               resolve(this.offLinesigner);
               this.getNesaClient();
             } else if (window?.keplr) {
-              // const { keplr } = window;
-              // await keplr.experimentalSuggestChain(this.chainInfo);
-              // await keplr.enable(this.chainInfo.chainId);
               this.offLinesigner = window.getOfflineSigner!(
                 this.chainInfo.chainId
               );
@@ -467,7 +454,7 @@ class ChatClient {
     );
   }
 
-  requestAgentInfo(result: any, readableStream: any) {
+  requestAgentInfo(result: any, readableStream: any, modelName: string) {
     console.log("requestAgentInfo");
     if (this.lastGetAgentInfoPromise) {
       console.log("requestAgentInfo same promise");
@@ -478,7 +465,7 @@ class ChatClient {
       WalletOperation.requestAgentInfo(
         this.nesaClient,
         result?.account,
-        this.modelName
+        modelName
       )
         .then((agentInfo: any) => {
           if (agentInfo && agentInfo?.inferenceAgent) {
@@ -504,12 +491,11 @@ class ChatClient {
                 if (firstInitHeartbeat) {
                   this.agentUrl = agentWsUrl;
                   this.isRegisterSessioning = false;
-                  this.chatProgressReadable &&
-                    this.chatProgressReadable.push({
-                      code: 304,
-                      message: "Waiting for query",
-                    });
-                  readableStream && readableStream.push(null);
+                  this.chatProgressReadable?.push({
+                    code: 304,
+                    message: "Waiting for query",
+                  });
+                  readableStream && readableStream?.push(null);
                   firstInitHeartbeat = false;
                   resolve(result);
                 }
@@ -550,7 +536,7 @@ class ChatClient {
     });
   }
 
-  checkSignBroadcastResult(readableStream?: any) {
+  checkSignBroadcastResult(readableStream?: any, modelName: string = "") {
     return new Promise((resolve, reject) => {
       if (!this.nesaClient) {
         reject(
@@ -560,7 +546,7 @@ class ChatClient {
         this.nesaClient
           .broadcastRegisterSession()
           .then((result: any) => {
-            resolve(this.requestAgentInfo(result, readableStream));
+            resolve(this.requestAgentInfo(result, readableStream, modelName));
           })
           .catch((error: any) => {
             console.log("checkSignBroadcastResultError: ", error);
@@ -597,8 +583,6 @@ class ChatClient {
             "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
           )
         );
-      } else if (!this.modelName) {
-        reject(new Error("ModelName is null"));
       } else if (this.isRegisterSessioning) {
         reject(new Error("Registering session, please wait"));
       } else if (
@@ -638,13 +622,13 @@ class ChatClient {
                       } else {
                         WalletOperation.registerSession(
                           nesaClient,
-                          this.modelName,
+                          // modelName,
                           this.lockAmount,
                           params?.params?.userMinimumLock?.denom,
                           this.chainInfo,
                           this.offLinesigner
                         )
-                          .then((result: any) => {
+                          .then((result) => {
                             console.log("registerSession-result: ", result);
                             if (result?.transactionHash) {
                               this.chatProgressReadable?.push({
@@ -707,7 +691,7 @@ class ChatClient {
     });
   }
 
-  requestChat(question: questionTypes) {
+  requestChat(question: questionTypes, modelName: string) {
     return new Promise((resolve, reject) => {
       if (!question?.model) {
         reject(new Error("Model is required"));
@@ -720,7 +704,7 @@ class ChatClient {
           )
         );
       } else if (!this.agentUrl) {
-        this.checkSignBroadcastResult()
+        this.checkSignBroadcastResult(undefined, modelName)
           .then((result: any) => {
             console.log("checkSignBroadcastResult-result: ", result);
             const readableStream = new Readable({ objectMode: true });

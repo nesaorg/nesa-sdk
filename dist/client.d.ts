@@ -2,11 +2,11 @@
 import { OfflineSigner } from "@cosmjs/proto-signing";
 import { SigningStargateClient, SigningStargateClientOptions, GasPrice, Event, QueryClient } from "@cosmjs/stargate";
 import { CometClient } from "@cosmjs/tendermint-rpc";
-import { Logger } from './logger';
-import { VRF } from './codec/agent/v1/tx';
+import { Logger } from "./logger";
+import { VRF } from "./codec/agent/v1/tx";
 import { Payment, Params, SessionStatus } from "./codec/agent/v1/agent";
 import { Coin } from "./codec/cosmos/base/v1beta1/coin";
-import { AgentExtension } from './queries';
+import { AgentExtension } from "./queries";
 import { QueryParamsResponse, QueryInferenceAgentResponse, QuerySessionResponse, QueryVRFSeedResponse, QuerySessionByAgentResponse } from "./codec/agent/v1/query";
 import { StdFee } from "@cosmjs/amino";
 export type NesaClientOptions = SigningStargateClientOptions & {
@@ -42,7 +42,7 @@ export declare class NesaClient {
     updateParams(authority: string, params: Params): Promise<MsgResult>;
     registerInferenceAgent(url: string, version: Long): Promise<MsgResult>;
     broadcastRegisterSession(): any;
-    signRegisterSession(sessionId: string, modelName: string, fee: StdFee, lockBalance?: Coin, vrf?: VRF): Promise<any>;
+    signRegisterSession(sessionId: string, fee: StdFee, lockBalance?: Coin, vrf?: VRF): Promise<any>;
     registerSession(sessionId: string, modelName: string, lockBalance?: Coin, vrf?: VRF): Promise<RegisterSessionResult>;
     submitPayment(sessionId: string, signature: Uint8Array, payment?: Payment): Promise<MsgResult>;
     getParams(): Promise<QueryParamsResponse>;

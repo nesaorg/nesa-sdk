@@ -11,25 +11,26 @@ class WalletOperation {
       if (offlineSigner) {
         const { chainId, rpc } = chainInfo;
         const account: AccountData = (await offlineSigner.getAccounts())[0];
-        NesaClient.connectWithSigner(
-          rpc,
-          offlineSigner,
-          account.address,
-          chainId,
-          {
-            gasPrice: GasPrice.fromString(
-              `0.025${chainInfo.feeCurrencies[0].coinMinimalDenom}`
-            ),
-            estimatedBlockTime: 6,
-            estimatedIndexerTime: 5,
-          }
-        )
-          .then((client) => {
-            resolve(client);
-          })
-          .catch((error) => {
-            reject(error);
-          });
+
+        try {
+          const client = await NesaClient.connectWithSigner(
+            rpc,
+            offlineSigner,
+            account.address,
+            chainId,
+            {
+              gasPrice: GasPrice.fromString(
+                `0.025${chainInfo.feeCurrencies[0].coinMinimalDenom}`
+              ),
+              estimatedBlockTime: 6,
+              estimatedIndexerTime: 5,
+            }
+          );
+
+          resolve(client);
+        } catch (e) {
+          reject(e);
+        }
       } else {
         reject(
           new Error(
@@ -42,7 +43,7 @@ class WalletOperation {
 
   static registerSession(
     client: any,
-    modelName: string,
+    // modelName: string = "",
     lockAmount: string,
     denom: string,
     chainInfo: ChainInfo,
@@ -64,7 +65,7 @@ class WalletOperation {
         resolve(
           client.signRegisterSession(
             res.sessionId,
-            modelName,
+            // modelName,
             fee,
             lockBalance,
             res.vrf
