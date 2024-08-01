@@ -538,7 +538,11 @@ class ChatClient {
     return this.lastGetAgentInfoPromise;
   }
 
-  checkSignBroadcastResult(readableStream?: any, modelName: string = "") {
+  checkSignBroadcastResult(
+    readableStream?: any,
+    modelName: string = "",
+    isNew?: boolean
+  ) {
     return new Promise((resolve, reject) => {
       if (!this.nesaClient) {
         reject(
@@ -546,7 +550,7 @@ class ChatClient {
         );
       } else {
         this.nesaClient
-          .broadcastRegisterSession()
+          .broadcastRegisterSession(isNew)
           .then((result: any) => {
             console.log("broadcastRegisterSession after", modelName);
             resolve(this.requestAgentInfo(result, readableStream, modelName));

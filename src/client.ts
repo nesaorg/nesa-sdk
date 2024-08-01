@@ -84,8 +84,10 @@ export class NesaClient {
   // public readonly revisionNumber: Long;
   public readonly estimatedBlockTime: number;
   public readonly estimatedIndexerTime: number;
+  // private broadcastPromiseMap: Record<string, Promise<any>>;
   private broadcastPromise: any;
   private signResult: any;
+  // private signResultMap: Record<string, any>;
 
   public static async connectWithSigner(
     endpoint: string,
@@ -197,11 +199,11 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession() {
+  public broadcastRegisterSession(isNew?: boolean) {
     if (!this.signResult) {
       return new Error("Please sign first");
     }
-    if (this.broadcastPromise) {
+    if (this.broadcastPromise && !isNew) {
       return this.broadcastPromise;
     }
     this.broadcastPromise = new Promise((resolve, reject) => {
@@ -244,14 +246,24 @@ export class NesaClient {
       value: MsgRegisterSession.fromPartial({
         account: senderAddress,
         sessionId,
-        // modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensoreds".toLowerCase(),
+        modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensoreds".toLowerCase(),
+        lockBalance,
+        vrf,
+      }),
+    };
+    const registerSessionMsg2 = {
+      typeUrl: "/agent.v1.MsgRegisterSession",
+      value: MsgRegisterSession.fromPartial({
+        account: senderAddress,
+        sessionId,
+        modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
         lockBalance,
         vrf,
       }),
     };
     const signResult = await this.sign.sign(
       senderAddress,
-      [registerSessionMsg],
+      [registerSessionMsg, registerSessionMsg2],
       fee,
       ""
     );
