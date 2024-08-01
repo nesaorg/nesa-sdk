@@ -546,6 +546,7 @@ class ChatClient {
         this.nesaClient
           .broadcastRegisterSession()
           .then((result: any) => {
+            console.log("broadcastRegisterSession after", modelName);
             resolve(this.requestAgentInfo(result, readableStream, modelName));
           })
           .catch((error: any) => {
@@ -704,6 +705,7 @@ class ChatClient {
           )
         );
       } else if (!this.agentUrl) {
+        console.log("requestChat modelName", modelName);
         this.checkSignBroadcastResult(undefined, modelName)
           .then((result: any) => {
             console.log("checkSignBroadcastResult-result: ", result);
