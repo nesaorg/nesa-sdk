@@ -43,7 +43,7 @@ export declare class NesaClient {
     registerInferenceAgent(url: string, version: Long): Promise<MsgResult>;
     broadcastRegisterSession(): any;
     signRegisterSession(sessionId: string, fee: StdFee, lockBalance?: Coin, vrf?: VRF): Promise<any>;
-    registerSession(sessionId: string, modelName: string, lockBalance?: Coin, vrf?: VRF): Promise<RegisterSessionResult>;
+    registerSession(sessionId: string, lockBalance?: Coin, vrf?: VRF): Promise<RegisterSessionResult>;
     submitPayment(sessionId: string, signature: Uint8Array, payment?: Payment): Promise<MsgResult>;
     getParams(): Promise<QueryParamsResponse>;
     getInferenceAgent(account: string, modelName: string, limit: Long, key: Uint8Array): Promise<QueryInferenceAgentResponse>;
