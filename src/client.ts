@@ -234,6 +234,7 @@ export class NesaClient {
     lockBalance?: Coin,
     vrf?: VRF
   ): Promise<any> {
+    console.log("signRegisterSession");
     this.logger.verbose(`Register Session`);
     const senderAddress = this.senderAddress;
     const registerSessionMsg = {
@@ -267,7 +268,7 @@ export class NesaClient {
   public async registerSession(
     // account: string,
     sessionId: string,
-    modelName: string,
+    // modelName: string,
     lockBalance?: Coin,
     vrf?: VRF
   ): Promise<RegisterSessionResult> {
@@ -278,7 +279,7 @@ export class NesaClient {
       value: MsgRegisterSession.fromPartial({
         account: senderAddress,
         sessionId,
-        modelName,
+        // modelName,
         lockBalance,
         vrf,
       }),
