@@ -244,7 +244,7 @@ export class NesaClient {
       value: MsgRegisterSession.fromPartial({
         account: senderAddress,
         sessionId,
-        modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
+        // modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensoreds".toLowerCase(),
         lockBalance,
         vrf,
       }),
