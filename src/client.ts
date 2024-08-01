@@ -199,11 +199,11 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession(isNew?: boolean) {
+  public broadcastRegisterSession() {
     if (!this.signResult) {
       return new Error("Please sign first");
     }
-    if (this.broadcastPromise && !isNew) {
+    if (this.broadcastPromise) {
       return this.broadcastPromise;
     }
     this.broadcastPromise = new Promise((resolve, reject) => {
