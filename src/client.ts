@@ -201,9 +201,9 @@ export class NesaClient {
     if (!this.signResult) {
       return new Error("Please sign first");
     }
-    // if (this.broadcastPromise) {
-    //   return this.broadcastPromise;
-    // }
+    if (this.broadcastPromise) {
+      return this.broadcastPromise;
+    }
     this.broadcastPromise = new Promise((resolve, reject) => {
       this.sign
         .broadcastTx(Uint8Array.from(TxRaw.encode(this.signResult).finish()))
