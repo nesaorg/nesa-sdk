@@ -199,12 +199,10 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession(
-    modelName: string,
-    signResult?: any
-  ): Promise<any> {
-    if (!signResult || !this.signResultMap[modelName]) {
-      throw new Error("Please sign first");
+  public broadcastRegisterSession(modelName: string, signResult?: any) {
+    if (!signResult && !this.signResultMap[modelName]) {
+      console.log("broadcast error", this.signResultMap, signResult);
+      return new Error("Please sign first");
     }
 
     const res = signResult || this.signResultMap[modelName];
