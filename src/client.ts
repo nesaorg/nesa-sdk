@@ -84,10 +84,10 @@ export class NesaClient {
   // public readonly revisionNumber: Long;
   public readonly estimatedBlockTime: number;
   public readonly estimatedIndexerTime: number;
-  // private broadcastPromiseMap: Record<string, Promise<any>>;
-  private broadcastPromise: any;
-  private signResult: any;
-  // private signResultMap: Record<string, any>;
+  // private broadcastPromise: any;
+  // private signResult: any;
+  private signResultMap: { [modelName: string]: any } = {};
+  private broadcastPromiseMap: { [modelName: string]: any } = {};
 
   public static async connectWithSigner(
     endpoint: string,
@@ -199,16 +199,20 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession() {
-    if (!this.signResult) {
+  public broadcastRegisterSession(modelName: string, signResult?: any) {
+    if (!signResult || !this.signResultMap[modelName]) {
       return new Error("Please sign first");
     }
-    if (this.broadcastPromise) {
-      return this.broadcastPromise;
+
+    const res = signResult || this.signResultMap[modelName];
+
+    if (this.broadcastPromiseMap[modelName]) {
+      return this.broadcastPromiseMap[modelName];
     }
-    this.broadcastPromise = new Promise((resolve, reject) => {
+
+    this.broadcastPromiseMap[modelName] = new Promise((resolve, reject) => {
       this.sign
-        .broadcastTx(Uint8Array.from(TxRaw.encode(this.signResult).finish()))
+        .broadcastTx(Uint8Array.from(TxRaw.encode(res).finish()))
         .then((result) => {
           if (isDeliverTxFailure(result)) {
             reject(new Error(createDeliverTxFailureMessage(result)));
@@ -228,7 +232,7 @@ export class NesaClient {
         });
     });
 
-    return this.broadcastPromise;
+    // return this.broadcastPromise;
   }
 
   public async signRegisterSession(
@@ -279,10 +283,19 @@ export class NesaClient {
 
     const signResult = await this.sign.sign(
       senderAddress,
-      [registerSessionMsg, registerSessionMsg2],
+      [registerSessionMsg],
       fee,
       ""
     );
+    const signResult2 = await this.sign.sign(
+      senderAddress,
+      [registerSessionMsg2],
+      fee,
+      ""
+    );
+
+    this.signResultMap[modelName] = signResult;
+    this.signResultMap["Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase()] = signResult2;
     // const signResult2 = await this.sign.sign(
     //   senderAddress,
     //   [registerSessionMsg2],
@@ -291,16 +304,34 @@ export class NesaClient {
     // );
 
     // console.log("signResult2", signResult2);
-    this.signResult = signResult;
-    const hex = Buffer.from(
-      Uint8Array.from(TxRaw.encode(this.signResult).finish())
-    ).toString("hex");
-    this.broadcastPromise = undefined;
-    this.broadcastRegisterSession();
-    return {
-      sessionId,
-      transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
-    };
+    // this.signResult = signResult;
+
+    return Object.entries(this.signResultMap).reduce<
+      Record<string, { sessionId: string; transactionHash: string }>
+    >((acc, [modelName, signResult]) => {
+      const hex = Buffer.from(
+        Uint8Array.from(TxRaw.encode(signResult).finish())
+      ).toString("hex");
+
+      acc[modelName] = {
+        sessionId,
+        transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
+      };
+
+      this.broadcastPromiseMap[modelName] = undefined;
+      this.broadcastRegisterSession(modelName, signResult);
+
+      return acc;
+    }, {});
+
+    // const hex = Buffer.from(
+    //   Uint8Array.from(TxRaw.encode(this.signResult).finish())
+    // ).toString("hex");
+
+    // return {
+    //   sessionId,
+    //   transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
+    // };
   }
 
   public async registerSession(

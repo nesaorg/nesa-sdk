@@ -54,7 +54,8 @@ class ChatClient {
   private assistantRoleName = "";
   private lastNesaClientPromise: any;
   private lastUserMinimumLockPromise: any;
-  private lastGetAgentInfoPromise: any;
+  // private lastGetAgentInfoPromise: any;
+  private lastGetAgentInfoPromiseMap: { [modelName: string]: any } = {};
   private lastInitOfflineSignerPromise: any;
   private chatProgressReadable: any;
   private nesaClient: any;
@@ -460,88 +461,99 @@ class ChatClient {
     //   console.log("requestAgentInfo same promise");
     //   return this.lastGetAgentInfoPromise;
     // }
+    if (this.lastGetAgentInfoPromiseMap[modelName]) {
+      console.log("requestAgentInfo same promise");
+      return this.lastGetAgentInfoPromiseMap[modelName];
+    }
     // console.log("requestAgentInfo promise creatoin");
-    this.lastGetAgentInfoPromise = new Promise((resolve, reject) => {
-      WalletOperation.requestAgentInfo(
-        this.nesaClient,
-        result?.account,
-        modelName
-      )
-        .then((agentInfo: any) => {
-          if (agentInfo && agentInfo?.inferenceAgent) {
-            const selectAgent = agentInfo?.inferenceAgent;
-            let agentWsUrl = selectAgent.url;
-            let agentHeartbeatUrl = selectAgent.url;
-            if (selectAgent.url?.endsWith("/")) {
-              agentWsUrl = agentWsUrl + "chat";
-              agentHeartbeatUrl = agentHeartbeatUrl + "heartbeat";
-            } else {
-              agentWsUrl = agentWsUrl + "/chat";
-              agentHeartbeatUrl = agentHeartbeatUrl + "/heartbeat";
-            }
-            let firstInitHeartbeat = true;
-            this.chatProgressReadable &&
-              this.chatProgressReadable.push({
-                code: 303,
-                message: "Connecting to the validator",
+    // this.lastGetAgentInfoPromise = new Promise(
+    this.lastGetAgentInfoPromiseMap[modelName] = new Promise(
+      (resolve, reject) => {
+        WalletOperation.requestAgentInfo(
+          this.nesaClient,
+          result?.account,
+          modelName
+        )
+          .then((agentInfo: any) => {
+            if (agentInfo && agentInfo?.inferenceAgent) {
+              const selectAgent = agentInfo?.inferenceAgent;
+              let agentWsUrl = selectAgent.url;
+              let agentHeartbeatUrl = selectAgent.url;
+              if (selectAgent.url?.endsWith("/")) {
+                agentWsUrl = agentWsUrl + "chat";
+                agentHeartbeatUrl = agentHeartbeatUrl + "heartbeat";
+              } else {
+                agentWsUrl = agentWsUrl + "/chat";
+                agentHeartbeatUrl = agentHeartbeatUrl + "/heartbeat";
+              }
+              let firstInitHeartbeat = true;
+              this.chatProgressReadable &&
+                this.chatProgressReadable.push({
+                  code: 303,
+                  message: "Connecting to the validator",
+                });
+              socket.init({
+                ws_url: agentHeartbeatUrl,
+                onopen: () => {
+                  if (firstInitHeartbeat) {
+                    this.agentUrl = agentWsUrl;
+                    this.isRegisterSessioning = false;
+                    this.chatProgressReadable?.push({
+                      code: 304,
+                      message: "Waiting for query",
+                    });
+                    readableStream && readableStream?.push(null);
+                    firstInitHeartbeat = false;
+                    resolve(result);
+                  }
+                },
+                onerror: () => {
+                  readableStream &&
+                    readableStream.push({
+                      code: 319,
+                      message: "Agent connection error: " + selectAgent.url,
+                    });
+                  readableStream && readableStream.push(null);
+                  reject(new Error("Agent heartbeat packet connection failed"));
+                },
               });
-            socket.init({
-              ws_url: agentHeartbeatUrl,
-              onopen: () => {
-                if (firstInitHeartbeat) {
-                  this.agentUrl = agentWsUrl;
-                  this.isRegisterSessioning = false;
-                  this.chatProgressReadable?.push({
-                    code: 304,
-                    message: "Waiting for query",
-                  });
-                  readableStream && readableStream?.push(null);
-                  firstInitHeartbeat = false;
-                  resolve(result);
-                }
-              },
-              onerror: () => {
-                readableStream &&
-                  readableStream.push({
-                    code: 319,
-                    message: "Agent connection error: " + selectAgent.url,
-                  });
-                readableStream && readableStream.push(null);
-                reject(new Error("Agent heartbeat packet connection failed"));
-              },
-            });
-          } else {
-            this.isRegisterSessioning = false;
+            } else {
+              this.isRegisterSessioning = false;
+              readableStream &&
+                readableStream.push({
+                  code: 319,
+                  message: "Agent not found",
+                });
+              readableStream && readableStream.push(null);
+              reject(new Error("No agent found"));
+            }
+          })
+          .catch((error) => {
+            console.log("requestAgentInfoError: ", error);
+            this.lastGetAgentInfoPromiseMap[modelName] = undefined;
+            // this.lastGetAgentInfoPromise = undefined;
             readableStream &&
               readableStream.push({
                 code: 319,
-                message: "Agent not found",
+                message:
+                  "Agent connection error: " + error?.message ||
+                  error.toString(),
               });
             readableStream && readableStream.push(null);
-            reject(new Error("No agent found"));
-          }
-        })
-        .catch((error) => {
-          console.log("requestAgentInfoError: ", error);
-          this.lastGetAgentInfoPromise = undefined;
-          readableStream &&
-            readableStream.push({
-              code: 319,
-              message:
-                "Agent connection error: " + error?.message || error.toString(),
-            });
-          readableStream && readableStream.push(null);
-          reject(error);
-        });
-    });
+            reject(error);
+          });
+      }
+    );
 
-    return this.lastGetAgentInfoPromise;
+    return this.lastGetAgentInfoPromiseMap[modelName];
+
+    // return this.lastGetAgentInfoPromise;
   }
 
   checkSignBroadcastResult(
     readableStream?: any,
-    modelName: string = "",
-    isNew?: boolean
+    modelName: string = ""
+    // isNew?: boolean
   ) {
     return new Promise((resolve, reject) => {
       if (!this.nesaClient) {
@@ -550,7 +562,7 @@ class ChatClient {
         );
       } else {
         this.nesaClient
-          .broadcastRegisterSession(isNew)
+          .broadcastRegisterSession(modelName)
           .then((result: any) => {
             console.log("broadcastRegisterSession after", modelName);
             resolve(this.requestAgentInfo(result, readableStream, modelName));

@@ -35,13 +35,13 @@ export declare class NesaClient {
     readonly chainId: string;
     readonly estimatedBlockTime: number;
     readonly estimatedIndexerTime: number;
-    private broadcastPromise;
-    private signResult;
+    private signResultMap;
+    private broadcastPromiseMap;
     static connectWithSigner(endpoint: string, signer: OfflineSigner, senderAddress: string, chainId: string | undefined, options: NesaClientOptions): Promise<NesaClient>;
     private constructor();
     updateParams(authority: string, params: Params): Promise<MsgResult>;
     registerInferenceAgent(url: string, version: Long): Promise<MsgResult>;
-    broadcastRegisterSession(): any;
+    broadcastRegisterSession(modelName: string, signResult?: any): any;
     signRegisterSession(sessionId: string, modelName: string | undefined, fee: StdFee, lockBalance?: Coin, vrf?: VRF): Promise<any>;
     registerSession(sessionId: string, lockBalance?: Coin, vrf?: VRF): Promise<RegisterSessionResult>;
     submitPayment(sessionId: string, signature: Uint8Array, payment?: Payment): Promise<MsgResult>;
