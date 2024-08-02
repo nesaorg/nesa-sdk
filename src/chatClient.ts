@@ -710,7 +710,8 @@ class ChatClient {
             "Please call requestSession first to complete Session registration"
           )
         );
-      } else if (!this.agentUrl) {
+        // } else if (!this.agentUrl) {
+      } else {
         console.log("requestChat modelName", modelName);
         this.checkSignBroadcastResult(undefined, modelName)
           .then((result: any) => {
@@ -727,15 +728,6 @@ class ChatClient {
           .catch((error) => {
             reject(error);
           });
-      } else {
-        const readableStream = new Readable({ objectMode: true });
-        readableStream._read = () => {};
-        resolve(readableStream);
-        if (this.isChatinging) {
-          this.chatQueue.push({ readableStream, question });
-        } else {
-          this.requestChatQueue(readableStream, question);
-        }
       }
     });
   }
