@@ -199,9 +199,12 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession(modelName: string, signResult?: any) {
+  public broadcastRegisterSession(
+    modelName: string,
+    signResult?: any
+  ): Promise<any> {
     if (!signResult || !this.signResultMap[modelName]) {
-      return new Error("Please sign first");
+      throw new Error("Please sign first");
     }
 
     const res = signResult || this.signResultMap[modelName];
@@ -210,7 +213,7 @@ export class NesaClient {
       return this.broadcastPromiseMap[modelName];
     }
 
-    this.broadcastPromiseMap[modelName] = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       this.sign
         .broadcastTx(Uint8Array.from(TxRaw.encode(res).finish()))
         .then((result) => {
@@ -232,7 +235,9 @@ export class NesaClient {
         });
     });
 
-    return this.broadcastPromiseMap[modelName];
+    this.broadcastPromiseMap[modelName] = promise;
+
+    return promise;
   }
 
   public async signRegisterSession(

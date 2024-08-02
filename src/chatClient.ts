@@ -561,8 +561,9 @@ class ChatClient {
           new Error("Please wait for the requestSession registration result")
         );
       } else {
-        this.nesaClient
-          .broadcastRegisterSession(modelName)
+        const reqSession = this.nesaClient.broadcastRegisterSession(modelName);
+        console.log("reqSession", reqSession);
+        reqSession
           .then((result: any) => {
             console.log("broadcastRegisterSession after", modelName);
             resolve(this.requestAgentInfo(result, readableStream, modelName));
