@@ -287,12 +287,27 @@ export class NesaClient {
       fee,
       ""
     );
+
+    // const hex = Buffer.from(
+    //   Uint8Array.from(TxRaw.encode(signResult).finish())
+    // ).toString("hex");
+
+    // acc[modelName] = {
+    //   sessionId,
+    //   transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
+    // };
+
+    this.broadcastPromiseMap[modelName] = undefined;
+    await this.broadcastRegisterSession(modelName, signResult);
+
     const signResult2 = await this.sign.sign(
       senderAddress,
       [registerSessionMsg2],
       fee,
       ""
     );
+
+    await this.broadcastRegisterSession(modelName, signResult2);
 
     this.signResultMap[modelName] = signResult;
     this.signResultMap["Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase()] = signResult2;
@@ -318,8 +333,8 @@ export class NesaClient {
         transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
       };
 
-      this.broadcastPromiseMap[modelName] = undefined;
-      this.broadcastRegisterSession(modelName, signResult);
+      // this.broadcastPromiseMap[modelName] = undefined;
+      // this.broadcastRegisterSession(modelName, signResult);
 
       return acc;
     }, {});

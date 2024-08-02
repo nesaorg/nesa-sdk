@@ -658,9 +658,13 @@ class ChatClient {
                                 code: 200,
                                 message: result?.transactionHash,
                               });
-                              this.checkSignBroadcastResult(
-                                readableStream
-                              ).catch(() => {});
+
+                              Object.keys(result).forEach((modelName) => {
+                                this.checkSignBroadcastResult(
+                                  readableStream,
+                                  modelName
+                                ).catch(() => {});
+                              });
                             } else {
                               this.isRegisterSessioning = false;
                               readableStream.push({
