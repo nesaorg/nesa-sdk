@@ -232,7 +232,7 @@ export class NesaClient {
         });
     });
 
-    // return this.broadcastPromise;
+    return this.broadcastPromiseMap[modelName];
   }
 
   public async signRegisterSession(
