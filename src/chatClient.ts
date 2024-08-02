@@ -456,10 +456,10 @@ class ChatClient {
 
   requestAgentInfo(result: any, readableStream: any, modelName: string) {
     console.log("requestAgentInfo");
-    if (this.lastGetAgentInfoPromise) {
-      console.log("requestAgentInfo same promise");
-      return this.lastGetAgentInfoPromise;
-    }
+    // if (this.lastGetAgentInfoPromise) {
+    //   console.log("requestAgentInfo same promise");
+    //   return this.lastGetAgentInfoPromise;
+    // }
     // console.log("requestAgentInfo promise creatoin");
     this.lastGetAgentInfoPromise = new Promise((resolve, reject) => {
       WalletOperation.requestAgentInfo(
