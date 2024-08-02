@@ -273,16 +273,16 @@ export class NesaClient {
       //   vrf,
       // }),
     };
-    const registerSessionMsg2 = {
-      typeUrl: "/agent.v1.MsgRegisterSession",
-      value: MsgRegisterSession.fromPartial({
-        account: senderAddress,
-        sessionId,
-        modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
-        lockBalance,
-        vrf,
-      }),
-    };
+    // const registerSessionMsg2 = {
+    //   typeUrl: "/agent.v1.MsgRegisterSession",
+    //   value: MsgRegisterSession.fromPartial({
+    //     account: senderAddress,
+    //     sessionId,
+    //     modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
+    //     lockBalance,
+    //     vrf,
+    //   }),
+    // };
 
     const signResult = await this.sign.sign(
       senderAddress,
@@ -303,17 +303,18 @@ export class NesaClient {
     this.broadcastPromiseMap[modelName] = undefined;
     await this.broadcastRegisterSession(modelName, signResult);
 
-    const signResult2 = await this.sign.sign(
-      senderAddress,
-      [registerSessionMsg2],
-      fee,
-      ""
-    );
+    // const signResult2 = await this.sign.sign(
+    //   senderAddress,
+    //   [registerSessionMsg2],
+    //   fee,
+    //   ""
+    // );
 
-    await this.broadcastRegisterSession(modelName, signResult2);
+    // await this.broadcastRegisterSession(modelName, signResult2);
 
     this.signResultMap[modelName] = signResult;
-    this.signResultMap["Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase()] = signResult2;
+    this.signResultMap["Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase()] = signResult;
+    // this.signResultMap["Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase()] = signResult2;
     // const signResult2 = await this.sign.sign(
     //   senderAddress,
     //   [registerSessionMsg2],
