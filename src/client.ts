@@ -379,6 +379,7 @@ export class NesaClient {
     limit: Long,
     key: Uint8Array
   ): Promise<QueryInferenceAgentResponse> {
+    console.log("getInferenceAgent", { account, modelName, limit, key });
     const result = await this.query.agent.inferenceAgentRequest(
       account,
       modelName,
