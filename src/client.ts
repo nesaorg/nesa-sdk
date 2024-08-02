@@ -243,15 +243,14 @@ export class NesaClient {
     const senderAddress = this.senderAddress;
     const registerSessionMsg = {
       typeUrl: "/agent.v1.MsgRegisterSession",
-      value: [
-        MsgRegisterSession.fromPartial({
-          account: senderAddress,
-          sessionId,
-          modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
-          lockBalance,
-          vrf,
-        }),
-      ],
+      value: MsgRegisterSession.fromPartial({
+        account: senderAddress,
+        sessionId,
+        modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
+        lockBalance,
+        vrf,
+      }),
+
       // MsgRegisterSession.fromPartial({
       //   account: senderAddress,
       //   sessionId,
