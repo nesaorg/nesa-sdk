@@ -251,31 +251,40 @@ export class NesaClient {
           lockBalance,
           vrf,
         }),
-        MsgRegisterSession.fromPartial({
-          account: senderAddress,
-          sessionId,
-          modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
-          lockBalance,
-          vrf,
-        }),
       ],
+      // MsgRegisterSession.fromPartial({
+      //   account: senderAddress,
+      //   sessionId,
+      //   modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
+      //   lockBalance,
+      //   vrf,
+      // }),
     };
-    // const registerSessionMsg2 = {
-    //   typeUrl: "/agent.v1.MsgRegisterSession",
-    //   value: MsgRegisterSession.fromPartial({
-    //     account: senderAddress,
-    //     sessionId,
-    //     modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
-    //     lockBalance,
-    //     vrf,
-    //   }),
-    // };
+    const registerSessionMsg2 = {
+      typeUrl: "/agent.v1.MsgRegisterSession",
+      value: MsgRegisterSession.fromPartial({
+        account: senderAddress,
+        sessionId,
+        modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
+        lockBalance,
+        vrf,
+      }),
+    };
+
     const signResult = await this.sign.sign(
       senderAddress,
       [registerSessionMsg],
       fee,
       ""
     );
+    const signResult2 = await this.sign.sign(
+      senderAddress,
+      [registerSessionMsg2],
+      fee,
+      ""
+    );
+
+    console.log("signResult2", signResult2);
     this.signResult = signResult;
     const hex = Buffer.from(
       Uint8Array.from(TxRaw.encode(this.signResult).finish())
