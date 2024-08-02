@@ -629,7 +629,7 @@ class ChatClient {
                       } else {
                         WalletOperation.registerSession(
                           nesaClient,
-                          // modelName,
+                          "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
                           this.lockAmount,
                           params?.params?.userMinimumLock?.denom,
                           this.chainInfo,

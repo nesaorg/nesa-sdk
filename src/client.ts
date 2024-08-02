@@ -233,7 +233,7 @@ export class NesaClient {
 
   public async signRegisterSession(
     sessionId: string,
-    // modelName: string = "",
+    modelName: string = "",
     fee: StdFee,
     lockBalance?: Coin,
     vrf?: VRF
@@ -246,10 +246,17 @@ export class NesaClient {
       value: MsgRegisterSession.fromPartial({
         account: senderAddress,
         sessionId,
-        modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
+        modelName: modelName,
         lockBalance,
         vrf,
       }),
+      // value: MsgRegisterSession.fromPartial({
+      //   account: senderAddress,
+      //   sessionId,
+      //   modelName: "Orenguteng/Llama-3-8B-Lexi-Uncensored".toLowerCase(),
+      //   lockBalance,
+      //   vrf,
+      // }),
 
       // MsgRegisterSession.fromPartial({
       //   account: senderAddress,
@@ -259,16 +266,16 @@ export class NesaClient {
       //   vrf,
       // }),
     };
-    const registerSessionMsg2 = {
-      typeUrl: "/agent.v1.MsgRegisterSession",
-      value: MsgRegisterSession.fromPartial({
-        account: senderAddress,
-        sessionId,
-        modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
-        lockBalance,
-        vrf,
-      }),
-    };
+    // const registerSessionMsg2 = {
+    //   typeUrl: "/agent.v1.MsgRegisterSession",
+    //   value: MsgRegisterSession.fromPartial({
+    //     account: senderAddress,
+    //     sessionId,
+    //     modelName: "Yodayo-Ai/Kivotos-Xl-2.0".toLowerCase(),
+    //     lockBalance,
+    //     vrf,
+    //   }),
+    // };
 
     const signResult = await this.sign.sign(
       senderAddress,
@@ -276,14 +283,14 @@ export class NesaClient {
       fee,
       ""
     );
-    const signResult2 = await this.sign.sign(
-      senderAddress,
-      [registerSessionMsg2],
-      fee,
-      ""
-    );
+    // const signResult2 = await this.sign.sign(
+    //   senderAddress,
+    //   [registerSessionMsg2],
+    //   fee,
+    //   ""
+    // );
 
-    console.log("signResult2", signResult2);
+    // console.log("signResult2", signResult2);
     this.signResult = signResult;
     const hex = Buffer.from(
       Uint8Array.from(TxRaw.encode(this.signResult).finish())
@@ -303,6 +310,7 @@ export class NesaClient {
     lockBalance?: Coin,
     vrf?: VRF
   ): Promise<RegisterSessionResult> {
+    console.log("client -> registerSession");
     this.logger.verbose(`Register Session`);
     const senderAddress = this.senderAddress;
     const registerSessionMsg = {

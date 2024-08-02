@@ -43,7 +43,7 @@ class WalletOperation {
 
   static registerSession(
     client: any,
-    // modelName: string = "",
+    modelName: string = "",
     lockAmount: string,
     denom: string,
     chainInfo: ChainInfo,
@@ -53,6 +53,9 @@ class WalletOperation {
     return new Promise(async (resolve, reject) => {
       const lockBalance = { denom: denom, amount: lockAmount };
       const res = await EncryptUtils.requestVrf(client, offlineSigner);
+      const res2 = await EncryptUtils.requestVrf(client, offlineSigner);
+
+      console.log("res", { res1: res?.sessionId, res2: res2?.sessionId });
 
       const fee = {
         amount: [
@@ -65,7 +68,7 @@ class WalletOperation {
         resolve(
           client.signRegisterSession(
             res.sessionId,
-            // modelName,
+            modelName,
             fee,
             lockBalance,
             res.vrf
