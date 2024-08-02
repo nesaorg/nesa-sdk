@@ -649,7 +649,10 @@ class ChatClient {
                         )
                           .then((result) => {
                             console.log("registerSession-result: ", result);
-                            if (result?.transactionHash) {
+                            if (
+                              (Object.values(result)?.[0] as any)
+                                ?.transactionHash
+                            ) {
                               this.chatProgressReadable?.push({
                                 code: 302,
                                 message: "Choosing an inference validator",
