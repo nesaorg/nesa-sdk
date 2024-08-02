@@ -199,13 +199,17 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession(modelName: string, signResult?: any) {
+  public broadcastRegisterSession(modelName1: string, signResult?: any) {
+    const modelName = "orenguteng/llama-3-8b-lexi-uncensored";
+    console.log({ modelName, modelName1 });
     if (!signResult && !this.signResultMap[modelName]) {
       console.log("broadcast error", this.signResultMap, signResult);
       return new Error("Please sign first");
     }
 
     const res = signResult || this.signResultMap[modelName];
+
+    console.log("this.broadcastPromiseMap", this.broadcastPromiseMap);
 
     if (this.broadcastPromiseMap[modelName]) {
       return this.broadcastPromiseMap[modelName];
