@@ -77,7 +77,7 @@ class ChatClient {
     this.walletName = options.walletName || "";
     this.privateKey = options.privateKey || "";
     this.isEverRequestSession = false;
-    this.isBrowser = typeof window !== "undefined";
+    this.isBrowser = options.privateKey ? false : typeof window !== "undefined";
     this.isBrowser && (window.nesaSdkVersion = sdkVersion);
     this.tokenPrice = 0;
     this.initWallet();
