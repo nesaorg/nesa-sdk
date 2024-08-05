@@ -15,7 +15,11 @@ import {
   CosmjsOfflineSigner,
   suggestChain,
 } from "@leapwallet/cosmos-snap-provider";
-import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
+import {
+  DirectSecp256k1HdWallet,
+  DirectSecp256k1Wallet,
+} from "@cosmjs/proto-signing";
+import { stringToPath } from "@cosmjs/crypto";
 
 interface ConfigOptions {
   modelName: string;
@@ -25,6 +29,7 @@ interface ConfigOptions {
   singlePaymentAmount?: string;
   lowBalance?: string;
   privateKey?: string;
+  mnemonic?: string;
 }
 
 interface questionTypes {
@@ -64,6 +69,7 @@ class ChatClient {
   private signaturePayment: any;
   private isBrowser: boolean;
   private privateKey: string;
+  private mnemonic: string;
   private isEverRequestSession: boolean;
   private tokenPrice: number;
 
@@ -78,6 +84,7 @@ class ChatClient {
     this.lockAmountDenom = "";
     this.walletName = options.walletName || "";
     this.privateKey = options.privateKey || "";
+    this.mnemonic = options.mnemonic || "";
     this.isEverRequestSession = false;
     this.isBrowser = typeof window !== "undefined";
     this.isBrowser && (window.nesaSdkVersion = sdkVersion);
@@ -133,17 +140,32 @@ class ChatClient {
     } else {
       this.lastInitOfflineSignerPromise = new Promise(
         async (resolve, reject) => {
-          if (!this.privateKey) {
+          if (!this.privateKey && !this.mnemonic) {
             reject("In the node environment, please provide the privateKey");
           } else {
-            const wallet = await DirectSecp256k1Wallet.fromKey(
-              Buffer.from(this.privateKey, "hex"),
-              "nesa"
-            );
-            console.log("private key wallet", wallet);
-            this.offLinesigner = wallet;
-            resolve(this.offLinesigner);
-            this.getNesaClient();
+            if (this.privateKey) {
+              const wallet = await DirectSecp256k1Wallet.fromKey(
+                Buffer.from(this.privateKey, "hex"),
+                "nesa"
+              );
+              console.log("private key wallet", wallet);
+              this.offLinesigner = wallet;
+              resolve(this.offLinesigner);
+              this.getNesaClient();
+
+              return;
+            }
+
+            if (this.mnemonic) {
+              const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
+                this.mnemonic,
+                { prefix: "nesa", hdPaths: [stringToPath("m/44'/118'/0'/0/0")] }
+              );
+              console.log("private key wallet", wallet);
+              this.offLinesigner = wallet;
+              resolve(this.offLinesigner);
+              this.getNesaClient();
+            }
           }
         }
       );

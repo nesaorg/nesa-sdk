@@ -7,6 +7,7 @@ interface ConfigOptions {
     singlePaymentAmount?: string;
     lowBalance?: string;
     privateKey?: string;
+    mnemonic?: string;
 }
 interface questionTypes {
     messages: any;
@@ -44,6 +45,7 @@ declare class ChatClient {
     private signaturePayment;
     private isBrowser;
     private privateKey;
+    private mnemonic;
     private isEverRequestSession;
     private tokenPrice;
     constructor(options: ConfigOptions);
