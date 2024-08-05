@@ -96,7 +96,7 @@ class ChatClient {
     if (this.lastInitOfflineSignerPromise) {
       return this.lastInitOfflineSignerPromise;
     }
-    if (this.isBrowser && !this.privateKey) {
+    if (this.isBrowser && !this.privateKey && !this.mnemonic) {
       this.lastInitOfflineSignerPromise = new Promise(
         async (resolve, reject) => {
           try {
