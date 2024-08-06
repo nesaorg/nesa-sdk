@@ -8,7 +8,14 @@ declare class EncryptUtils {
     };
     static sortObjectKeys(obj: Record<string, any>): Record<string, any>;
     static signMessage(message: string, chatSeq: number, isQuestion?: boolean): string;
-    static requestVrf(client: any, offlineSigner: any): Promise<any>;
+    static requestVrf(client: any, offlineSigner: any): Promise<{
+        vrf: {
+            seed: any;
+            proof: any;
+            hashRandom: any[] | Uint8Array;
+        };
+        sessionId: string;
+    }>;
     static signHeartbeat(message: string): string;
 }
 export default EncryptUtils;

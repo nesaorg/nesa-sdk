@@ -1,5 +1,5 @@
 import * as CryptoJS from "crypto-js";
-import { Evaluate } from './utils'
+import { Evaluate } from "./utils";
 import * as Secp256k1 from "@lionello/secp256k1-js";
 import WalletOperation from "./walletOperation";
 
@@ -11,9 +11,9 @@ class EncryptUtils {
   public static privateKeyBuf: any;
 
   static generateKey() {
-    let privateKeyBuf
-    if (typeof window === 'undefined') {
-      const crypto = require('crypto');
+    let privateKeyBuf;
+    if (typeof window === "undefined") {
+      const crypto = require("crypto");
       privateKeyBuf = crypto.randomBytes(32);
     } else {
       privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32));
@@ -49,12 +49,16 @@ class EncryptUtils {
     }
     let messageData;
     if (isQuestion) {
-      const sortSignDataHash = CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
+      const sortSignDataHash = CryptoJS.SHA256(message).toString(
+        CryptoJS.enc.Hex
+      );
       messageData = `${sortSignDataHash}|${chatSeq}`;
     } else {
-      messageData = message
+      messageData = message;
     }
-    const signDataHash = CryptoJS.SHA256(messageData).toString(CryptoJS.enc.Hex);
+    const signDataHash = CryptoJS.SHA256(messageData).toString(
+      CryptoJS.enc.Hex
+    );
     const digest = Secp256k1.uint256(signDataHash, 16);
     const signature = Secp256k1.ecsign(this.privateKey, digest);
     let sigV =
@@ -66,7 +70,13 @@ class EncryptUtils {
     return signatureData;
   }
 
-  static requestVrf(client: any, offlineSigner: any): Promise<any> {
+  static requestVrf(
+    client: any,
+    offlineSigner: any
+  ): Promise<{
+    vrf: { seed: any; proof: any; hashRandom: any[] | Uint8Array };
+    sessionId: string;
+  }> {
     return new Promise((resolve, reject) => {
       WalletOperation.requestVrfSeed(client, offlineSigner)
         .then((res) => {
@@ -79,7 +89,7 @@ class EncryptUtils {
               compressedPublicKey = "03" + this.publicKey.x;
             }
             const [hash, proof] = Evaluate(this.privateKeyBuf, res.seed);
-            console.log('sessionId: ', compressedPublicKey)
+            console.log("sessionId: ", compressedPublicKey);
             resolve({
               vrf: {
                 seed: res.seed,
@@ -87,16 +97,16 @@ class EncryptUtils {
                 hashRandom: hash,
               },
               sessionId: compressedPublicKey,
-            })
+            });
           } else {
             reject(new Error("Vrf seed is null"));
           }
         })
         .catch((err) => {
-          console.log('requestVrf-err: ', err)
-          reject(err)
-        })
-    })
+          console.log("requestVrf-err: ", err);
+          reject(err);
+        });
+    });
   }
 
   static signHeartbeat(message: string) {
