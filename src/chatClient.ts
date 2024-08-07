@@ -638,7 +638,11 @@ class ChatClient {
           new Error("Please wait for the requestSession registration result")
         );
       } else {
-        console.log("checkSignBroadcastResult this.modelName", this.modelName);
+        console.log(
+          "checkSignBroadcastResult this.modelName",
+          this.modelName,
+          this.nesaClient.broadcastRegisterSession(this.modelName)
+        );
         this.nesaClient
           .broadcastRegisterSession(this.modelName)
           .then((result: any) => {
