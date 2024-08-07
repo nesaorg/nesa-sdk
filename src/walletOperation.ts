@@ -6,7 +6,11 @@ import EncryptUtils from "./encryptUtils";
 import Long from "long";
 
 class WalletOperation {
-  static getNesaClient(chainInfo: ChainInfo, offlineSigner: any): Promise<any> {
+  static getNesaClient(
+    chainInfo: ChainInfo,
+    offlineSigner: any,
+    modelName?: string
+  ): Promise<any> {
     return new Promise(async (resolve, reject) => {
       if (offlineSigner) {
         const { chainId, rpc } = chainInfo;
@@ -22,7 +26,8 @@ class WalletOperation {
             ),
             estimatedBlockTime: 6,
             estimatedIndexerTime: 5,
-          }
+          },
+          modelName
         )
           .then((client) => {
             resolve(client);

@@ -36,7 +36,9 @@ declare class ChatClient {
     private agentUrl;
     private assistantRoleName;
     private lastNesaClientPromise;
+    private lastNesaClientPromiseByModel;
     private lastUserMinimumLockPromise;
+    private lastUserMinimumLockPromiseByModel;
     private lastGetAgentInfoPromise;
     private lastInitOfflineSignerPromise;
     private chatProgressReadable;
@@ -50,8 +52,8 @@ declare class ChatClient {
     private tokenPrice;
     constructor(options: ConfigOptions);
     initWallet(): any;
-    getNesaClient(): any;
-    getChainParams(nesaClient: any): any;
+    getNesaClient(modelName?: string): any;
+    getChainParams(nesaClient: any, modelName?: string): any;
     version(): string;
     checkChainInfo(): string | false;
     getSignaturePayment(): string;

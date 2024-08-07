@@ -2,11 +2,11 @@
 import { OfflineSigner } from "@cosmjs/proto-signing";
 import { SigningStargateClient, SigningStargateClientOptions, GasPrice, Event, QueryClient } from "@cosmjs/stargate";
 import { CometClient } from "@cosmjs/tendermint-rpc";
-import { Logger } from './logger';
-import { VRF } from './codec/agent/v1/tx';
+import { Logger } from "./logger";
+import { VRF } from "./codec/agent/v1/tx";
 import { Payment, Params, SessionStatus } from "./codec/agent/v1/agent";
 import { Coin } from "./codec/cosmos/base/v1beta1/coin";
-import { AgentExtension } from './queries';
+import { AgentExtension } from "./queries";
 import { QueryParamsResponse, QueryInferenceAgentResponse, QuerySessionResponse, QueryVRFSeedResponse, QuerySessionByAgentResponse } from "./codec/agent/v1/query";
 import { StdFee } from "@cosmjs/amino";
 export type NesaClientOptions = SigningStargateClientOptions & {
@@ -28,16 +28,28 @@ export type RegisterSessionResult = MsgResult & {
 export declare class NesaClient {
     readonly gasPrice: GasPrice;
     readonly sign: SigningStargateClient;
+    readonly signByModel: {
+        [modelName: string]: SigningStargateClient;
+    };
     readonly query: QueryClient & AgentExtension;
+    readonly queryByModel: {
+        [modelName: string]: QueryClient & AgentExtension;
+    };
     readonly tm: CometClient;
+    readonly tmByModel: {
+        [modelName: string]: CometClient;
+    };
     readonly senderAddress: string;
+    readonly senderAddressByModel: {
+        [modelName: string]: string;
+    };
     readonly logger: Logger;
     readonly chainId: string;
     readonly estimatedBlockTime: number;
     readonly estimatedIndexerTime: number;
     private broadcastPromise;
     private signResult;
-    static connectWithSigner(endpoint: string, signer: OfflineSigner, senderAddress: string, chainId: string | undefined, options: NesaClientOptions): Promise<NesaClient>;
+    static connectWithSigner(endpoint: string, signer: OfflineSigner, senderAddress: string, chainId: string | undefined, options: NesaClientOptions, modelName?: string): Promise<NesaClient>;
     private constructor();
     updateParams(authority: string, params: Params): Promise<MsgResult>;
     registerInferenceAgent(url: string, version: Long): Promise<MsgResult>;

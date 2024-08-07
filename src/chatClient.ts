@@ -60,7 +60,9 @@ class ChatClient {
   private agentUrl = "";
   private assistantRoleName = "";
   private lastNesaClientPromise: any;
+  private lastNesaClientPromiseByModel: { [modelName: string]: any } = {};
   private lastUserMinimumLockPromise: any;
+  private lastUserMinimumLockPromiseByModel: { [modelName: string]: any } = {};
   private lastGetAgentInfoPromise: any;
   private lastInitOfflineSignerPromise: any;
   private chatProgressReadable: any;
@@ -113,7 +115,7 @@ class ChatClient {
               );
               this.offLinesigner = offlineSigner;
               resolve(this.offLinesigner);
-              this.getNesaClient();
+              this.getNesaClient(this.modelName);
             } else if (window?.keplr) {
               const { keplr } = window;
               await keplr.experimentalSuggestChain(this.chainInfo);
@@ -122,7 +124,7 @@ class ChatClient {
                 this.chainInfo.chainId
               );
               resolve(this.offLinesigner);
-              this.getNesaClient();
+              this.getNesaClient(this.modelName);
             } else {
               console.log(
                 "No wallet installed, please install keplr or metamask wallet first"
@@ -151,7 +153,7 @@ class ChatClient {
               console.log("private key wallet", wallet);
               this.offLinesigner = wallet;
               resolve(this.offLinesigner);
-              this.getNesaClient();
+              this.getNesaClient(this.modelName);
 
               return;
             }
@@ -164,7 +166,7 @@ class ChatClient {
               console.log("private key wallet", wallet);
               this.offLinesigner = wallet;
               resolve(this.offLinesigner);
-              this.getNesaClient();
+              this.getNesaClient(this.modelName);
             }
           }
         }
@@ -172,50 +174,114 @@ class ChatClient {
     }
   }
 
-  getNesaClient() {
-    if (this.lastNesaClientPromise) {
-      return this.lastNesaClientPromise;
-    }
-    console.log("Init nesa client");
-    this.lastNesaClientPromise = new Promise((resolve, reject) => {
-      if (this.offLinesigner) {
-        WalletOperation.getNesaClient(this.chainInfo, this.offLinesigner)
-          .then((client) => {
-            resolve(client);
-            this.getChainParams(client);
-          })
-          .catch((error) => {
-            console.log("initNesaClientError: ", error);
-            this.lastNesaClientPromise = undefined;
-            reject(error);
-          });
-      } else {
-        this.lastNesaClientPromise = undefined;
-        reject(new Error("Wallet connect error"));
+  getNesaClient(modelName?: string) {
+    if (!modelName) {
+      if (this.lastNesaClientPromise) {
+        return this.lastNesaClientPromise;
       }
-    });
+      console.log("Init nesa client", this.modelName);
+      this.lastNesaClientPromise = new Promise((resolve, reject) => {
+        if (this.offLinesigner) {
+          WalletOperation.getNesaClient(
+            this.chainInfo,
+            this.offLinesigner,
+            this.modelName
+          )
+            .then((client) => {
+              resolve(client);
+              this.getChainParams(client, modelName);
+            })
+            .catch((error) => {
+              console.log("initNesaClientError: ", error);
+              this.lastNesaClientPromise = undefined;
+              reject(error);
+            });
+        } else {
+          this.lastNesaClientPromise = undefined;
+          reject(new Error("Wallet connect error"));
+        }
+      });
+
+      return;
+    }
+
+    if (this.lastNesaClientPromiseByModel[modelName]) {
+      return this.lastNesaClientPromiseByModel[modelName];
+    }
+    console.log("Init nesa client", this.modelName);
+    this.lastNesaClientPromiseByModel[modelName] = new Promise(
+      (resolve, reject) => {
+        if (this.offLinesigner) {
+          WalletOperation.getNesaClient(
+            this.chainInfo,
+            this.offLinesigner,
+            modelName
+          )
+            .then((client) => {
+              resolve(client);
+              this.getChainParams(client, modelName);
+            })
+            .catch((error) => {
+              console.log("initNesaClientError: ", error);
+              this.lastNesaClientPromise = undefined;
+              reject(error);
+            });
+        } else {
+          this.lastNesaClientPromise = undefined;
+          reject(new Error("Wallet connect error"));
+        }
+      }
+    );
   }
 
-  getChainParams(nesaClient: any) {
-    if (this.lastUserMinimumLockPromise) {
-      return this.lastUserMinimumLockPromise;
+  getChainParams(nesaClient: any, modelName?: string) {
+    if (!modelName) {
+      if (this.lastUserMinimumLockPromise) {
+        return this.lastUserMinimumLockPromise;
+      }
+      console.log("Init params");
+      this.lastUserMinimumLockPromise = new Promise((resolve) => {
+        WalletOperation.requestParams(nesaClient)
+          .then((params) => {
+            this.chatProgressReadable &&
+              this.chatProgressReadable.push({
+                code: 301,
+                message: "Connected to Nesa chain",
+              });
+            resolve(params);
+          })
+          .catch((error) => {
+            console.log("getChainParamsError: ", error);
+            this.lastUserMinimumLockPromise = undefined;
+          });
+      });
+
+      return;
+    }
+
+    if (this.lastUserMinimumLockPromiseByModel[modelName]) {
+      return this.lastUserMinimumLockPromiseByModel[modelName];
     }
     console.log("Init params");
-    this.lastUserMinimumLockPromise = new Promise((resolve) => {
-      WalletOperation.requestParams(nesaClient)
-        .then((params) => {
-          this.chatProgressReadable &&
-            this.chatProgressReadable.push({
-              code: 301,
-              message: "Connected to Nesa chain",
-            });
-          resolve(params);
-        })
-        .catch((error) => {
-          console.log("getChainParamsError: ", error);
-          this.lastUserMinimumLockPromise = undefined;
-        });
-    });
+    this.lastUserMinimumLockPromiseByModel[modelName] = new Promise(
+      (resolve) => {
+        WalletOperation.requestParams(nesaClient)
+          .then((params) => {
+            this.chatProgressReadable &&
+              this.chatProgressReadable.push({
+                code: 301,
+                message: "Connected to Nesa chain",
+              });
+            resolve(params);
+          })
+          .catch((error) => {
+            console.log("getChainParamsError: ", error);
+            this.lastUserMinimumLockPromiseByModel[modelName] = undefined;
+          });
+      }
+    );
+
+    return;
   }
 
   version() {
@@ -630,10 +696,10 @@ class ChatClient {
         resolve(readableStream);
         this.initWallet()
           .then(() => {
-            this.getNesaClient()
+            this.getNesaClient(this.modelName)
               .then((nesaClient: any) => {
                 this.nesaClient = nesaClient;
-                this.getChainParams(nesaClient)
+                this.getChainParams(nesaClient, this.modelName)
                   .then((params: any) => {
                     if (params && params?.params) {
                       this.tokenPrice = params?.params?.tokenPrice?.low;
