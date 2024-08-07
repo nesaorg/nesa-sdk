@@ -306,7 +306,8 @@ class ChatClient {
     const signaturePayment = EncryptUtils.signMessage(
       `${this.totalSignedPayment}${this.chainInfo.feeCurrencies[0].coinMinimalDenom}`,
       this.chatSeq,
-      false
+      false,
+      this.modelName
     );
     this.signaturePayment[this.totalSignedPayment] = signaturePayment;
     return signaturePayment;
