@@ -465,7 +465,7 @@ class ChatClient {
       console.log("websocketCatchError: ", error);
       readableStream.push({
         code: 207,
-        message: error.message || "Error: Connection failed",
+        message: error?.message || "Error: Connection failed",
       });
       readableStream.push(null);
       this.isChatinging = false;
@@ -682,6 +682,7 @@ class ChatClient {
                             }
                           })
                           .catch((error) => {
+                            console.log("313 error", error);
                             readableStream.push({
                               code: 313,
                               message: error?.message || error.toString(),
