@@ -92,7 +92,9 @@ export class NesaClient {
   public readonly estimatedBlockTime: number;
   public readonly estimatedIndexerTime: number;
   private broadcastPromise: any;
+  private broadcastPromiseByModel: { [modelName: string]: any } = {};
   private signResult: any;
+  private signResultByModel: { [modelName: string]: any } = {};
 
   public static async connectWithSigner(
     endpoint: string,
@@ -229,16 +231,51 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession() {
-    if (!this.signResult) {
+  public broadcastRegisterSession(modelName?: string) {
+    if (!modelName) {
+      if (!this.signResult) {
+        return new Error("Please sign first");
+      }
+      if (this.broadcastPromise) {
+        return this.broadcastPromise;
+      }
+      this.broadcastPromise = new Promise((resolve, reject) => {
+        this.sign
+          .broadcastTx(Uint8Array.from(TxRaw.encode(this.signResult).finish()))
+          .then((result) => {
+            if (isDeliverTxFailure(result)) {
+              reject(new Error(createDeliverTxFailureMessage(result)));
+            } else {
+              resolve({
+                events: result.events,
+                transactionHash: result.transactionHash,
+                height: result.height,
+                account: MsgRegisterSessionResponse.decode(
+                  result.msgResponses[0]?.value
+                ).account,
+              });
+            }
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+
+      return;
+    }
+    if (!this.signResultByModel[modelName]) {
       return new Error("Please sign first");
     }
-    if (this.broadcastPromise) {
-      return this.broadcastPromise;
+    if (this.broadcastPromiseByModel[modelName]) {
+      return this.broadcastPromiseByModel[modelName];
     }
-    this.broadcastPromise = new Promise((resolve, reject) => {
+    this.broadcastPromiseByModel[modelName] = new Promise((resolve, reject) => {
       this.sign
-        .broadcastTx(Uint8Array.from(TxRaw.encode(this.signResult).finish()))
+        .broadcastTx(
+          Uint8Array.from(
+            TxRaw.encode(this.signResultByModel[modelName]).finish()
+          )
+        )
         .then((result) => {
           if (isDeliverTxFailure(result)) {
             reject(new Error(createDeliverTxFailureMessage(result)));
@@ -266,8 +303,42 @@ export class NesaClient {
     lockBalance?: Coin,
     vrf?: VRF
   ): Promise<any> {
+    if (!modelName) {
+      this.logger.verbose(`Register Session`);
+      const senderAddress = this.senderAddress;
+      const registerSessionMsg = {
+        typeUrl: "/agent.v1.MsgRegisterSession",
+        value: MsgRegisterSession.fromPartial({
+          account: senderAddress,
+          sessionId,
+          modelName,
+          lockBalance,
+          vrf,
+        }),
+      };
+      const signResult = await this.sign.sign(
+        senderAddress,
+        [registerSessionMsg],
+        fee,
+        ""
+      );
+      this.signResult = signResult;
+
+      // this.signResultByModel[modelName] = signResult;
+
+      const hex = Buffer.from(
+        Uint8Array.from(TxRaw.encode(this.signResult).finish())
+      ).toString("hex");
+      this.broadcastPromise = undefined;
+      this.broadcastRegisterSession();
+      return {
+        sessionId,
+        transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
+      };
+    }
+
     this.logger.verbose(`Register Session`);
-    const senderAddress = this.senderAddress;
+    const senderAddress = this.senderAddressByModel[modelName];
     const registerSessionMsg = {
       typeUrl: "/agent.v1.MsgRegisterSession",
       value: MsgRegisterSession.fromPartial({
@@ -278,18 +349,19 @@ export class NesaClient {
         vrf,
       }),
     };
-    const signResult = await this.sign.sign(
+    const signResult = await this.signByModel[modelName]?.sign(
       senderAddress,
       [registerSessionMsg],
       fee,
       ""
     );
-    this.signResult = signResult;
+    this.signResultByModel[modelName] = signResult;
+
     const hex = Buffer.from(
-      Uint8Array.from(TxRaw.encode(this.signResult).finish())
+      Uint8Array.from(TxRaw.encode(this.signResultByModel[modelName]).finish())
     ).toString("hex");
-    this.broadcastPromise = undefined;
-    this.broadcastRegisterSession();
+    this.broadcastPromiseByModel[modelName] = undefined;
+    this.broadcastRegisterSession(modelName);
     return {
       sessionId,
       transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),

@@ -67,6 +67,7 @@ class ChatClient {
   private lastInitOfflineSignerPromise: any;
   private chatProgressReadable: any;
   private nesaClient: any;
+  private nesaClientByModel: { [model: string]: any } = {};
   private offLinesigner: any;
   private signaturePayment: any;
   private isBrowser: boolean;
@@ -555,7 +556,7 @@ class ChatClient {
     }
     this.lastGetAgentInfoPromise = new Promise((resolve, reject) => {
       WalletOperation.requestAgentInfo(
-        this.nesaClient,
+        this.nesaClientByModel[this.modelName] || this.nesaClient,
         result?.account,
         this.modelName
       )
@@ -638,7 +639,7 @@ class ChatClient {
         );
       } else {
         this.nesaClient
-          .broadcastRegisterSession()
+          .broadcastRegisterSession(this.modelName)
           .then((result: any) => {
             resolve(this.requestAgentInfo(result, readableStream));
           })
@@ -699,6 +700,7 @@ class ChatClient {
             this.getNesaClient(this.modelName)
               .then((nesaClient: any) => {
                 this.nesaClient = nesaClient;
+                this.nesaClient[this.modelName] = nesaClient;
                 this.getChainParams(nesaClient, this.modelName)
                   .then((params: any) => {
                     if (params && params?.params) {

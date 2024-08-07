@@ -43,6 +43,7 @@ declare class ChatClient {
     private lastInitOfflineSignerPromise;
     private chatProgressReadable;
     private nesaClient;
+    private nesaClientByModel;
     private offLinesigner;
     private signaturePayment;
     private isBrowser;
