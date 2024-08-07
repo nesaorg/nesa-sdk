@@ -317,7 +317,8 @@ class ChatClient {
           const signedMessage = EncryptUtils.signMessage(
             questionStr,
             this.chatSeq,
-            true
+            true,
+            this.modelName
           );
           if (signedMessage) {
             ws.send(
@@ -511,6 +512,7 @@ class ChatClient {
                 message: "Connecting to the validator",
               });
             socket.init({
+              modelName: this.modelName,
               ws_url: agentHeartbeatUrl,
               onopen: () => {
                 if (firstInitHeartbeat) {
