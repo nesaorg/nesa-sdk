@@ -22,16 +22,6 @@ import {
 import { Payment, Params, SessionStatus } from "./codec/agent/v1/agent";
 import { Coin } from "./codec/cosmos/base/v1beta1/coin";
 import { AgentExtension, setupAgentExtension } from "./queries";
-import {
-  // QueryModelAllResponse,
-  // QueryModelResponse,
-  QueryParamsResponse,
-  QueryInferenceAgentResponse,
-  QuerySessionResponse,
-  // QuerySessionByAgentResponse,
-  QueryVRFSeedResponse,
-  QuerySessionByAgentResponse,
-} from "./codec/agent/v1/query";
 import { StdFee } from "@cosmjs/amino";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { sha256 } from "@cosmjs/crypto";
@@ -108,9 +98,11 @@ export class NesaClient {
       signer,
       mergedOptions
     );
+
     if (!chainId) {
       chainId = await signingClient.getChainId();
     }
+
     return new NesaClient(
       signingClient,
       tmClient,
@@ -172,7 +164,6 @@ export class NesaClient {
   }
 
   public async registerInferenceAgent(
-    // account: string,
     url: string,
     version: Long
   ): Promise<MsgResult> {
@@ -239,7 +230,7 @@ export class NesaClient {
     fee: StdFee,
     lockBalance?: Coin,
     vrf?: VRF
-  ): Promise<any> {
+  ) {
     this.logger.verbose(`Register Session`);
     const senderAddress = this.senderAddress;
     const registerSessionMsg = {
@@ -265,6 +256,7 @@ export class NesaClient {
     ).toString("hex");
     this.broadcastPromise = undefined;
     this.broadcastRegisterSession();
+
     return {
       sessionId,
       transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
@@ -272,7 +264,6 @@ export class NesaClient {
   }
 
   public async registerSession(
-    // account: string,
     sessionId: string,
     modelName: string,
     lockBalance?: Coin,
@@ -342,7 +333,7 @@ export class NesaClient {
     };
   }
 
-  public async getParams(): Promise<QueryParamsResponse> {
+  public async getParams() {
     const result = await this.query.agent.params();
     return result;
   }
@@ -352,7 +343,7 @@ export class NesaClient {
     modelName: string,
     limit: Long,
     key: Uint8Array
-  ): Promise<QueryInferenceAgentResponse> {
+  ) {
     const result = await this.query.agent.inferenceAgentRequest(
       account,
       modelName,
@@ -362,7 +353,7 @@ export class NesaClient {
     return result;
   }
 
-  public async getSession(sessionId: string): Promise<QuerySessionResponse> {
+  public async getSession(sessionId: string) {
     const result = await this.query.agent.sessionRequest(sessionId);
     return result;
   }
@@ -374,7 +365,7 @@ export class NesaClient {
     orderDesc: boolean,
     key: Uint8Array,
     expireTime?: Date
-  ): Promise<QuerySessionByAgentResponse> {
+  ) {
     const result = await this.query.agent.sessionByAgentRequest(
       account,
       status,
@@ -386,7 +377,7 @@ export class NesaClient {
     return result;
   }
 
-  public async getVRFSeed(account: string): Promise<QueryVRFSeedResponse> {
+  public async getVRFSeed(account: string) {
     const result = await this.query.agent.VRFSeedRequest(account);
     return result;
   }

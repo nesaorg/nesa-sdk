@@ -725,45 +725,85 @@ class ChatClient {
     });
   }
 
-  requestChat(question: questionTypes) {
-    return new Promise((resolve, reject) => {
-      if (!question?.model) {
-        reject(new Error("Model is required"));
-      } else if (this.isRegisterSessioning) {
-        reject(new Error("Registering session, please wait"));
-      } else if (!this.isEverRequestSession) {
-        reject(
-          new Error(
-            "Please call requestSession first to complete Session registration"
-          )
-        );
-      } else if (!this.agentUrl) {
-        this.checkSignBroadcastResult()
-          .then((result: any) => {
-            console.log("checkSignBroadcastResult-result: ", result);
-            const readableStream = new Readable({ objectMode: true });
-            readableStream._read = () => {};
-            resolve(readableStream);
-            if (this.isChatinging) {
-              this.chatQueue.push({ readableStream, question });
-            } else {
-              this.requestChatQueue(readableStream, question);
-            }
-          })
-          .catch((error) => {
-            reject(error);
-          });
+  async requestChat(question: questionTypes) {
+    if (!question?.model) {
+      throw new Error("Model is required");
+    }
+
+    if (this.isRegisterSessioning) {
+      throw new Error("Registering session, please wait");
+    }
+
+    if (!this.isEverRequestSession) {
+      throw new Error(
+        "Please call requestSession first to complete Session registration"
+      );
+    }
+
+    if (!this.agentUrl) {
+      const result = await this.checkSignBroadcastResult();
+      console.log("checkSignBroadcastResult-result: ", result);
+      const readableStream = new Readable({ objectMode: true });
+      readableStream._read = () => {};
+
+      if (this.isChatinging) {
+        this.chatQueue.push({ readableStream, question });
       } else {
-        const readableStream = new Readable({ objectMode: true });
-        readableStream._read = () => {};
-        resolve(readableStream);
-        if (this.isChatinging) {
-          this.chatQueue.push({ readableStream, question });
-        } else {
-          this.requestChatQueue(readableStream, question);
-        }
+        this.requestChatQueue(readableStream, question);
       }
-    });
+
+      return readableStream;
+    }
+
+    const readableStream = new Readable({ objectMode: true });
+    readableStream._read = () => {};
+
+    if (this.isChatinging) {
+      this.chatQueue.push({ readableStream, question });
+    } else {
+      this.requestChatQueue(readableStream, question);
+    }
+
+    return readableStream;
+
+    // return new Promise((resolve, reject) => {
+    //   if (!question?.model) {
+    //     reject(new Error("Model is required"));
+    //   } else if (this.isRegisterSessioning) {
+    //     reject(new Error("Registering session, please wait"));
+    //   } else if (!this.isEverRequestSession) {
+    //     reject(
+    //       new Error(
+    //         "Please call requestSession first to complete Session registration"
+    //       )
+    //     );
+    //   } else if (!this.agentUrl) {
+    //     this.checkSignBroadcastResult()
+    //       .then((result: any) => {
+    //         console.log("checkSignBroadcastResult-result: ", result);
+    //         const readableStream = new Readable({ objectMode: true });
+    //         readableStream._read = () => {};
+    //         resolve(readableStream);
+    //         if (this.isChatinging) {
+    //           this.chatQueue.push({ readableStream, question });
+    //         } else {
+    //           this.requestChatQueue(readableStream, question);
+    //         }
+    //       })
+    //       .catch((error) => {
+    //         reject(error);
+    //       });
+    //   } else {
+    //     const readableStream = new Readable({ objectMode: true });
+    //     readableStream._read = () => {};
+    //     resolve(readableStream);
+    //     if (this.isChatinging) {
+    //       this.chatQueue.push({ readableStream, question });
+    //     } else {
+    //       this.requestChatQueue(readableStream, question);
+    //     }
+    //   }
+    // });
   }
 }
 

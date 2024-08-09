@@ -64,6 +64,6 @@ declare class ChatClient {
     checkSignBroadcastResult(readableStream?: any): Promise<unknown>;
     requestChatStatus(): Promise<unknown>;
     requestSession(): Promise<unknown>;
-    requestChat(question: questionTypes): Promise<unknown>;
+    requestChat(question: questionTypes): Promise<any>;
 }
 export default ChatClient;
