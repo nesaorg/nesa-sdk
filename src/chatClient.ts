@@ -598,131 +598,258 @@ class ChatClient {
     });
   }
 
-  requestSession() {
-    return new Promise((resolve, reject) => {
-      if (!getIsChainInfoValid(this.chainInfo)) {
-        reject(
-          new Error(
-            "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
-          )
-        );
-      } else if (!this.modelName) {
-        reject(new Error("ModelName is null"));
-      } else if (this.isRegisterSessioning) {
-        reject(new Error("Registering session, please wait"));
-      } else if (
-        !this.lockAmount ||
-        new BigNumber(this.lockAmount).isNaN() ||
-        new BigNumber(this.lockAmount).isLessThan(this.singlePaymentAmount)
-      ) {
-        reject(
-          new Error("LockAmount invalid value or less than singlePaymentAmount")
-        );
-      } else {
-        this.isEverRequestSession = true;
-        const readableStream = new Readable({ objectMode: true });
-        readableStream._read = () => {};
-        resolve(readableStream);
-        this.initWallet()
-          .then(() => {
-            this.getNesaClient()
-              .then((nesaClient) => {
-                this.nesaClient = nesaClient;
+  async requestSession() {
+    if (!getIsChainInfoValid(this.chainInfo)) {
+      throw new Error(
+        "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
+      );
+    }
 
-                this.getChainParams(nesaClient)
-                  .then((params: any) => {
-                    if (params && params?.params) {
-                      this.tokenPrice = params?.params?.tokenPrice?.low;
-                      if (
-                        new BigNumber(this.lockAmount).isLessThan(
-                          params?.params?.userMinimumLock?.amount
-                        )
-                      ) {
-                        // reject(new Error("LockAmount cannot be less than " + params?.params?.userMinimumLock?.amount))
-                        readableStream.push({
-                          code: 311,
-                          message:
-                            "LockAmount cannot be less than " +
-                            params?.params?.userMinimumLock?.amount,
-                        });
-                      } else {
-                        WalletOperation.registerSession(
-                          this.chatId,
-                          nesaClient,
-                          this.modelName,
-                          this.lockAmount,
-                          params?.params?.userMinimumLock?.denom,
-                          this.chainInfo,
-                          this.offLinesigner
-                        )
-                          .then((result: any) => {
-                            console.log("registerSession-result: ", result);
-                            if (result?.transactionHash) {
-                              this.chatProgressReadable &&
-                                this.chatProgressReadable.push({
-                                  code: 302,
-                                  message: "Choosing an inference validator",
-                                });
-                              readableStream.push({
-                                code: 200,
-                                message: result?.transactionHash,
-                              });
-                              this.checkSignBroadcastResult(
-                                readableStream
-                              ).catch(() => {});
-                              // resolve(result)
-                            } else {
-                              this.isRegisterSessioning = false;
-                              readableStream.push({
-                                code: 312,
-                                message: JSON.stringify(result),
-                              });
-                              // reject(result);
-                            }
-                          })
-                          .catch((error) => {
-                            console.log("313 error", error);
-                            readableStream.push({
-                              code: 313,
-                              message: error?.message || error.toString(),
-                            });
-                            this.isRegisterSessioning = false;
-                            // reject(error);
-                          });
-                      }
-                    } else {
-                      readableStream.push({
-                        code: 314,
-                        message: JSON.stringify(params),
-                      });
-                      // reject(new Error("Chain configuration loading failed."))
-                    }
-                  })
-                  .catch((error: any) => {
-                    readableStream.push({
-                      code: 315,
-                      message: error?.message || error.toString(),
-                    });
-                    // reject(error)
-                  });
-              })
-              .catch((error: any) => {
-                readableStream.push({
-                  code: 316,
-                  message: error?.message || error.toString(),
-                });
-                // reject(error)
-              });
-          })
-          .catch((error: any) => {
+    if (!this.modelName) {
+      throw new Error("ModelName is null");
+    }
+
+    if (this.isRegisterSessioning) {
+      throw new Error("Registering session, please wait");
+    }
+
+    if (
+      !this.lockAmount ||
+      new BigNumber(this.lockAmount).isNaN() ||
+      new BigNumber(this.lockAmount).isLessThan(this.singlePaymentAmount)
+    ) {
+      throw new Error(
+        "LockAmount invalid value or less than singlePaymentAmount"
+      );
+    }
+
+    this.isEverRequestSession = true;
+    const readableStream = new Readable({ objectMode: true });
+    readableStream._read = () => {};
+
+    // resolve(readableStream);
+
+    try {
+      await this.initWallet();
+
+      try {
+        const nesaClient = await this.getNesaClient();
+        this.nesaClient = nesaClient;
+
+        try {
+          const params = await this.getChainParams(nesaClient);
+
+          if (!params?.params) {
             readableStream.push({
-              code: 317,
+              code: 314,
+              message: JSON.stringify(params),
+            });
+
+            return readableStream;
+          }
+
+          this.tokenPrice = params?.params?.tokenPrice?.low;
+          if (
+            new BigNumber(this.lockAmount).isLessThan(
+              params?.params?.userMinimumLock?.amount
+            )
+          ) {
+            readableStream.push({
+              code: 311,
+              message:
+                "LockAmount cannot be less than " +
+                params?.params?.userMinimumLock?.amount,
+            });
+
+            return readableStream;
+          }
+
+          try {
+            const result = await WalletOperation.registerSession(
+              this.chatId,
+              nesaClient,
+              this.modelName,
+              this.lockAmount,
+              params?.params?.userMinimumLock?.denom,
+              this.chainInfo,
+              this.offLinesigner
+            );
+
+            console.log("registerSession-result: ", result);
+            if (result?.transactionHash) {
+              this.chatProgressReadable?.push({
+                code: 302,
+                message: "Choosing an inference validator",
+              });
+              readableStream.push({
+                code: 200,
+                message: result?.transactionHash,
+              });
+              this.checkSignBroadcastResult(readableStream).catch(() => {});
+
+              return readableStream;
+            }
+
+            this.isRegisterSessioning = false;
+            readableStream.push({
+              code: 312,
+              message: JSON.stringify(result),
+            });
+
+            return readableStream;
+          } catch (error: any) {
+            console.log("313 error", error);
+            readableStream.push({
+              code: 313,
               message: error?.message || error.toString(),
             });
-            // reject(error)
+            this.isRegisterSessioning = false;
+          }
+        } catch (error: any) {
+          readableStream.push({
+            code: 315,
+            message: error?.message || error.toString(),
           });
+        }
+      } catch (error: any) {
+        readableStream.push({
+          code: 316,
+          message: error?.message || error.toString(),
+        });
       }
-    });
+    } catch (error: any) {
+      readableStream.push({
+        code: 317,
+        message: error?.message || error.toString(),
+      });
+    }
+
+    return readableStream;
+
+    // return new Promise((resolve, reject) => {
+    //   if (!getIsChainInfoValid(this.chainInfo)) {
+    //     reject(
+    //       new Error(
+    //         "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
+    //       )
+    //     );
+    //   } else if (!this.modelName) {
+    //     reject(new Error("ModelName is null"));
+    //   } else if (this.isRegisterSessioning) {
+    //     reject(new Error("Registering session, please wait"));
+    //   } else if (
+    //     !this.lockAmount ||
+    //     new BigNumber(this.lockAmount).isNaN() ||
+    //     new BigNumber(this.lockAmount).isLessThan(this.singlePaymentAmount)
+    //   ) {
+    //     reject(
+    //       new Error("LockAmount invalid value or less than singlePaymentAmount")
+    //     );
+    //   } else {
+    //     this.isEverRequestSession = true;
+    //     const readableStream = new Readable({ objectMode: true });
+    //     readableStream._read = () => {};
+    //     resolve(readableStream);
+    //     this.initWallet()
+    //       .then(() => {
+    //         this.getNesaClient()
+    //           .then((nesaClient) => {
+    //             this.nesaClient = nesaClient;
+
+    //             this.getChainParams(nesaClient)
+    //               .then((params: any) => {
+    //                 if (params && params?.params) {
+    //                   this.tokenPrice = params?.params?.tokenPrice?.low;
+    //                   if (
+    //                     new BigNumber(this.lockAmount).isLessThan(
+    //                       params?.params?.userMinimumLock?.amount
+    //                     )
+    //                   ) {
+    //                     // reject(new Error("LockAmount cannot be less than " + params?.params?.userMinimumLock?.amount))
+    //                     readableStream.push({
+    //                       code: 311,
+    //                       message:
+    //                         "LockAmount cannot be less than " +
+    //                         params?.params?.userMinimumLock?.amount,
+    //                     });
+    //                   } else {
+    //                     WalletOperation.registerSession(
+    //                       this.chatId,
+    //                       nesaClient,
+    //                       this.modelName,
+    //                       this.lockAmount,
+    //                       params?.params?.userMinimumLock?.denom,
+    //                       this.chainInfo,
+    //                       this.offLinesigner
+    //                     )
+    //                       .then((result: any) => {
+    //                         console.log("registerSession-result: ", result);
+    //                         if (result?.transactionHash) {
+    //                           this.chatProgressReadable &&
+    //                             this.chatProgressReadable.push({
+    //                               code: 302,
+    //                               message: "Choosing an inference validator",
+    //                             });
+    //                           readableStream.push({
+    //                             code: 200,
+    //                             message: result?.transactionHash,
+    //                           });
+    //                           this.checkSignBroadcastResult(
+    //                             readableStream
+    //                           ).catch(() => {});
+    //                           // resolve(result)
+    //                         } else {
+    //                           this.isRegisterSessioning = false;
+    //                           readableStream.push({
+    //                             code: 312,
+    //                             message: JSON.stringify(result),
+    //                           });
+    //                           // reject(result);
+    //                         }
+    //                       })
+    //                       .catch((error) => {
+    //                         console.log("313 error", error);
+    //                         readableStream.push({
+    //                           code: 313,
+    //                           message: error?.message || error.toString(),
+    //                         });
+    //                         this.isRegisterSessioning = false;
+    //                         // reject(error);
+    //                       });
+    //                   }
+    //                 } else {
+    //                   readableStream.push({
+    //                     code: 314,
+    //                     message: JSON.stringify(params),
+    //                   });
+    //                   // reject(new Error("Chain configuration loading failed."))
+    //                 }
+    //               })
+    //               .catch((error: any) => {
+    //                 readableStream.push({
+    //                   code: 315,
+    //                   message: error?.message || error.toString(),
+    //                 });
+    //                 // reject(error)
+    //               });
+    //           })
+    //           .catch((error: any) => {
+    //             readableStream.push({
+    //               code: 316,
+    //               message: error?.message || error.toString(),
+    //             });
+    //             // reject(error)
+    //           });
+    //       })
+    //       .catch((error: any) => {
+    //         readableStream.push({
+    //           code: 317,
+    //           message: error?.message || error.toString(),
+    //         });
+    //         // reject(error)
+    //       });
+    //   }
+    // });
   }
 
   async requestChat(question: questionTypes) {
@@ -765,45 +892,6 @@ class ChatClient {
     }
 
     return readableStream;
-
-    // return new Promise((resolve, reject) => {
-    //   if (!question?.model) {
-    //     reject(new Error("Model is required"));
-    //   } else if (this.isRegisterSessioning) {
-    //     reject(new Error("Registering session, please wait"));
-    //   } else if (!this.isEverRequestSession) {
-    //     reject(
-    //       new Error(
-    //         "Please call requestSession first to complete Session registration"
-    //       )
-    //     );
-    //   } else if (!this.agentUrl) {
-    //     this.checkSignBroadcastResult()
-    //       .then((result: any) => {
-    //         console.log("checkSignBroadcastResult-result: ", result);
-    //         const readableStream = new Readable({ objectMode: true });
-    //         readableStream._read = () => {};
-    //         resolve(readableStream);
-    //         if (this.isChatinging) {
-    //           this.chatQueue.push({ readableStream, question });
-    //         } else {
-    //           this.requestChatQueue(readableStream, question);
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         reject(error);
-    //       });
-    //   } else {
-    //     const readableStream = new Readable({ objectMode: true });
-    //     readableStream._read = () => {};
-    //     resolve(readableStream);
-    //     if (this.isChatinging) {
-    //       this.chatQueue.push({ readableStream, question });
-    //     } else {
-    //       this.requestChatQueue(readableStream, question);
-    //     }
-    //   }
-    // });
   }
 }
 

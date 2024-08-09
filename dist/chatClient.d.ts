@@ -63,7 +63,7 @@ declare class ChatClient {
     requestAgentInfo(result: any, readableStream: any): any;
     checkSignBroadcastResult(readableStream?: any): Promise<unknown>;
     requestChatStatus(): Promise<unknown>;
-    requestSession(): Promise<unknown>;
+    requestSession(): Promise<any>;
     requestChat(question: questionTypes): Promise<any>;
 }
 export default ChatClient;
