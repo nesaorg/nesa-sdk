@@ -58,7 +58,7 @@ class ChatClient {
   private totalUsedPayment = 0;
   private totalSignedPayment = 0;
   private isChatting = false;
-  private isRegisterSessioning = false;
+  private isRegisteringSession = false;
   private agentUrl = "";
   private assistantRoleName = "";
   private lastNesaClientPromise: Promise<NesaClient> | undefined;
@@ -305,6 +305,7 @@ class ChatClient {
             ...question,
             model: question?.model?.toLowerCase(),
           });
+
           if (question.messages && this.assistantRoleName) {
             question.messages = question.messages.map((item: any) => {
               if (item.role === "assistant") {
@@ -313,12 +314,14 @@ class ChatClient {
               return item;
             });
           }
+
           const signedMessage = EncryptUtils.signMessage(
             this.chatId,
             questionStr,
             this.chatSeq,
             true
           );
+
           if (signedMessage) {
             ws.send(
               JSON.stringify({
@@ -350,11 +353,10 @@ class ChatClient {
         }
         if (messageTimes === 0) {
           if (messageJson === "ack") {
-            this.chatProgressReadable &&
-              this.chatProgressReadable.push({
-                code: 305,
-                message: "Conducting inference",
-              });
+            this.chatProgressReadable?.push({
+              code: 305,
+              message: "Conducting inference",
+            });
           } else {
             ws.close();
             readableStream.push({
@@ -511,7 +513,7 @@ class ChatClient {
               onopen: () => {
                 if (firstInitHeartbeat) {
                   this.agentUrl = agentWsUrl;
-                  this.isRegisterSessioning = false;
+                  this.isRegisteringSession = false;
                   this.chatProgressReadable &&
                     this.chatProgressReadable.push({
                       code: 304,
@@ -533,7 +535,7 @@ class ChatClient {
               },
             });
           } else {
-            this.isRegisterSessioning = false;
+            this.isRegisteringSession = false;
             readableStream &&
               readableStream.push({
                 code: 319,
@@ -610,7 +612,7 @@ class ChatClient {
       throw new Error("ModelName is null");
     }
 
-    if (this.isRegisterSessioning) {
+    if (this.isRegisteringSession) {
       throw new Error("Registering session, please wait");
     }
 
@@ -689,7 +691,7 @@ class ChatClient {
               return readableStream;
             }
 
-            this.isRegisterSessioning = false;
+            this.isRegisteringSession = false;
             readableStream.push({
               code: 312,
               message: JSON.stringify(result),
@@ -702,7 +704,7 @@ class ChatClient {
               code: 313,
               message: error?.message || error.toString(),
             });
-            this.isRegisterSessioning = false;
+            this.isRegisteringSession = false;
           }
         } catch (error: any) {
           readableStream.push({
@@ -731,7 +733,7 @@ class ChatClient {
       throw new Error("Model is required");
     }
 
-    if (this.isRegisterSessioning) {
+    if (this.isRegisteringSession) {
       throw new Error("Registering session, please wait");
     }
 

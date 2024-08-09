@@ -35,7 +35,7 @@ declare class ChatClient {
     private totalUsedPayment;
     private totalSignedPayment;
     private isChatting;
-    private isRegisterSessioning;
+    private isRegisteringSession;
     private agentUrl;
     private assistantRoleName;
     private lastNesaClientPromise;
