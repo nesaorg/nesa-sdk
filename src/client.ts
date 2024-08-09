@@ -89,17 +89,14 @@ export class NesaClient {
   public readonly estimatedBlockTime: number;
   public readonly estimatedIndexerTime: number;
   private broadcastPromise: any;
-  // private broadcastPromiseByModel: { [modelName: string]: any } = {};
   private signResult: any;
-  // private signResultByModel: { [modelName: string]: any } = {};
 
   public static async connectWithSigner(
     endpoint: string,
     signer: OfflineSigner,
     senderAddress: string,
     chainId: string | undefined,
-    options: NesaClientOptions,
-    modelName?: string
+    options: NesaClientOptions
   ): Promise<NesaClient> {
     const mergedOptions = {
       ...options,
@@ -119,8 +116,7 @@ export class NesaClient {
       tmClient,
       senderAddress,
       chainId,
-      options,
-      modelName
+      options
     );
   }
 
@@ -129,40 +125,17 @@ export class NesaClient {
     tmClient: CometClient,
     senderAddress: string,
     chainId: string,
-    options: NesaClientOptions,
-    modelName?: string
+    options: NesaClientOptions
   ) {
     this.sign = signingClient;
 
-    console.log("nesa client - modelName", modelName);
-
-    // if (modelName) {
-    //   this.signByModel[modelName] = signingClient;
-    // }
-
     this.tm = tmClient;
-
-    // if (modelName) {
-    //   this.tmByModel[modelName] = tmClient;
-    // }
 
     this.query = QueryClient.withExtensions(tmClient, setupAgentExtension);
 
-    // if (modelName) {
-    //   this.queryByModel[modelName] = QueryClient.withExtensions(
-    //     tmClient,
-    //     setupAgentExtension
-    //   );
-    // }
     this.senderAddress = senderAddress;
 
-    // if (modelName) {
-    //   this.senderAddressByModel[modelName] = senderAddress;
-    // }
-
     this.chainId = chainId;
-    // this.revisionNumber = parseRevisionNumber(chainId);
-
     this.gasPrice = options.gasPrice;
     this.logger = options.logger ?? new NoopLogger();
     this.estimatedBlockTime = options.estimatedBlockTime;
@@ -230,9 +203,7 @@ export class NesaClient {
     };
   }
 
-  public broadcastRegisterSession(modelName?: string) {
-    console.log("broadcastRegisterSession modelName", modelName);
-    // if (!modelName) {
+  public broadcastRegisterSession() {
     if (!this.signResult) {
       return new Error("Please sign first");
     }
@@ -260,40 +231,6 @@ export class NesaClient {
           reject(error);
         });
     });
-
-    //   return;
-    // }
-    // if (!this.signResultByModel[modelName]) {
-    //   return new Error("Please sign first");
-    // }
-    // if (this.broadcastPromiseByModel[modelName]) {
-    //   return this.broadcastPromiseByModel[modelName];
-    // }
-    // this.broadcastPromiseByModel[modelName] = new Promise((resolve, reject) => {
-    //   this.sign
-    //     .broadcastTx(
-    //       Uint8Array.from(
-    //         TxRaw.encode(this.signResultByModel[modelName]).finish()
-    //       )
-    //     )
-    //     .then((result) => {
-    //       if (isDeliverTxFailure(result)) {
-    //         reject(new Error(createDeliverTxFailureMessage(result)));
-    //       } else {
-    //         resolve({
-    //           events: result.events,
-    //           transactionHash: result.transactionHash,
-    //           height: result.height,
-    //           account: MsgRegisterSessionResponse.decode(
-    //             result.msgResponses[0]?.value
-    //           ).account,
-    //         });
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       reject(error);
-    //     });
-    // });
   }
 
   public async signRegisterSession(
@@ -303,7 +240,6 @@ export class NesaClient {
     lockBalance?: Coin,
     vrf?: VRF
   ): Promise<any> {
-    // if (!modelName) {
     this.logger.verbose(`Register Session`);
     const senderAddress = this.senderAddress;
     const registerSessionMsg = {
@@ -324,8 +260,6 @@ export class NesaClient {
     );
     this.signResult = signResult;
 
-    // this.signResultByModel[modelName] = signResult;
-
     const hex = Buffer.from(
       Uint8Array.from(TxRaw.encode(this.signResult).finish())
     ).toString("hex");
@@ -335,37 +269,6 @@ export class NesaClient {
       sessionId,
       transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
     };
-    // }
-
-    // this.logger.verbose(`Register Session`);
-    // const senderAddress = this.senderAddressByModel[modelName];
-    // const registerSessionMsg = {
-    //   typeUrl: "/agent.v1.MsgRegisterSession",
-    //   value: MsgRegisterSession.fromPartial({
-    //     account: senderAddress,
-    //     sessionId,
-    //     modelName,
-    //     lockBalance,
-    //     vrf,
-    //   }),
-    // };
-    // const signResult = await this.signByModel[modelName]?.sign(
-    //   senderAddress,
-    //   [registerSessionMsg],
-    //   fee,
-    //   ""
-    // );
-    // this.signResultByModel[modelName] = signResult;
-
-    // const hex = Buffer.from(
-    //   Uint8Array.from(TxRaw.encode(this.signResultByModel[modelName]).finish())
-    // ).toString("hex");
-    // this.broadcastPromiseByModel[modelName] = undefined;
-    // this.broadcastRegisterSession(modelName);
-    // return {
-    //   sessionId,
-    //   transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
-    // };
   }
 
   public async registerSession(

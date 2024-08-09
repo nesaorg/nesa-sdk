@@ -9,8 +9,7 @@ import type { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
 class WalletOperation {
   static async getNesaClient(
     chainInfo: ChainInfo,
-    offlineSigner: CosmjsOfflineSigner | undefined,
-    modelName?: string
+    offlineSigner: CosmjsOfflineSigner | undefined
   ) {
     if (!offlineSigner) {
       throw new Error(
@@ -32,8 +31,7 @@ class WalletOperation {
         ),
         estimatedBlockTime: 6,
         estimatedIndexerTime: 5,
-      },
-      modelName
+      }
     );
   }
 

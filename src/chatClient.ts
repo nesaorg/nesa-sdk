@@ -178,11 +178,7 @@ class ChatClient {
     console.log("Init nesa client", { th: this.modelName });
     this.lastNesaClientPromise = new Promise((resolve, reject) => {
       if (this.offLinesigner) {
-        WalletOperation.getNesaClient(
-          this.chainInfo,
-          this.offLinesigner,
-          this.modelName
-        )
+        WalletOperation.getNesaClient(this.chainInfo, this.offLinesigner)
           .then((client) => {
             resolve(client);
             this.getChainParams(client);
@@ -568,10 +564,10 @@ class ChatClient {
         console.log(
           "checkSignBroadcastResult this.modelName",
           this.modelName,
-          this.nesaClient.broadcastRegisterSession(this.modelName)
+          this.nesaClient.broadcastRegisterSession()
         );
         this.nesaClient
-          .broadcastRegisterSession(this.modelName)
+          .broadcastRegisterSession()
           .then((result: any) => {
             resolve(this.requestAgentInfo(result, readableStream));
           })
