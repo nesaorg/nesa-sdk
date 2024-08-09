@@ -11,7 +11,7 @@ interface ConfigOptions {
     mnemonic?: string;
     chatId?: string;
 }
-interface questionTypes {
+interface QuestionParams {
     messages: any;
     model: string;
     stream?: boolean;
@@ -58,12 +58,12 @@ declare class ChatClient {
     version(): string;
     getSignaturePayment(): string;
     checkSinglePaymentAmount(): string;
-    requestChatQueue(readableStream: any, question: questionTypes): void;
+    requestChatQueue(readableStream: any, question: QuestionParams): void;
     requestCloseHeartbeat(): void;
     requestAgentInfo(result: any, readableStream: any): any;
     checkSignBroadcastResult(readableStream?: any): Promise<unknown>;
     requestChatStatus(): Promise<unknown>;
     requestSession(): Promise<any>;
-    requestChat(question: questionTypes): Promise<any>;
+    requestChat(question: QuestionParams): Promise<any>;
 }
 export default ChatClient;
