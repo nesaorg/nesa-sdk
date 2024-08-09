@@ -19,7 +19,6 @@ declare class EncryptUtils {
         privateKey: any;
         publicKey: any;
     };
-    static sortObjectKeys(obj: Record<string, any>): Record<string, any>;
     static signMessage(recordId: string, message: string, chatSeq: number, isQuestion?: boolean): string;
     static requestVrf(recordId: string, client: NesaClient, offlineSigner: CosmjsOfflineSigner): Promise<{
         vrf: VRF;

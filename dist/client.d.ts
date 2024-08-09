@@ -48,9 +48,7 @@ export declare class NesaClient {
     readonly estimatedBlockTime: number;
     readonly estimatedIndexerTime: number;
     private broadcastPromise;
-    private broadcastPromiseByModel;
     private signResult;
-    private signResultByModel;
     static connectWithSigner(endpoint: string, signer: OfflineSigner, senderAddress: string, chainId: string | undefined, options: NesaClientOptions, modelName?: string): Promise<NesaClient>;
     private constructor();
     updateParams(authority: string, params: Params): Promise<MsgResult>;

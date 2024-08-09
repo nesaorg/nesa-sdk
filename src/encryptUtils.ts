@@ -33,20 +33,6 @@ class EncryptUtils {
     return { privateKey, publicKey };
   }
 
-  static sortObjectKeys(obj: Record<string, any>): Record<string, any> {
-    if (Array.isArray(obj)) {
-      return obj.sort().map(EncryptUtils.sortObjectKeys);
-    } else if (typeof obj === "object" && obj !== null) {
-      return Object.keys(obj)
-        .sort()
-        .reduce((acc: Record<string, any>, key) => {
-          acc[key] = EncryptUtils.sortObjectKeys(obj[key]);
-          return acc;
-        }, {});
-    }
-    return obj;
-  }
-
   static signMessage(
     recordId: string,
     message: string,
