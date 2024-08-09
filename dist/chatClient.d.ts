@@ -1,4 +1,5 @@
 import { ChainInfo } from "@keplr-wallet/types";
+import { NesaClient } from "./client";
 interface ConfigOptions {
     modelName: string;
     lockAmount?: string;
@@ -8,6 +9,7 @@ interface ConfigOptions {
     lowBalance?: string;
     privateKey?: string;
     mnemonic?: string;
+    chatId?: string;
 }
 interface questionTypes {
     messages: any;
@@ -26,6 +28,7 @@ declare class ChatClient {
     singlePaymentAmount: string;
     lowBalance: string;
     lockAmountDenom: string;
+    chatId: string;
     private walletName;
     private chatQueue;
     private chatSeq;
@@ -36,9 +39,7 @@ declare class ChatClient {
     private agentUrl;
     private assistantRoleName;
     private lastNesaClientPromise;
-    private lastNesaClientPromiseByModel;
     private lastUserMinimumLockPromise;
-    private lastUserMinimumLockPromiseByModel;
     private lastGetAgentInfoPromise;
     private lastInitOfflineSignerPromise;
     private chatProgressReadable;
@@ -53,8 +54,8 @@ declare class ChatClient {
     private tokenPrice;
     constructor(options: ConfigOptions);
     initWallet(): any;
-    getNesaClient(modelName?: string): any;
-    getChainParams(nesaClient: any, modelName?: string): any;
+    getNesaClient(modelName?: string): Promise<NesaClient>;
+    getChainParams(nesaClient: NesaClient, modelName?: string): any;
     version(): string;
     checkChainInfo(): string | false;
     getSignaturePayment(): string;

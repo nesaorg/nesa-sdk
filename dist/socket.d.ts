@@ -8,6 +8,7 @@ interface ISocket {
     heartbeat_interval: number;
     init: (handle: {
         modelName?: string;
+        recordId: string;
         ws_url: string;
         onopen: () => void;
         onclose?: (e: Event) => void;

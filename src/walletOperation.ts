@@ -4,124 +4,105 @@ import { GasPrice } from "@cosmjs/stargate";
 import { ChainInfo } from "@keplr-wallet/types";
 import EncryptUtils from "./encryptUtils";
 import Long from "long";
+import type { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
 
 class WalletOperation {
-  static getNesaClient(
+  static async getNesaClient(
     chainInfo: ChainInfo,
-    offlineSigner: any,
+    offlineSigner: CosmjsOfflineSigner | undefined,
     modelName?: string
-  ): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      if (offlineSigner) {
-        const { chainId, rpc } = chainInfo;
-        const account: AccountData = (await offlineSigner.getAccounts())[0];
-        NesaClient.connectWithSigner(
-          rpc,
-          offlineSigner,
-          account.address,
-          chainId,
-          {
-            gasPrice: GasPrice.fromString(
-              `0.025${chainInfo.feeCurrencies[0].coinMinimalDenom}`
-            ),
-            estimatedBlockTime: 6,
-            estimatedIndexerTime: 5,
-          },
-          modelName
-        )
-          .then((client) => {
-            resolve(client);
-          })
-          .catch((error) => {
-            reject(error);
-          });
-      } else {
-        reject(
-          new Error(
-            "No wallet installed, please install keplr or metamask wallet first"
-          )
-        );
-      }
-    });
+  ) {
+    if (!offlineSigner) {
+      throw new Error(
+        "No wallet installed, please install keplr or metamask wallet first"
+      );
+    }
+
+    const { chainId, rpc } = chainInfo;
+    const account = (await offlineSigner.getAccounts())[0];
+
+    return NesaClient.connectWithSigner(
+      rpc,
+      offlineSigner,
+      account.address,
+      chainId,
+      {
+        gasPrice: GasPrice.fromString(
+          `0.025${chainInfo.feeCurrencies[0].coinMinimalDenom}`
+        ),
+        estimatedBlockTime: 6,
+        estimatedIndexerTime: 5,
+      },
+      modelName
+    );
   }
 
-  static registerSession(
-    client: any,
+  static async registerSession(
+    recordId: string,
+    client: NesaClient,
     modelName: string,
     lockAmount: string,
     denom: string,
     chainInfo: ChainInfo,
-    offlineSigner: any
-  ): Promise<any> {
-    EncryptUtils.generateKey(modelName);
-    return new Promise(async (resolve, reject) => {
-      const lockBalance = { denom: denom, amount: lockAmount };
-      EncryptUtils.requestVrf(client, offlineSigner, modelName).then(
-        async (res) => {
-          const fee = {
-            amount: [
-              {
-                denom: chainInfo.feeCurrencies[0].coinMinimalDenom,
-                amount: "6",
-              },
-            ],
-            gas: "200000",
-          };
-          if (res?.vrf && res?.sessionId) {
-            resolve(
-              client.signRegisterSession(
-                res.sessionId,
-                modelName,
-                fee,
-                lockBalance,
-                res.vrf
-              )
-            );
-          } else {
-            reject(new Error("Vrf seed is null"));
-          }
-        }
+    offlineSigner: CosmjsOfflineSigner
+  ) {
+    EncryptUtils.generateKey(recordId);
+
+    const res = await EncryptUtils.requestVrf(recordId, client, offlineSigner);
+
+    const fee = {
+      amount: [
+        { denom: chainInfo.feeCurrencies[0].coinMinimalDenom, amount: "6" },
+      ],
+      gas: "200000",
+    };
+
+    if (res?.vrf && res?.sessionId) {
+      return client.signRegisterSession(
+        res.sessionId,
+        modelName,
+        fee,
+        { denom: denom, amount: lockAmount },
+        res.vrf
       );
-    });
+    }
+
+    throw new Error("Vrf seed is null");
   }
 
   static requestAgentInfo(
-    client: any,
+    client: NesaClient,
     agentName: string,
     modelName: string
-  ): Promise<any> {
+  ) {
     console.log("modelName: ", modelName);
-    return new Promise(async (resolve, reject) => {
-      if (client) {
-        resolve(
-          client.getInferenceAgent(
-            agentName,
-            modelName,
-            Long.fromNumber(0),
-            new Uint8Array()
-          )
-        );
-      } else {
-        reject("Client init failed");
-      }
-    });
+
+    if (!client) {
+      throw "Client init failed";
+    }
+
+    return client.getInferenceAgent(
+      agentName,
+      modelName,
+      Long.fromNumber(0),
+      new Uint8Array()
+    );
   }
 
-  static requestParams(client: any): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      if (client) {
-        resolve(client.getParams());
-      } else {
-        reject("Client init failed");
-      }
-    });
+  static requestParams(client: NesaClient | undefined) {
+    if (!client) {
+      throw new Error("Client init failed");
+    }
+
+    return client.getParams();
   }
 
-  static requestVrfSeed(client: any, offlineSigner: any): Promise<any> {
-    return new Promise(async (resolve) => {
-      const account: AccountData = (await offlineSigner.getAccounts())[0];
-      resolve(client.getVRFSeed(account.address));
-    });
+  static async requestVrfSeed(
+    client: NesaClient,
+    offlineSigner: CosmjsOfflineSigner
+  ) {
+    const account: AccountData = (await offlineSigner.getAccounts())[0];
+    return client.getVRFSeed(account.address);
   }
 }
 

@@ -9,6 +9,7 @@ interface ISocket {
   heartbeat_interval: number;
   init: (handle: {
     modelName?: string;
+    recordId: string;
     ws_url: string;
     onopen: () => void;
     onclose?: (e: Event) => void;
@@ -45,8 +46,9 @@ export const socket: ISocket = {
       socket.socket_open = true;
       socket.ever_succeeded = true;
       this.signatureData = EncryptUtils.signHeartbeat(
-        "hello",
-        handle.modelName
+        handle.recordId,
+        "hello"
+        // handle.modelName
       );
       if (this.signatureData === "") {
         handle?.onerror && handle?.onerror(new Error("SignatureData is null"));

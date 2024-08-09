@@ -407,7 +407,6 @@ export class NesaClient {
   }
 
   public async submitPayment(
-    // account: string,
     sessionId: string,
     signature: Uint8Array,
     payment?: Payment

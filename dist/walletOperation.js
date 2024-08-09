@@ -8,78 +8,49 @@ const stargate_1 = require("@cosmjs/stargate");
 const encryptUtils_1 = __importDefault(require("./encryptUtils"));
 const long_1 = __importDefault(require("long"));
 class WalletOperation {
-    static getNesaClient(chainInfo, offlineSigner, modelName) {
-        return new Promise(async (resolve, reject) => {
-            if (offlineSigner) {
-                const { chainId, rpc } = chainInfo;
-                const account = (await offlineSigner.getAccounts())[0];
-                client_1.NesaClient.connectWithSigner(rpc, offlineSigner, account.address, chainId, {
-                    gasPrice: stargate_1.GasPrice.fromString(`0.025${chainInfo.feeCurrencies[0].coinMinimalDenom}`),
-                    estimatedBlockTime: 6,
-                    estimatedIndexerTime: 5,
-                }, modelName)
-                    .then((client) => {
-                    resolve(client);
-                })
-                    .catch((error) => {
-                    reject(error);
-                });
-            }
-            else {
-                reject(new Error("No wallet installed, please install keplr or metamask wallet first"));
-            }
-        });
+    static async getNesaClient(chainInfo, offlineSigner, modelName) {
+        if (!offlineSigner) {
+            throw new Error("No wallet installed, please install keplr or metamask wallet first");
+        }
+        const { chainId, rpc } = chainInfo;
+        const account = (await offlineSigner.getAccounts())[0];
+        return client_1.NesaClient.connectWithSigner(rpc, offlineSigner, account.address, chainId, {
+            gasPrice: stargate_1.GasPrice.fromString(`0.025${chainInfo.feeCurrencies[0].coinMinimalDenom}`),
+            estimatedBlockTime: 6,
+            estimatedIndexerTime: 5,
+        }, modelName);
     }
-    static registerSession(client, modelName, lockAmount, denom, chainInfo, offlineSigner) {
-        encryptUtils_1.default.generateKey(modelName);
-        return new Promise(async (resolve, reject) => {
-            const lockBalance = { denom: denom, amount: lockAmount };
-            encryptUtils_1.default.requestVrf(client, offlineSigner, modelName).then(async (res) => {
-                const fee = {
-                    amount: [
-                        {
-                            denom: chainInfo.feeCurrencies[0].coinMinimalDenom,
-                            amount: "6",
-                        },
-                    ],
-                    gas: "200000",
-                };
-                if (res?.vrf && res?.sessionId) {
-                    resolve(client.signRegisterSession(res.sessionId, modelName, fee, lockBalance, res.vrf));
-                }
-                else {
-                    reject(new Error("Vrf seed is null"));
-                }
-            });
-        });
+    static async registerSession(recordId, client, modelName, lockAmount, denom, chainInfo, offlineSigner) {
+        encryptUtils_1.default.generateKey(recordId);
+        const res = await encryptUtils_1.default.requestVrf(recordId, client, offlineSigner);
+        const fee = {
+            amount: [
+                { denom: chainInfo.feeCurrencies[0].coinMinimalDenom, amount: "6" },
+            ],
+            gas: "200000",
+        };
+        if (res?.vrf && res?.sessionId) {
+            return client.signRegisterSession(res.sessionId, modelName, fee, { denom: denom, amount: lockAmount }, res.vrf);
+        }
+        throw new Error("Vrf seed is null");
     }
     static requestAgentInfo(client, agentName, modelName) {
         console.log("modelName: ", modelName);
-        return new Promise(async (resolve, reject) => {
-            if (client) {
-                resolve(client.getInferenceAgent(agentName, modelName, long_1.default.fromNumber(0), new Uint8Array()));
-            }
-            else {
-                reject("Client init failed");
-            }
-        });
+        if (!client) {
+            throw "Client init failed";
+        }
+        return client.getInferenceAgent(agentName, modelName, long_1.default.fromNumber(0), new Uint8Array());
     }
     static requestParams(client) {
-        return new Promise(async (resolve, reject) => {
-            if (client) {
-                resolve(client.getParams());
-            }
-            else {
-                reject("Client init failed");
-            }
-        });
+        if (!client) {
+            throw new Error("Client init failed");
+        }
+        return client.getParams();
     }
-    static requestVrfSeed(client, offlineSigner) {
-        return new Promise(async (resolve) => {
-            const account = (await offlineSigner.getAccounts())[0];
-            resolve(client.getVRFSeed(account.address));
-        });
+    static async requestVrfSeed(client, offlineSigner) {
+        const account = (await offlineSigner.getAccounts())[0];
+        return client.getVRFSeed(account.address);
     }
 }
 exports.default = WalletOperation;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2FsbGV0T3BlcmF0aW9uLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vc3JjL3dhbGxldE9wZXJhdGlvbi50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7OztBQUNBLHFDQUFzQztBQUN0QywrQ0FBNEM7QUFFNUMsa0VBQTBDO0FBQzFDLGdEQUF3QjtBQUV4QixNQUFNLGVBQWU7SUFDbkIsTUFBTSxDQUFDLGFBQWEsQ0FDbEIsU0FBb0IsRUFDcEIsYUFBa0IsRUFDbEIsU0FBa0I7UUFFbEIsT0FBTyxJQUFJLE9BQU8sQ0FBQyxLQUFLLEVBQUUsT0FBTyxFQUFFLE1BQU0sRUFBRSxFQUFFO1lBQzNDLElBQUksYUFBYSxFQUFFLENBQUM7Z0JBQ2xCLE1BQU0sRUFBRSxPQUFPLEVBQUUsR0FBRyxFQUFFLEdBQUcsU0FBUyxDQUFDO2dCQUNuQyxNQUFNLE9BQU8sR0FBZ0IsQ0FBQyxNQUFNLGFBQWEsQ0FBQyxXQUFXLEVBQUUsQ0FBQyxDQUFDLENBQUMsQ0FBQyxDQUFDO2dCQUNwRSxtQkFBVSxDQUFDLGlCQUFpQixDQUMxQixHQUFHLEVBQ0gsYUFBYSxFQUNiLE9BQU8sQ0FBQyxPQUFPLEVBQ2YsT0FBTyxFQUNQO29CQUNFLFFBQVEsRUFBRSxtQkFBUSxDQUFDLFVBQVUsQ0FDM0IsUUFBUSxTQUFTLENBQUMsYUFBYSxDQUFDLENBQUMsQ0FBQyxDQUFDLGdCQUFnQixFQUFFLENBQ3REO29CQUNELGtCQUFrQixFQUFFLENBQUM7b0JBQ3JCLG9CQUFvQixFQUFFLENBQUM7aUJBQ3hCLEVBQ0QsU0FBUyxDQUNWO3FCQUNFLElBQUksQ0FBQyxDQUFDLE1BQU0sRUFBRSxFQUFFO29CQUNmLE9BQU8sQ0FBQyxNQUFNLENBQUMsQ0FBQztnQkFDbEIsQ0FBQyxDQUFDO3FCQUNELEtBQUssQ0FBQyxDQUFDLEtBQUssRUFBRSxFQUFFO29CQUNmLE1BQU0sQ0FBQyxLQUFLLENBQUMsQ0FBQztnQkFDaEIsQ0FBQyxDQUFDLENBQUM7WUFDUCxDQUFDO2lCQUFN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
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2FsbGV0T3BlcmF0aW9uLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vc3JjL3dhbGxldE9wZXJhdGlvbi50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7OztBQUNBLHFDQUFzQztBQUN0QywrQ0FBNEM7QUFFNUMsa0VBQTBDO0FBQzFDLGdEQUF3QjtBQUd4QixNQUFNLGVBQWU7SUFDbkIsTUFBTSxDQUFDLEtBQUssQ0FBQyxhQUFhLENBQ3hCLFNBQW9CLEVBQ3BCLGFBQThDLEVBQzlDLFNBQWtCO1FBRWxCLElBQUksQ0FBQyxhQUFhLEVBQUUsQ0FBQztZQUNuQixNQUFNLElBQUksS0FBSyxDQUNiLG9FQUFvRSxDQUNyRSxDQUFDO1FBQ0osQ0FBQztRQUVELE1BQU0sRUFBRSxPQUFPLEVBQUUsR0FBRyxFQUFFLEdBQUcsU0FBUyxDQUFDO1FBQ25DLE1BQU0sT0FBTyxHQUFHLENBQUMsTUFBTSxhQUFhLENBQUMsV0FBVyxFQUFFLENBQUMsQ0FBQyxDQUFDLENBQUMsQ0FBQztRQUV2RCxPQUFPLG1CQUFVLENBQUMsaUJBQWlCLENBQ2pDLEdBQUcsRUFDSCxhQUFhLEVBQ2IsT0FBTyxDQUFDLE9BQU8sRUFDZixPQUFPLEVBQ1A7WUFDRSxRQUFRLEVBQUUsbUJBQVEsQ0FBQyxVQUFVLENBQzNCLFFBQVEsU0FBUyxDQUFDLGFBQWEsQ0FBQyxDQUFDLENBQUMsQ0FBQyxnQkFBZ0IsRUFBRSxDQUN0RDtZQUNELGtCQUFrQixFQUFFLENBQUM7WUFDckIsb0JBQW9CLEVBQUUsQ0FBQztTQUN4QixFQUNELFNBQVMsQ0FDVixDQUFDO0lBQ0osQ0FBQztJQUVELE1BQU0sQ0FBQyxLQUFLLENBQUMsZUFBZSxDQUMxQixRQUFnQixFQUNoQixNQUFrQixFQUNsQixTQUFpQixFQUNqQixVQUFrQixFQUNsQixLQUFhLEVBQ2IsU0FBb0IsRUFDcEIsYUFBa0M7UUFFbEMsc0JBQVksQ0FBQyxXQUFXLENBQUMsUUFBUSxDQUFDLENBQUM7UUFFbkMsTUFBTSxHQUFHLEdBQUcsTUFBTSxzQkFBWSxDQUFDLFVBQVUsQ0FBQyxRQUFRLEVBQUUsTUFBTSxFQUFFLGFBQWEsQ0FBQyxDQUFDO1FBRTNFLE1BQU0sR0FBRyxHQUFHO1lBQ1YsTUFBTSxFQUFFO2dCQUNOLEVBQUUsS0FBSyxFQUFFLFNBQVMsQ0FBQyxhQUFhLENBQUMsQ0FBQyxDQUFDLENBQUMsZ0JBQWdCLEVBQUUsTUFBTSxFQUFFLEdBQUcsRUFBRTthQUNwRTtZQUNELEdBQUcsRUFBRSxRQUFRO1NBQ2QsQ0FBQztRQUVGLElBQUksR0FBRyxFQUFFLEdBQUcsSUFBSSxHQUFHLEVBQUUsU0FBUyxFQUFFLENBQUM7WUFDL0IsT0FBTyxNQUFNLENBQUMsbUJBQW1CLENBQy9CLEdBQUcsQ0FBQyxTQUFTLEVBQ2IsU0FBUyxFQUNULEdBQUcsRUFDSCxFQUFFLEtBQUssRUFBRSxLQUFLLEVBQUUsTUFBTSxFQUFFLFVBQVUsRUFBRSxFQUNwQyxHQUFHLENBQUMsR0FBRyxDQUNSLENBQUM7UUFDSixDQUFDO1FBRUQsTUFBTSxJQUFJLEtBQUssQ0FBQyxrQkFBa0IsQ0FBQyxDQUFDO0lBQ3RDLENBQUM7SUFFRCxNQUFNLENBQUMsZ0JBQWdCLENBQ3JCLE1BQWtCLEVBQ2xCLFNBQWlCLEVBQ2pCLFNBQWlCO1FBRWpCLE9BQU8sQ0FBQyxHQUFHLENBQUMsYUFBYSxFQUFFLFNBQVMsQ0FBQyxDQUFDO1FBRXRDLElBQUksQ0FBQyxNQUFNLEVBQUUsQ0FBQztZQUNaLE1BQU0sb0JBQW9CLENBQUM7UUFDN0IsQ0FBQztRQUVELE9BQU8sTUFBTSxDQUFDLGlCQUFpQixDQUM3QixTQUFTLEVBQ1QsU0FBUyxFQUNULGNBQUksQ0FBQyxVQUFVLENBQUMsQ0FBQyxDQUFDLEVBQ2xCLElBQUksVUFBVSxFQUFFLENBQ2pCLENBQUM7SUFDSixDQUFDO0lBRUQsTUFBTSxDQUFDLGFBQWEsQ0FBQyxNQUE4QjtRQUNqRCxJQUFJLENBQUMsTUFBTSxFQUFFLENBQUM7WUFDWixNQUFNLElBQUksS0FBSyxDQUFDLG9CQUFvQixDQUFDLENBQUM7UUFDeEMsQ0FBQztRQUVELE9BQU8sTUFBTSxDQUFDLFNBQVMsRUFBRSxDQUFDO0lBQzVCLENBQUM7SUFFRCxNQUFNLENBQUMsS0FBSyxDQUFDLGNBQWMsQ0FDekIsTUFBa0IsRUFDbEIsYUFBa0M7UUFFbEMsTUFBTSxPQUFPLEdBQWdCLENBQUMsTUFBTSxhQUFhLENBQUMsV0FBVyxFQUFFLENBQUMsQ0FBQyxDQUFDLENBQUMsQ0FBQztRQUNwRSxPQUFPLE1BQU0sQ0FBQyxVQUFVLENBQUMsT0FBTyxDQUFDLE9BQU8sQ0FBQyxDQUFDO0lBQzVDLENBQUM7Q0FDRjtBQUVELGtCQUFlLGVBQWUsQ0FBQyJ9
