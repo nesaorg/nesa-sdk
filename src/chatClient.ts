@@ -67,7 +67,7 @@ class ChatClient {
   private lastInitOfflineSignerPromise: any;
   private chatProgressReadable: any;
   private nesaClient: NesaClient | undefined;
-  private offLinesigner: any;
+  private offlineSigner: any;
   private signaturePayment: any;
   private isBrowser: boolean;
   private privateKey: string;
@@ -107,20 +107,20 @@ class ChatClient {
         async (resolve, reject) => {
           try {
             if (this.walletName === "npm:@leapwallet/metamask-cosmos-snap") {
-              this.offLinesigner = new CosmjsOfflineSigner(
+              this.offlineSigner = new CosmjsOfflineSigner(
                 this.chainInfo.chainId
               );
 
-              resolve(this.offLinesigner);
+              resolve(this.offlineSigner);
               this.getNesaClient();
             } else if (window?.keplr) {
               const { keplr } = window;
 
               await keplr.enable(this.chainInfo.chainId);
-              this.offLinesigner = window.getOfflineSigner!(
+              this.offlineSigner = window.getOfflineSigner!(
                 this.chainInfo.chainId
               );
-              resolve(this.offLinesigner);
+              resolve(this.offlineSigner);
               this.getNesaClient();
             } else {
               console.log(
@@ -148,8 +148,8 @@ class ChatClient {
                 "nesa"
               );
               console.log("private key wallet", wallet);
-              this.offLinesigner = wallet;
-              resolve(this.offLinesigner);
+              this.offlineSigner = wallet;
+              resolve(this.offlineSigner);
               this.getNesaClient();
 
               return;
@@ -161,8 +161,8 @@ class ChatClient {
                 { prefix: "nesa", hdPaths: [stringToPath("m/44'/118'/0'/0/0")] }
               );
               console.log("private key wallet", wallet);
-              this.offLinesigner = wallet;
-              resolve(this.offLinesigner);
+              this.offlineSigner = wallet;
+              resolve(this.offlineSigner);
               this.getNesaClient();
             }
           }
@@ -178,8 +178,8 @@ class ChatClient {
 
     console.log("Init nesa client", { th: this.modelName });
     this.lastNesaClientPromise = new Promise((resolve, reject) => {
-      if (this.offLinesigner) {
-        WalletOperation.getNesaClient(this.chainInfo, this.offLinesigner)
+      if (this.offlineSigner) {
+        WalletOperation.getNesaClient(this.chainInfo, this.offlineSigner)
           .then((client) => {
             resolve(client);
             this.getChainParams(client);
@@ -207,11 +207,10 @@ class ChatClient {
     this.lastUserMinimumLockPromise = new Promise((resolve) => {
       WalletOperation.requestParams(nesaClient)
         .then((params) => {
-          this.chatProgressReadable &&
-            this.chatProgressReadable.push({
-              code: 301,
-              message: "Connected to Nesa chain",
-            });
+          this.chatProgressReadable?.push({
+            code: 301,
+            message: "Connected to Nesa chain",
+          });
           resolve(params);
         })
         .catch((error) => {
@@ -673,7 +672,7 @@ class ChatClient {
               this.lockAmount,
               params?.params?.userMinimumLock?.denom,
               this.chainInfo,
-              this.offLinesigner
+              this.offlineSigner
             );
 
             console.log("registerSession-result: ", result);

@@ -44,7 +44,7 @@ declare class ChatClient {
     private lastInitOfflineSignerPromise;
     private chatProgressReadable;
     private nesaClient;
-    private offLinesigner;
+    private offlineSigner;
     private signaturePayment;
     private isBrowser;
     private privateKey;
