@@ -34,7 +34,7 @@ declare class ChatClient {
     private chatSeq;
     private totalUsedPayment;
     private totalSignedPayment;
-    private isChatinging;
+    private isChatting;
     private isRegisterSessioning;
     private agentUrl;
     private assistantRoleName;

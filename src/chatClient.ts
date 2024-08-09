@@ -57,7 +57,7 @@ class ChatClient {
   private chatSeq = 0;
   private totalUsedPayment = 0;
   private totalSignedPayment = 0;
-  private isChatinging = false;
+  private isChatting = false;
   private isRegisterSessioning = false;
   private agentUrl = "";
   private assistantRoleName = "";
@@ -286,11 +286,12 @@ class ChatClient {
   }
 
   requestChatQueue(readableStream: any, question: QuestionParams) {
-    this.isChatinging = true;
+    this.isChatting = true;
     this.chatSeq += 1;
     let messageTimes = 0;
+
     try {
-      let ws;
+      let ws: WebSocket;
       if (this.isBrowser) {
         ws = new WebSocket(this.agentUrl);
       } else {
@@ -332,7 +333,7 @@ class ChatClient {
               message:
                 "No signature found or the signature has expired, please sign again",
             });
-            this.isChatinging = false;
+            this.isChatting = false;
             readableStream.push(null);
           }
         }
@@ -361,7 +362,7 @@ class ChatClient {
               message: "Illegal link",
             });
             readableStream.push(null);
-            this.isChatinging = false;
+            this.isChatting = false;
           }
           messageTimes += 1;
         } else if (messageJson?.content?.startsWith("[DONE]")) {
@@ -370,20 +371,19 @@ class ChatClient {
             code: 203,
             message: messageJson?.content?.split("[DONE]")[1],
           });
-          this.chatProgressReadable &&
-            this.chatProgressReadable.push({
-              code: 307,
-              message: "Task completed, wait for another query",
-            });
+
+          this.chatProgressReadable?.push({
+            code: 307,
+            message: "Task completed, wait for another query",
+          });
           readableStream.push(null);
-          this.isChatinging = false;
+          this.isChatting = false;
         } else {
           if (messageTimes === 1) {
-            this.chatProgressReadable &&
-              this.chatProgressReadable.push({
-                code: 306,
-                message: "Receiving responses",
-              });
+            this.chatProgressReadable?.push({
+              code: 306,
+              message: "Receiving responses",
+            });
             messageTimes += 1;
           }
           const signedMessage = this.checkSinglePaymentAmount();
@@ -398,6 +398,7 @@ class ChatClient {
             total_payment,
           });
           this.totalUsedPayment += this.tokenPrice;
+
           if (
             new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
           ) {
@@ -430,7 +431,7 @@ class ChatClient {
           });
         }
         readableStream.push(null);
-        this.isChatinging = false;
+        this.isChatting = false;
         if (this.chatQueue.length > 0) {
           const { readableStream: nextReadableStream, question: nextQuestion } =
             this.chatQueue.shift();
@@ -448,7 +449,7 @@ class ChatClient {
           message: error?.reason || "Error: Connection failed",
         });
         readableStream.push(null);
-        this.isChatinging = false;
+        this.isChatting = false;
         if (this.chatQueue.length > 0) {
           const { readableStream: nextReadableStream, question: nextQuestion } =
             this.chatQueue.shift();
@@ -467,7 +468,7 @@ class ChatClient {
         message: error?.message || "Error: Connection failed",
       });
       readableStream.push(null);
-      this.isChatinging = false;
+      this.isChatting = false;
       if (this.chatQueue.length > 0) {
         const { readableStream: nextReadableStream, question: nextQuestion } =
           this.chatQueue.shift();
@@ -627,8 +628,6 @@ class ChatClient {
     const readableStream = new Readable({ objectMode: true });
     readableStream._read = () => {};
 
-    // resolve(readableStream);
-
     try {
       await this.initWallet();
 
@@ -748,7 +747,7 @@ class ChatClient {
       const readableStream = new Readable({ objectMode: true });
       readableStream._read = () => {};
 
-      if (this.isChatinging) {
+      if (this.isChatting) {
         this.chatQueue.push({ readableStream, question });
       } else {
         this.requestChatQueue(readableStream, question);
@@ -760,7 +759,7 @@ class ChatClient {
     const readableStream = new Readable({ objectMode: true });
     readableStream._read = () => {};
 
-    if (this.isChatinging) {
+    if (this.isChatting) {
       this.chatQueue.push({ readableStream, question });
     } else {
       this.requestChatQueue(readableStream, question);
