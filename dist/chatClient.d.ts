@@ -62,7 +62,7 @@ declare class ChatClient {
     requestCloseHeartbeat(): void;
     requestAgentInfo(result: any, readableStream: any): any;
     checkSignBroadcastResult(readableStream?: any): Promise<unknown>;
-    requestChatStatus(): Promise<unknown>;
+    requestChatStatus(): any;
     requestSession(): Promise<any>;
     requestChat(question: QuestionParams): Promise<any>;
 }

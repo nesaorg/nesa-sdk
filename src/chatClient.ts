@@ -101,15 +101,16 @@ class ChatClient {
     if (this.lastInitOfflineSignerPromise) {
       return this.lastInitOfflineSignerPromise;
     }
+
     if (this.isBrowser && !this.privateKey && !this.mnemonic) {
       this.lastInitOfflineSignerPromise = new Promise(
         async (resolve, reject) => {
           try {
             if (this.walletName === "npm:@leapwallet/metamask-cosmos-snap") {
-              const offlineSigner = new CosmjsOfflineSigner(
+              this.offLinesigner = new CosmjsOfflineSigner(
                 this.chainInfo.chainId
               );
-              this.offLinesigner = offlineSigner;
+
               resolve(this.offLinesigner);
               this.getNesaClient();
             } else if (window?.keplr) {
@@ -230,6 +231,7 @@ class ChatClient {
     if (this.signaturePayment[this.totalSignedPayment]) {
       return "";
     }
+
     const signaturePayment = EncryptUtils.signMessage(
       this.chatId,
       `${this.totalSignedPayment}${this.chainInfo.feeCurrencies[0].coinMinimalDenom}`,
@@ -237,6 +239,7 @@ class ChatClient {
       false
     );
     this.signaturePayment[this.totalSignedPayment] = signaturePayment;
+
     return signaturePayment;
   }
 
@@ -586,16 +589,13 @@ class ChatClient {
   }
 
   requestChatStatus() {
-    return new Promise((resolve) => {
-      const readableStream = new Readable({ objectMode: true });
-      readableStream._read = () => {};
-      readableStream.push({
-        code: 300,
-        message: "Connecting to Nesa chain",
-      });
-      this.chatProgressReadable = readableStream;
-      resolve(readableStream);
-    });
+    const readableStream = new Readable({ objectMode: true });
+    readableStream._read = () => {};
+    readableStream.push({ code: 300, message: "Connecting to Nesa chain" });
+
+    this.chatProgressReadable = readableStream;
+
+    return readableStream;
   }
 
   async requestSession() {
