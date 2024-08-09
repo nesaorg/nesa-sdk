@@ -13,14 +13,11 @@ import { Logger, NoopLogger } from "./logger";
 import { createDeliverTxFailureMessage } from "./utils";
 import {
   MsgUpdateParams,
-  // MsgRegisterModel,
   MsgRegisterInferenceAgent,
   MsgRegisterSession,
   MsgRegisterSessionResponse,
   MsgSubmitPayment,
   VRF,
-  // MsgClaimSession,
-  // MsgCancelSession
 } from "./codec/agent/v1/tx";
 import { Payment, Params, SessionStatus } from "./codec/agent/v1/agent";
 import { Coin } from "./codec/cosmos/base/v1beta1/coin";

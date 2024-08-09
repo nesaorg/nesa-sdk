@@ -44,7 +44,6 @@ declare class ChatClient {
     private lastInitOfflineSignerPromise;
     private chatProgressReadable;
     private nesaClient;
-    private nesaClientByModel;
     private offLinesigner;
     private signaturePayment;
     private isBrowser;
@@ -54,10 +53,9 @@ declare class ChatClient {
     private tokenPrice;
     constructor(options: ConfigOptions);
     initWallet(): any;
-    getNesaClient(modelName?: string): Promise<NesaClient>;
-    getChainParams(nesaClient: NesaClient, modelName?: string): any;
+    getNesaClient(): Promise<NesaClient>;
+    getChainParams(nesaClient: NesaClient): any;
     version(): string;
-    checkChainInfo(): string | false;
     getSignaturePayment(): string;
     checkSinglePaymentAmount(): string;
     requestChatQueue(readableStream: any, question: questionTypes): void;

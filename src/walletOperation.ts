@@ -71,7 +71,7 @@ class WalletOperation {
   }
 
   static requestAgentInfo(
-    client: NesaClient,
+    client: NesaClient | undefined,
     agentName: string,
     modelName: string
   ) {

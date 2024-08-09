@@ -18,6 +18,8 @@ import {
 } from "@cosmjs/proto-signing";
 import { stringToPath } from "@cosmjs/crypto";
 import { NesaClient } from "./client";
+import { getAgentUrls } from "./helpers/getAgentUrls";
+import { getIsChainInfoValid } from "./helpers/getIsChainInfoValid";
 
 interface ConfigOptions {
   modelName: string;
@@ -60,14 +62,11 @@ class ChatClient {
   private agentUrl = "";
   private assistantRoleName = "";
   private lastNesaClientPromise: Promise<NesaClient> | undefined;
-  // private lastNesaClientPromiseByModel: { [modelName: string]: any } = {};
   private lastUserMinimumLockPromise: any;
-  // private lastUserMinimumLockPromiseByModel: { [modelName: string]: any } = {};
   private lastGetAgentInfoPromise: any;
   private lastInitOfflineSignerPromise: any;
   private chatProgressReadable: any;
-  private nesaClient: any;
-  private nesaClientByModel: { [model: string]: any } = {};
+  private nesaClient: NesaClient | undefined;
   private offLinesigner: any;
   private signaturePayment: any;
   private isBrowser: boolean;
@@ -112,7 +111,7 @@ class ChatClient {
               );
               this.offLinesigner = offlineSigner;
               resolve(this.offLinesigner);
-              this.getNesaClient(this.modelName);
+              this.getNesaClient();
             } else if (window?.keplr) {
               const { keplr } = window;
 
@@ -121,7 +120,7 @@ class ChatClient {
                 this.chainInfo.chainId
               );
               resolve(this.offLinesigner);
-              this.getNesaClient(this.modelName);
+              this.getNesaClient();
             } else {
               console.log(
                 "No wallet installed, please install keplr or metamask wallet first"
@@ -150,7 +149,7 @@ class ChatClient {
               console.log("private key wallet", wallet);
               this.offLinesigner = wallet;
               resolve(this.offLinesigner);
-              this.getNesaClient(this.modelName);
+              this.getNesaClient();
 
               return;
             }
@@ -163,7 +162,7 @@ class ChatClient {
               console.log("private key wallet", wallet);
               this.offLinesigner = wallet;
               resolve(this.offLinesigner);
-              this.getNesaClient(this.modelName);
+              this.getNesaClient();
             }
           }
         }
@@ -171,11 +170,12 @@ class ChatClient {
     }
   }
 
-  getNesaClient(modelName?: string) {
+  getNesaClient() {
     if (this.lastNesaClientPromise) {
       return this.lastNesaClientPromise;
     }
-    console.log("Init nesa client", { modelName, th: this.modelName });
+
+    console.log("Init nesa client", { th: this.modelName });
     this.lastNesaClientPromise = new Promise((resolve, reject) => {
       if (this.offLinesigner) {
         WalletOperation.getNesaClient(
@@ -199,43 +199,14 @@ class ChatClient {
     });
 
     return this.lastNesaClientPromise;
-    // }
-
-    // if (this.lastNesaClientPromiseByModel[modelName]) {
-    //   return this.lastNesaClientPromiseByModel[modelName];
-    // }
-    // console.log("Init nesa client", this.modelName);
-    // this.lastNesaClientPromiseByModel[modelName] = new Promise(
-    //   (resolve, reject) => {
-    //     if (this.offLinesigner) {
-    //       WalletOperation.getNesaClient(
-    //         this.chainInfo,
-    //         this.offLinesigner,
-    //         modelName
-    //       )
-    //         .then((client) => {
-    //           resolve(client);
-    //           this.getChainParams(client, modelName);
-    //         })
-    //         .catch((error) => {
-    //           console.log("initNesaClientError: ", error);
-    //           this.lastNesaClientPromise = undefined;
-    //           reject(error);
-    //         });
-    //     } else {
-    //       this.lastNesaClientPromise = undefined;
-    //       reject(new Error("Wallet connect error"));
-    //     }
-    //   }
-    // );
   }
 
-  getChainParams(nesaClient: NesaClient, modelName?: string) {
-    // if (!modelName) {
+  getChainParams(nesaClient: NesaClient) {
     if (this.lastUserMinimumLockPromise) {
       return this.lastUserMinimumLockPromise;
     }
-    console.log("Init params", { modelName });
+    console.log("Init params", { modelName: this.modelName });
+
     this.lastUserMinimumLockPromise = new Promise((resolve) => {
       WalletOperation.requestParams(nesaClient)
         .then((params) => {
@@ -253,45 +224,10 @@ class ChatClient {
     });
 
     return;
-    // }
-
-    // if (this.lastUserMinimumLockPromiseByModel[modelName]) {
-    //   return this.lastUserMinimumLockPromiseByModel[modelName];
-    // }
-    // console.log("Init params");
-    // this.lastUserMinimumLockPromiseByModel[modelName] = new Promise(
-    //   (resolve) => {
-    //     WalletOperation.requestParams(nesaClient)
-    //       .then((params) => {
-    //         this.chatProgressReadable &&
-    //           this.chatProgressReadable.push({
-    //             code: 301,
-    //             message: "Connected to Nesa chain",
-    //           });
-    //         resolve(params);
-    //       })
-    //       .catch((error) => {
-    //         console.log("getChainParamsError: ", error);
-    //         this.lastUserMinimumLockPromiseByModel[modelName] = undefined;
-    //       });
-    //   }
-    // );
-
-    // return;
   }
 
   version() {
     return sdkVersion;
-  }
-
-  checkChainInfo() {
-    return (
-      this.chainInfo?.rpc &&
-      this.chainInfo?.rest &&
-      this.chainInfo?.feeCurrencies &&
-      this.chainInfo?.feeCurrencies.length > 0 &&
-      this.chainInfo?.feeCurrencies[0]?.coinMinimalDenom
-    );
   }
 
   getSignaturePayment() {
@@ -552,22 +488,16 @@ class ChatClient {
     }
     this.lastGetAgentInfoPromise = new Promise((resolve, reject) => {
       WalletOperation.requestAgentInfo(
-        this.nesaClientByModel[this.modelName] || this.nesaClient,
+        this.nesaClient,
         result?.account,
         this.modelName
       )
-        .then((agentInfo: any) => {
+        .then((agentInfo) => {
           if (agentInfo && agentInfo?.inferenceAgent) {
             const selectAgent = agentInfo?.inferenceAgent;
-            let agentWsUrl = selectAgent.url;
-            let agentHeartbeatUrl = selectAgent.url;
-            if (selectAgent.url?.endsWith("/")) {
-              agentWsUrl = agentWsUrl + "chat";
-              agentHeartbeatUrl = agentHeartbeatUrl + "heartbeat";
-            } else {
-              agentWsUrl = agentWsUrl + "/chat";
-              agentHeartbeatUrl = agentHeartbeatUrl + "/heartbeat";
-            }
+
+            const { agentWsUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent);
+
             let firstInitHeartbeat = true;
             this.chatProgressReadable &&
               this.chatProgressReadable.push({
@@ -674,7 +604,7 @@ class ChatClient {
 
   requestSession() {
     return new Promise((resolve, reject) => {
-      if (!this.checkChainInfo()) {
+      if (!getIsChainInfoValid(this.chainInfo)) {
         reject(
           new Error(
             "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
@@ -702,8 +632,8 @@ class ChatClient {
             this.getNesaClient()
               .then((nesaClient) => {
                 this.nesaClient = nesaClient;
-                this.nesaClient[this.modelName] = nesaClient;
-                this.getChainParams(nesaClient, this.modelName)
+
+                this.getChainParams(nesaClient)
                   .then((params: any) => {
                     if (params && params?.params) {
                       this.tokenPrice = params?.params?.tokenPrice?.low;
