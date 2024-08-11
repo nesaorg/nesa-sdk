@@ -419,7 +419,7 @@ class ChatClient {
           }
         }
       };
-      ws.onclose = (error: any) => {
+      ws.onclose = (error) => {
         this.chatProgressReadable?.push({
           code: 307,
           message: "Task completed, wait for another query",
@@ -574,12 +574,12 @@ class ChatClient {
           })
           .catch((error: any) => {
             console.log("checkSignBroadcastResultError: ", error);
-            readableStream &&
-              readableStream.push({
-                code: 318,
-                message: error?.message,
-              });
-            readableStream && readableStream.push(null);
+
+            readableStream?.push({
+              code: 318,
+              message: error?.message,
+            });
+            readableStream?.push(null);
             reject(error);
           });
       }
