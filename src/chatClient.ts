@@ -291,6 +291,7 @@ class ChatClient {
 
     try {
       let ws: WebSocket;
+
       if (this.isBrowser) {
         ws = new WebSocket(this.agentUrl);
       } else {
@@ -340,7 +341,7 @@ class ChatClient {
           }
         }
       });
-      ws.onmessage = (event: any) => {
+      ws.onmessage = (event) => {
         let messageJson;
         try {
           messageJson = JSON.parse(event?.data);
@@ -419,11 +420,10 @@ class ChatClient {
         }
       };
       ws.onclose = (error: any) => {
-        this.chatProgressReadable &&
-          this.chatProgressReadable.push({
-            code: 307,
-            message: "Task completed, wait for another query",
-          });
+        this.chatProgressReadable?.push({
+          code: 307,
+          message: "Task completed, wait for another query",
+        });
         if (error?.reason) {
           console.log("onclose: ", error?.reason);
           readableStream.push({
@@ -440,11 +440,10 @@ class ChatClient {
         }
       };
       ws.onerror = (error: any) => {
-        this.chatProgressReadable &&
-          this.chatProgressReadable.push({
-            code: 307,
-            message: "Task completed, wait for another query",
-          });
+        this.chatProgressReadable?.push({
+          code: 307,
+          message: "Task completed, wait for another query",
+        });
         readableStream.push({
           code: 204,
           message: error?.reason || "Error: Connection failed",
@@ -458,11 +457,10 @@ class ChatClient {
         }
       };
     } catch (error: any) {
-      this.chatProgressReadable &&
-        this.chatProgressReadable.push({
-          code: 307,
-          message: "Task completed, wait for another query",
-        });
+      this.chatProgressReadable?.push({
+        code: 307,
+        message: "Task completed, wait for another query",
+      });
       console.log("websocketCatchError: ", error);
       readableStream.push({
         code: 207,
@@ -500,11 +498,11 @@ class ChatClient {
             const { agentWsUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent);
 
             let firstInitHeartbeat = true;
-            this.chatProgressReadable &&
-              this.chatProgressReadable.push({
-                code: 303,
-                message: "Connecting to the validator",
-              });
+
+            this.chatProgressReadable?.push({
+              code: 303,
+              message: "Connecting to the validator",
+            });
             socket.init({
               recordId: this.chatId,
               modelName: this.modelName,
@@ -513,47 +511,45 @@ class ChatClient {
                 if (firstInitHeartbeat) {
                   this.agentUrl = agentWsUrl;
                   this.isRegisteringSession = false;
-                  this.chatProgressReadable &&
-                    this.chatProgressReadable.push({
-                      code: 304,
-                      message: "Waiting for query",
-                    });
-                  readableStream && readableStream.push(null);
+
+                  this.chatProgressReadable?.push({
+                    code: 304,
+                    message: "Waiting for query",
+                  });
+                  readableStream?.push(null);
                   firstInitHeartbeat = false;
                   resolve(result);
                 }
               },
               onerror: () => {
-                readableStream &&
-                  readableStream.push({
-                    code: 319,
-                    message: "Agent connection error: " + selectAgent.url,
-                  });
-                readableStream && readableStream.push(null);
+                readableStream?.push({
+                  code: 319,
+                  message: "Agent connection error: " + selectAgent.url,
+                });
+                readableStream?.push(null);
                 reject(new Error("Agent heartbeat packet connection failed"));
               },
             });
           } else {
             this.isRegisteringSession = false;
-            readableStream &&
-              readableStream.push({
-                code: 319,
-                message: "Agent not found",
-              });
-            readableStream && readableStream.push(null);
+            readableStream?.push({
+              code: 319,
+              message: "Agent not found",
+            });
+            readableStream?.push(null);
             reject(new Error("No agent found"));
           }
         })
         .catch((error) => {
           console.log("requestAgentInfoError: ", error);
           this.lastGetAgentInfoPromise = undefined;
-          readableStream &&
-            readableStream.push({
-              code: 319,
-              message:
-                "Agent connection error: " + error?.message || error.toString(),
-            });
-          readableStream && readableStream.push(null);
+
+          readableStream?.push({
+            code: 319,
+            message:
+              "Agent connection error: " + error?.message || error.toString(),
+          });
+          readableStream?.push(null);
           reject(error);
         });
     });
