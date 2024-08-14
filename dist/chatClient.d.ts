@@ -1,4 +1,5 @@
 import { ChainInfo } from "@keplr-wallet/types";
+import { NesaClient } from "./client";
 interface ConfigOptions {
     modelName: string;
     lockAmount?: string;
@@ -7,8 +8,10 @@ interface ConfigOptions {
     singlePaymentAmount?: string;
     lowBalance?: string;
     privateKey?: string;
+    mnemonic?: string;
+    chatId?: string;
 }
-interface questionTypes {
+interface QuestionParams {
     messages: any;
     model: string;
     stream?: boolean;
@@ -25,13 +28,14 @@ declare class ChatClient {
     singlePaymentAmount: string;
     lowBalance: string;
     lockAmountDenom: string;
+    chatId: string;
     private walletName;
     private chatQueue;
     private chatSeq;
     private totalUsedPayment;
     private totalSignedPayment;
-    private isChatinging;
-    private isRegisterSessioning;
+    private isChatting;
+    private isRegisteringSession;
     private agentUrl;
     private assistantRoleName;
     private lastNesaClientPromise;
@@ -40,26 +44,26 @@ declare class ChatClient {
     private lastInitOfflineSignerPromise;
     private chatProgressReadable;
     private nesaClient;
-    private offLinesigner;
+    private offlineSigner;
     private signaturePayment;
     private isBrowser;
     private privateKey;
+    private mnemonic;
     private isEverRequestSession;
     private tokenPrice;
     constructor(options: ConfigOptions);
     initWallet(): any;
-    getNesaClient(): any;
-    getChainParams(nesaClient: any): any;
+    getNesaClient(): Promise<NesaClient>;
+    getChainParams(nesaClient: NesaClient): any;
     version(): string;
-    checkChainInfo(): string | false;
     getSignaturePayment(): string;
     checkSinglePaymentAmount(): string;
-    requestChatQueue(readableStream: any, question: questionTypes): void;
+    requestChatQueue(readableStream: any, question: QuestionParams): void;
     requestCloseHeartbeat(): void;
     requestAgentInfo(result: any, readableStream: any): any;
     checkSignBroadcastResult(readableStream?: any): Promise<unknown>;
-    requestChatStatus(): Promise<unknown>;
-    requestSession(): Promise<unknown>;
-    requestChat(question: questionTypes): Promise<unknown>;
+    requestChatStatus(): any;
+    requestSession(): Promise<any>;
+    requestChat(question: QuestionParams): Promise<any>;
 }
 export default ChatClient;

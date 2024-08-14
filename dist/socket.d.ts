@@ -7,11 +7,13 @@ interface ISocket {
     heartbeat_timer: NodeJS.Timeout | string | number | undefined;
     heartbeat_interval: number;
     init: (handle: {
+        modelName?: string;
+        recordId: string;
         ws_url: string;
         onopen: () => void;
         onclose?: (e: Event) => void;
         onerror?: (e: Event | Error) => void;
-    }) => (WebSocket | null | undefined);
+    }) => WebSocket | null | undefined;
     heartbeat: Function;
     send: (data: any, callback?: Function) => void;
     close: Function;

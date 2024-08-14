@@ -2,12 +2,11 @@
 import { OfflineSigner } from "@cosmjs/proto-signing";
 import { SigningStargateClient, SigningStargateClientOptions, GasPrice, Event, QueryClient } from "@cosmjs/stargate";
 import { CometClient } from "@cosmjs/tendermint-rpc";
-import { Logger } from './logger';
-import { VRF } from './codec/agent/v1/tx';
+import { Logger } from "./logger";
+import { VRF } from "./codec/agent/v1/tx";
 import { Payment, Params, SessionStatus } from "./codec/agent/v1/agent";
 import { Coin } from "./codec/cosmos/base/v1beta1/coin";
-import { AgentExtension } from './queries';
-import { QueryParamsResponse, QueryInferenceAgentResponse, QuerySessionResponse, QueryVRFSeedResponse, QuerySessionByAgentResponse } from "./codec/agent/v1/query";
+import { AgentExtension } from "./queries";
 import { StdFee } from "@cosmjs/amino";
 export type NesaClientOptions = SigningStargateClientOptions & {
     logger?: Logger;
@@ -28,9 +27,21 @@ export type RegisterSessionResult = MsgResult & {
 export declare class NesaClient {
     readonly gasPrice: GasPrice;
     readonly sign: SigningStargateClient;
+    readonly signByModel: {
+        [modelName: string]: SigningStargateClient;
+    };
     readonly query: QueryClient & AgentExtension;
+    readonly queryByModel: {
+        [modelName: string]: QueryClient & AgentExtension;
+    };
     readonly tm: CometClient;
+    readonly tmByModel: {
+        [modelName: string]: CometClient;
+    };
     readonly senderAddress: string;
+    readonly senderAddressByModel: {
+        [modelName: string]: string;
+    };
     readonly logger: Logger;
     readonly chainId: string;
     readonly estimatedBlockTime: number;
@@ -42,12 +53,15 @@ export declare class NesaClient {
     updateParams(authority: string, params: Params): Promise<MsgResult>;
     registerInferenceAgent(url: string, version: Long): Promise<MsgResult>;
     broadcastRegisterSession(): any;
-    signRegisterSession(sessionId: string, modelName: string, fee: StdFee, lockBalance?: Coin, vrf?: VRF): Promise<any>;
+    signRegisterSession(sessionId: string, modelName: string, fee: StdFee, lockBalance?: Coin, vrf?: VRF): Promise<{
+        sessionId: string;
+        transactionHash: string;
+    }>;
     registerSession(sessionId: string, modelName: string, lockBalance?: Coin, vrf?: VRF): Promise<RegisterSessionResult>;
     submitPayment(sessionId: string, signature: Uint8Array, payment?: Payment): Promise<MsgResult>;
-    getParams(): Promise<QueryParamsResponse>;
-    getInferenceAgent(account: string, modelName: string, limit: Long, key: Uint8Array): Promise<QueryInferenceAgentResponse>;
-    getSession(sessionId: string): Promise<QuerySessionResponse>;
-    getSessionByAgent(account: string, status: SessionStatus, limit: Long, orderDesc: boolean, key: Uint8Array, expireTime?: Date): Promise<QuerySessionByAgentResponse>;
-    getVRFSeed(account: string): Promise<QueryVRFSeedResponse>;
+    getParams(): Promise<import("./codec/agent/v1/query").QueryParamsResponse>;
+    getInferenceAgent(account: string, modelName: string, limit: Long, key: Uint8Array): Promise<import("./codec/agent/v1/query").QueryInferenceAgentResponse>;
+    getSession(sessionId: string): Promise<import("./codec/agent/v1/query").QuerySessionResponse>;
+    getSessionByAgent(account: string, status: SessionStatus, limit: Long, orderDesc: boolean, key: Uint8Array, expireTime?: Date): Promise<import("./codec/agent/v1/query").QuerySessionByAgentResponse>;
+    getVRFSeed(account: string): Promise<import("./codec/agent/v1/query").QueryVRFSeedResponse>;
 }

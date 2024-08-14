@@ -1,62 +1,63 @@
 import * as CryptoJS from "crypto-js";
-import { Evaluate } from './utils'
+import { Evaluate } from "./utils";
 import * as Secp256k1 from "@lionello/secp256k1-js";
 import WalletOperation from "./walletOperation";
+import { NesaClient } from "./client";
+import { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
+import { VRF } from "./codec/agent/v1/tx";
+
+type Key = { x: string; y: string };
 
 class EncryptUtils {
-  public static privateKey: any;
+  public static privateKeyMap: { [recordId: string]: Key } = {};
+  public static publicKeyMap: { [recordId: string]: Key } = {};
+  public static privateKeyBufMap: { [recordId: string]: Key } = {};
 
-  public static publicKey: any;
+  static generateKey(recordId: string) {
+    let privateKeyBuf;
 
-  public static privateKeyBuf: any;
-
-  static generateKey() {
-    let privateKeyBuf
-    if (typeof window === 'undefined') {
-      const crypto = require('crypto');
+    if (typeof window === "undefined") {
+      const crypto = require("crypto");
       privateKeyBuf = crypto.randomBytes(32);
     } else {
       privateKeyBuf = window.crypto.getRandomValues(new Uint8Array(32));
     }
-    this.privateKeyBuf = privateKeyBuf;
+    this.privateKeyBufMap[recordId] = privateKeyBuf;
+
     const privateKey = Secp256k1.uint256(privateKeyBuf, 16);
     const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey);
-    this.privateKey = privateKey;
-    this.publicKey = publicKey;
-    return {
-      privateKey,
-      publicKey,
-    };
+
+    this.privateKeyMap[recordId] = privateKey;
+    this.publicKeyMap[recordId] = publicKey;
+
+    return { privateKey, publicKey };
   }
 
-  static sortObjectKeys(obj: Record<string, any>): Record<string, any> {
-    if (Array.isArray(obj)) {
-      return obj.sort().map(EncryptUtils.sortObjectKeys);
-    } else if (typeof obj === "object" && obj !== null) {
-      return Object.keys(obj)
-        .sort()
-        .reduce((acc: Record<string, any>, key) => {
-          acc[key] = EncryptUtils.sortObjectKeys(obj[key]);
-          return acc;
-        }, {});
-    }
-    return obj;
-  }
-
-  static signMessage(message: string, chatSeq: number, isQuestion?: boolean) {
-    if (!this.privateKey || !this.publicKey) {
+  static signMessage(
+    recordId: string,
+    message: string,
+    chatSeq: number,
+    isQuestion?: boolean
+  ) {
+    if (!this.privateKeyMap[recordId] || !this.publicKeyMap[recordId]) {
       return "";
     }
+
     let messageData;
     if (isQuestion) {
-      const sortSignDataHash = CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
+      const sortSignDataHash = CryptoJS.SHA256(message).toString(
+        CryptoJS.enc.Hex
+      );
       messageData = `${sortSignDataHash}|${chatSeq}`;
     } else {
-      messageData = message
+      messageData = message;
     }
-    const signDataHash = CryptoJS.SHA256(messageData).toString(CryptoJS.enc.Hex);
+
+    const signDataHash = CryptoJS.SHA256(messageData).toString(
+      CryptoJS.enc.Hex
+    );
     const digest = Secp256k1.uint256(signDataHash, 16);
-    const signature = Secp256k1.ecsign(this.privateKey, digest);
+    const signature = Secp256k1.ecsign(this.privateKeyMap[recordId], digest);
     let sigV =
       signature.v.toString().length < 2
         ? `0${signature.v.toString()}`
@@ -66,46 +67,40 @@ class EncryptUtils {
     return signatureData;
   }
 
-  static requestVrf(client: any, offlineSigner: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      WalletOperation.requestVrfSeed(client, offlineSigner)
-        .then((res) => {
-          if (res?.seed) {
-            const publicKeyY = BigInt(`0x${this.publicKey.y}`);
-            let compressedPublicKey = "";
-            if (publicKeyY % 2n === 0n) {
-              compressedPublicKey = "02" + this.publicKey.x;
-            } else {
-              compressedPublicKey = "03" + this.publicKey.x;
-            }
-            const [hash, proof] = Evaluate(this.privateKeyBuf, res.seed);
-            console.log('sessionId: ', compressedPublicKey)
-            resolve({
-              vrf: {
-                seed: res.seed,
-                proof,
-                hashRandom: hash,
-              },
-              sessionId: compressedPublicKey,
-            })
-          } else {
-            reject(new Error("Vrf seed is null"));
-          }
-        })
-        .catch((err) => {
-          console.log('requestVrf-err: ', err)
-          reject(err)
-        })
-    })
+  static async requestVrf(
+    recordId: string,
+    client: NesaClient,
+    offlineSigner: CosmjsOfflineSigner
+  ) {
+    const res = await WalletOperation.requestVrfSeed(client, offlineSigner);
+
+    if (!res?.seed) {
+      throw new Error("Vrf seed is null");
+    }
+
+    const publicKeyY = BigInt(`0x${this.publicKeyMap[recordId].y}`);
+    let compressedPublicKey = "";
+    if (publicKeyY % 2n === 0n) {
+      compressedPublicKey = "02" + this.publicKeyMap[recordId].x;
+    } else {
+      compressedPublicKey = "03" + this.publicKeyMap[recordId].x;
+    }
+    const [hash, proof] = Evaluate(this.privateKeyBufMap[recordId], res.seed);
+    console.log("sessionId: ", compressedPublicKey);
+
+    return {
+      vrf: { seed: res.seed, proof, hashRandom: hash } as VRF,
+      sessionId: compressedPublicKey,
+    };
   }
 
-  static signHeartbeat(message: string) {
-    if (!this.privateKey) {
+  static signHeartbeat(recordId: string, message: string) {
+    if (!this.privateKeyMap[recordId]) {
       return "";
     }
     const signDataHash = CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
     const digest = Secp256k1.uint256(signDataHash, 16);
-    const signature = Secp256k1.ecsign(this.privateKey, digest);
+    const signature = Secp256k1.ecsign(this.privateKeyMap[recordId], digest);
     let sigV =
       signature.v.toString().length < 2
         ? `0${signature.v.toString()}`
