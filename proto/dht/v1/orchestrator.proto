@@ -1,0 +1,38 @@
+syntax = "proto3";
+package dht.v1;
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+import "dht/v1/deposit.proto";
+import "dht/v1/reputation.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// Availability defines the availability of an Orchestrator.
+enum Availability {
+  READY = 0;
+  LOADING = 1;
+  IDLE = 2;
+}
+
+// InferenceType defines the inference type of an Orchestrator.
+enum InferenceType {
+  DISTRIBUTED = 0;
+  NON_DISTRIBUTED = 1;
+}
+
+// Orchestrator defines an orchestrator of a model.
+message Orchestrator {
+  string node_id = 1;
+  string model_name = 2;
+  InferenceType inference_type = 3;
+  Availability status = 4;
+  repeated uint64 block_count = 5;
+  google.protobuf.Timestamp valid_until = 6
+      [ (gogoproto.stdtime) = true, (gogoproto.nullable) = false ];
+  dht.v1.BondStatus bond_status = 7;
+  cosmos.base.v1beta1.Coin deposit = 8
+      [ (gogoproto.nullable) = false ];
+  repeated Reputation reputations = 9;
+}

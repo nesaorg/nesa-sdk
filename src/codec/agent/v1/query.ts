@@ -1,98 +1,82 @@
 /* eslint-disable */
-import {
-  Params,
-  InferenceAgent,
-  AgentModelStatus,
-  Session,
-  SessionStatus,
-  AgentModel,
-  agentModelStatusFromJSON,
-  agentModelStatusToJSON,
-  sessionStatusFromJSON,
-  sessionStatusToJSON,
-} from "./agent";
+import { AgentModelStatus, SessionStatus, Params, InferenceAgent, AgentModel, Session, agentModelStatusFromJSON, agentModelStatusToJSON, sessionStatusFromJSON, sessionStatusToJSON } from "./agent";
 import { Timestamp } from "../../google/protobuf/timestamp";
-import Long from "long";
-import _m0 from "protobufjs/minimal";
-
+import { Long, DeepPartial, Exact, isSet, bytesFromBase64, base64FromBytes, fromJsonTimestamp, fromTimestamp, Rpc } from "../../helpers";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../json-safe";
 export const protobufPackage = "agent.v1";
-
 export interface QueryParamsRequest {}
-
 export interface QueryParamsResponse {
   /** params defines the parameters of the module. */
   params?: Params;
 }
-
 export interface QueryInferenceAgentRequest {
   account: string;
   modelName: string;
   limit: Long;
   key: Uint8Array;
 }
-
 export interface QueryInferenceAgentResponse {
   inferenceAgent?: InferenceAgent;
   agentModels: AgentModel[];
   nextKey: Uint8Array;
 }
-
 export interface QueryAgentByModelRequest {
   modelName: string;
   status: AgentModelStatus;
 }
-
 export interface ModelAgents {
   modelName: string;
   inferenceAgents: InferenceAgent[];
 }
-
 export interface QueryAgentByModelResponse {
   modelAgents: ModelAgents[];
 }
-
 export interface QuerySessionRequest {
   id: string;
 }
-
 export interface QuerySessionResponse {
   session?: Session;
 }
-
 export interface QuerySessionByAgentRequest {
   account: string;
-  status: SessionStatus;
-  expireTime?: Date;
+  status?: SessionStatus;
+  expireTime: Timestamp;
   limit: Long;
   orderDesc: boolean;
   key: Uint8Array;
 }
-
 export interface QuerySessionByAgentResponse {
   sessions: Session[];
   nextKey: Uint8Array;
 }
-
+export interface QuerySessionByChallengeRequest {
+  account: string;
+  limit: Long;
+  key: Uint8Array;
+}
+export interface SessionIdStatus {
+  sessionId: string;
+  status: SessionStatus;
+}
+export interface QuerySessionByChallengeResponse {
+  sesssionIdStatus: SessionIdStatus[];
+  nextKey: Uint8Array;
+}
 export interface QueryVRFSeedRequest {
   account: string;
 }
-
 export interface QueryVRFSeedResponse {
   seed: Uint8Array;
 }
-
 function createBaseQueryParamsRequest(): QueryParamsRequest {
   return {};
 }
-
 export const QueryParamsRequest = {
-  encode(
-    _: QueryParamsRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryParamsRequest",
+  encode(_: QueryParamsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): QueryParamsRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -107,39 +91,32 @@ export const QueryParamsRequest = {
     }
     return message;
   },
-
   fromJSON(_: any): QueryParamsRequest {
-    return {};
+    const obj = createBaseQueryParamsRequest();
+    return obj;
   },
-
-  toJSON(_: QueryParamsRequest): unknown {
+  toJSON(_: QueryParamsRequest): JsonSafe<QueryParamsRequest> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryParamsRequest>, I>>(
-    _: I
-  ): QueryParamsRequest {
+  fromPartial<I extends Exact<DeepPartial<QueryParamsRequest>, I>>(_: I): QueryParamsRequest {
     const message = createBaseQueryParamsRequest();
     return message;
-  },
+  }
 };
-
 function createBaseQueryParamsResponse(): QueryParamsResponse {
-  return { params: undefined };
+  return {
+    params: undefined
+  };
 }
-
 export const QueryParamsResponse = {
-  encode(
-    message: QueryParamsResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryParamsResponse",
+  encode(message: QueryParamsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.params !== undefined) {
       Params.encode(message.params, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): QueryParamsResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -157,46 +134,35 @@ export const QueryParamsResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): QueryParamsResponse {
-    return {
-      params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
-    };
-  },
-
-  toJSON(message: QueryParamsResponse): unknown {
-    const obj: any = {};
-    message.params !== undefined &&
-      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+    const obj = createBaseQueryParamsResponse();
+    if (isSet(object.params)) obj.params = Params.fromJSON(object.params);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryParamsResponse>, I>>(
-    object: I
-  ): QueryParamsResponse {
-    const message = createBaseQueryParamsResponse();
-    message.params =
-      object.params !== undefined && object.params !== null
-        ? Params.fromPartial(object.params)
-        : undefined;
-    return message;
+  toJSON(message: QueryParamsResponse): JsonSafe<QueryParamsResponse> {
+    const obj: any = {};
+    message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+    return obj;
   },
+  fromPartial<I extends Exact<DeepPartial<QueryParamsResponse>, I>>(object: I): QueryParamsResponse {
+    const message = createBaseQueryParamsResponse();
+    if (object.params !== undefined && object.params !== null) {
+      message.params = Params.fromPartial(object.params);
+    }
+    return message;
+  }
 };
-
 function createBaseQueryInferenceAgentRequest(): QueryInferenceAgentRequest {
   return {
     account: "",
     modelName: "",
     limit: Long.UZERO,
-    key: new Uint8Array(),
+    key: new Uint8Array()
   };
 }
-
 export const QueryInferenceAgentRequest = {
-  encode(
-    message: QueryInferenceAgentRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryInferenceAgentRequest",
+  encode(message: QueryInferenceAgentRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -211,11 +177,7 @@ export const QueryInferenceAgentRequest = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QueryInferenceAgentRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryInferenceAgentRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQueryInferenceAgentRequest();
@@ -241,62 +203,45 @@ export const QueryInferenceAgentRequest = {
     }
     return message;
   },
-
   fromJSON(object: any): QueryInferenceAgentRequest {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      modelName: isSet(object.modelName) ? String(object.modelName) : "",
-      limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
-      key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(),
-    };
+    const obj = createBaseQueryInferenceAgentRequest();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.modelName)) obj.modelName = String(object.modelName);
+    if (isSet(object.limit)) obj.limit = Long.fromValue(object.limit);
+    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
+    return obj;
   },
-
-  toJSON(message: QueryInferenceAgentRequest): unknown {
+  toJSON(message: QueryInferenceAgentRequest): JsonSafe<QueryInferenceAgentRequest> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.modelName !== undefined && (obj.modelName = message.modelName);
-    message.limit !== undefined &&
-      (obj.limit = (message.limit || Long.UZERO).toString());
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(
-        message.key !== undefined ? message.key : new Uint8Array()
-      ));
+    message.limit !== undefined && (obj.limit = (message.limit || Long.UZERO).toString());
+    message.key !== undefined && (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryInferenceAgentRequest>, I>>(
-    object: I
-  ): QueryInferenceAgentRequest {
+  fromPartial<I extends Exact<DeepPartial<QueryInferenceAgentRequest>, I>>(object: I): QueryInferenceAgentRequest {
     const message = createBaseQueryInferenceAgentRequest();
     message.account = object.account ?? "";
     message.modelName = object.modelName ?? "";
-    message.limit =
-      object.limit !== undefined && object.limit !== null
-        ? Long.fromValue(object.limit)
-        : Long.UZERO;
+    if (object.limit !== undefined && object.limit !== null) {
+      message.limit = Long.fromValue(object.limit);
+    }
     message.key = object.key ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 function createBaseQueryInferenceAgentResponse(): QueryInferenceAgentResponse {
   return {
     inferenceAgent: undefined,
     agentModels: [],
-    nextKey: new Uint8Array(),
+    nextKey: new Uint8Array()
   };
 }
-
 export const QueryInferenceAgentResponse = {
-  encode(
-    message: QueryInferenceAgentResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryInferenceAgentResponse",
+  encode(message: QueryInferenceAgentResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.inferenceAgent !== undefined) {
-      InferenceAgent.encode(
-        message.inferenceAgent,
-        writer.uint32(10).fork()
-      ).ldelim();
+      InferenceAgent.encode(message.inferenceAgent, writer.uint32(10).fork()).ldelim();
     }
     for (const v of message.agentModels) {
       AgentModel.encode(v!, writer.uint32(18).fork()).ldelim();
@@ -306,11 +251,7 @@ export const QueryInferenceAgentResponse = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QueryInferenceAgentResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryInferenceAgentResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQueryInferenceAgentResponse();
@@ -318,10 +259,7 @@ export const QueryInferenceAgentResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.inferenceAgent = InferenceAgent.decode(
-            reader,
-            reader.uint32()
-          );
+          message.inferenceAgent = InferenceAgent.decode(reader, reader.uint32());
           break;
         case 2:
           message.agentModels.push(AgentModel.decode(reader, reader.uint32()));
@@ -336,65 +274,43 @@ export const QueryInferenceAgentResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): QueryInferenceAgentResponse {
-    return {
-      inferenceAgent: isSet(object.inferenceAgent)
-        ? InferenceAgent.fromJSON(object.inferenceAgent)
-        : undefined,
-      agentModels: Array.isArray(object?.agentModels)
-        ? object.agentModels.map((e: any) => AgentModel.fromJSON(e))
-        : [],
-      nextKey: isSet(object.nextKey)
-        ? bytesFromBase64(object.nextKey)
-        : new Uint8Array(),
-    };
+    const obj = createBaseQueryInferenceAgentResponse();
+    if (isSet(object.inferenceAgent)) obj.inferenceAgent = InferenceAgent.fromJSON(object.inferenceAgent);
+    if (Array.isArray(object?.agentModels)) obj.agentModels = object.agentModels.map((e: any) => AgentModel.fromJSON(e));
+    if (isSet(object.nextKey)) obj.nextKey = bytesFromBase64(object.nextKey);
+    return obj;
   },
-
-  toJSON(message: QueryInferenceAgentResponse): unknown {
+  toJSON(message: QueryInferenceAgentResponse): JsonSafe<QueryInferenceAgentResponse> {
     const obj: any = {};
-    message.inferenceAgent !== undefined &&
-      (obj.inferenceAgent = message.inferenceAgent
-        ? InferenceAgent.toJSON(message.inferenceAgent)
-        : undefined);
+    message.inferenceAgent !== undefined && (obj.inferenceAgent = message.inferenceAgent ? InferenceAgent.toJSON(message.inferenceAgent) : undefined);
     if (message.agentModels) {
-      obj.agentModels = message.agentModels.map((e) =>
-        e ? AgentModel.toJSON(e) : undefined
-      );
+      obj.agentModels = message.agentModels.map(e => e ? AgentModel.toJSON(e) : undefined);
     } else {
       obj.agentModels = [];
     }
-    message.nextKey !== undefined &&
-      (obj.nextKey = base64FromBytes(
-        message.nextKey !== undefined ? message.nextKey : new Uint8Array()
-      ));
+    message.nextKey !== undefined && (obj.nextKey = base64FromBytes(message.nextKey !== undefined ? message.nextKey : new Uint8Array()));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryInferenceAgentResponse>, I>>(
-    object: I
-  ): QueryInferenceAgentResponse {
+  fromPartial<I extends Exact<DeepPartial<QueryInferenceAgentResponse>, I>>(object: I): QueryInferenceAgentResponse {
     const message = createBaseQueryInferenceAgentResponse();
-    message.inferenceAgent =
-      object.inferenceAgent !== undefined && object.inferenceAgent !== null
-        ? InferenceAgent.fromPartial(object.inferenceAgent)
-        : undefined;
-    message.agentModels =
-      object.agentModels?.map((e) => AgentModel.fromPartial(e)) || [];
+    if (object.inferenceAgent !== undefined && object.inferenceAgent !== null) {
+      message.inferenceAgent = InferenceAgent.fromPartial(object.inferenceAgent);
+    }
+    message.agentModels = object.agentModels?.map(e => AgentModel.fromPartial(e)) || [];
     message.nextKey = object.nextKey ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 function createBaseQueryAgentByModelRequest(): QueryAgentByModelRequest {
-  return { modelName: "", status: 0 };
+  return {
+    modelName: "",
+    status: 0
+  };
 }
-
 export const QueryAgentByModelRequest = {
-  encode(
-    message: QueryAgentByModelRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryAgentByModelRequest",
+  encode(message: QueryAgentByModelRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.modelName !== "") {
       writer.uint32(10).string(message.modelName);
     }
@@ -403,11 +319,7 @@ export const QueryAgentByModelRequest = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QueryAgentByModelRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryAgentByModelRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQueryAgentByModelRequest();
@@ -427,43 +339,34 @@ export const QueryAgentByModelRequest = {
     }
     return message;
   },
-
   fromJSON(object: any): QueryAgentByModelRequest {
-    return {
-      modelName: isSet(object.modelName) ? String(object.modelName) : "",
-      status: isSet(object.status)
-        ? agentModelStatusFromJSON(object.status)
-        : 0,
-    };
-  },
-
-  toJSON(message: QueryAgentByModelRequest): unknown {
-    const obj: any = {};
-    message.modelName !== undefined && (obj.modelName = message.modelName);
-    message.status !== undefined &&
-      (obj.status = agentModelStatusToJSON(message.status));
+    const obj = createBaseQueryAgentByModelRequest();
+    if (isSet(object.modelName)) obj.modelName = String(object.modelName);
+    if (isSet(object.status)) obj.status = agentModelStatusFromJSON(object.status);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryAgentByModelRequest>, I>>(
-    object: I
-  ): QueryAgentByModelRequest {
+  toJSON(message: QueryAgentByModelRequest): JsonSafe<QueryAgentByModelRequest> {
+    const obj: any = {};
+    message.modelName !== undefined && (obj.modelName = message.modelName);
+    message.status !== undefined && (obj.status = agentModelStatusToJSON(message.status));
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<QueryAgentByModelRequest>, I>>(object: I): QueryAgentByModelRequest {
     const message = createBaseQueryAgentByModelRequest();
     message.modelName = object.modelName ?? "";
     message.status = object.status ?? 0;
     return message;
-  },
+  }
 };
-
 function createBaseModelAgents(): ModelAgents {
-  return { modelName: "", inferenceAgents: [] };
+  return {
+    modelName: "",
+    inferenceAgents: []
+  };
 }
-
 export const ModelAgents = {
-  encode(
-    message: ModelAgents,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.ModelAgents",
+  encode(message: ModelAgents, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.modelName !== "") {
       writer.uint32(10).string(message.modelName);
     }
@@ -472,7 +375,6 @@ export const ModelAgents = {
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): ModelAgents {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -484,9 +386,7 @@ export const ModelAgents = {
           message.modelName = reader.string();
           break;
         case 2:
-          message.inferenceAgents.push(
-            InferenceAgent.decode(reader, reader.uint32())
-          );
+          message.inferenceAgents.push(InferenceAgent.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -495,59 +395,43 @@ export const ModelAgents = {
     }
     return message;
   },
-
   fromJSON(object: any): ModelAgents {
-    return {
-      modelName: isSet(object.modelName) ? String(object.modelName) : "",
-      inferenceAgents: Array.isArray(object?.inferenceAgents)
-        ? object.inferenceAgents.map((e: any) => InferenceAgent.fromJSON(e))
-        : [],
-    };
+    const obj = createBaseModelAgents();
+    if (isSet(object.modelName)) obj.modelName = String(object.modelName);
+    if (Array.isArray(object?.inferenceAgents)) obj.inferenceAgents = object.inferenceAgents.map((e: any) => InferenceAgent.fromJSON(e));
+    return obj;
   },
-
-  toJSON(message: ModelAgents): unknown {
+  toJSON(message: ModelAgents): JsonSafe<ModelAgents> {
     const obj: any = {};
     message.modelName !== undefined && (obj.modelName = message.modelName);
     if (message.inferenceAgents) {
-      obj.inferenceAgents = message.inferenceAgents.map((e) =>
-        e ? InferenceAgent.toJSON(e) : undefined
-      );
+      obj.inferenceAgents = message.inferenceAgents.map(e => e ? InferenceAgent.toJSON(e) : undefined);
     } else {
       obj.inferenceAgents = [];
     }
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<ModelAgents>, I>>(
-    object: I
-  ): ModelAgents {
+  fromPartial<I extends Exact<DeepPartial<ModelAgents>, I>>(object: I): ModelAgents {
     const message = createBaseModelAgents();
     message.modelName = object.modelName ?? "";
-    message.inferenceAgents =
-      object.inferenceAgents?.map((e) => InferenceAgent.fromPartial(e)) || [];
+    message.inferenceAgents = object.inferenceAgents?.map(e => InferenceAgent.fromPartial(e)) || [];
     return message;
-  },
+  }
 };
-
 function createBaseQueryAgentByModelResponse(): QueryAgentByModelResponse {
-  return { modelAgents: [] };
+  return {
+    modelAgents: []
+  };
 }
-
 export const QueryAgentByModelResponse = {
-  encode(
-    message: QueryAgentByModelResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryAgentByModelResponse",
+  encode(message: QueryAgentByModelResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.modelAgents) {
       ModelAgents.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QueryAgentByModelResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryAgentByModelResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQueryAgentByModelResponse();
@@ -564,52 +448,39 @@ export const QueryAgentByModelResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): QueryAgentByModelResponse {
-    return {
-      modelAgents: Array.isArray(object?.modelAgents)
-        ? object.modelAgents.map((e: any) => ModelAgents.fromJSON(e))
-        : [],
-    };
+    const obj = createBaseQueryAgentByModelResponse();
+    if (Array.isArray(object?.modelAgents)) obj.modelAgents = object.modelAgents.map((e: any) => ModelAgents.fromJSON(e));
+    return obj;
   },
-
-  toJSON(message: QueryAgentByModelResponse): unknown {
+  toJSON(message: QueryAgentByModelResponse): JsonSafe<QueryAgentByModelResponse> {
     const obj: any = {};
     if (message.modelAgents) {
-      obj.modelAgents = message.modelAgents.map((e) =>
-        e ? ModelAgents.toJSON(e) : undefined
-      );
+      obj.modelAgents = message.modelAgents.map(e => e ? ModelAgents.toJSON(e) : undefined);
     } else {
       obj.modelAgents = [];
     }
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryAgentByModelResponse>, I>>(
-    object: I
-  ): QueryAgentByModelResponse {
+  fromPartial<I extends Exact<DeepPartial<QueryAgentByModelResponse>, I>>(object: I): QueryAgentByModelResponse {
     const message = createBaseQueryAgentByModelResponse();
-    message.modelAgents =
-      object.modelAgents?.map((e) => ModelAgents.fromPartial(e)) || [];
+    message.modelAgents = object.modelAgents?.map(e => ModelAgents.fromPartial(e)) || [];
     return message;
-  },
+  }
 };
-
 function createBaseQuerySessionRequest(): QuerySessionRequest {
-  return { id: "" };
+  return {
+    id: ""
+  };
 }
-
 export const QuerySessionRequest = {
-  encode(
-    message: QuerySessionRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QuerySessionRequest",
+  encode(message: QuerySessionRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -627,47 +498,36 @@ export const QuerySessionRequest = {
     }
     return message;
   },
-
   fromJSON(object: any): QuerySessionRequest {
-    return {
-      id: isSet(object.id) ? String(object.id) : "",
-    };
+    const obj = createBaseQuerySessionRequest();
+    if (isSet(object.id)) obj.id = String(object.id);
+    return obj;
   },
-
-  toJSON(message: QuerySessionRequest): unknown {
+  toJSON(message: QuerySessionRequest): JsonSafe<QuerySessionRequest> {
     const obj: any = {};
     message.id !== undefined && (obj.id = message.id);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QuerySessionRequest>, I>>(
-    object: I
-  ): QuerySessionRequest {
+  fromPartial<I extends Exact<DeepPartial<QuerySessionRequest>, I>>(object: I): QuerySessionRequest {
     const message = createBaseQuerySessionRequest();
     message.id = object.id ?? "";
     return message;
-  },
+  }
 };
-
 function createBaseQuerySessionResponse(): QuerySessionResponse {
-  return { session: undefined };
+  return {
+    session: undefined
+  };
 }
-
 export const QuerySessionResponse = {
-  encode(
-    message: QuerySessionResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QuerySessionResponse",
+  encode(message: QuerySessionResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.session !== undefined) {
       Session.encode(message.session, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QuerySessionResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQuerySessionResponse();
@@ -684,63 +544,45 @@ export const QuerySessionResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): QuerySessionResponse {
-    return {
-      session: isSet(object.session)
-        ? Session.fromJSON(object.session)
-        : undefined,
-    };
-  },
-
-  toJSON(message: QuerySessionResponse): unknown {
-    const obj: any = {};
-    message.session !== undefined &&
-      (obj.session = message.session
-        ? Session.toJSON(message.session)
-        : undefined);
+    const obj = createBaseQuerySessionResponse();
+    if (isSet(object.session)) obj.session = Session.fromJSON(object.session);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QuerySessionResponse>, I>>(
-    object: I
-  ): QuerySessionResponse {
-    const message = createBaseQuerySessionResponse();
-    message.session =
-      object.session !== undefined && object.session !== null
-        ? Session.fromPartial(object.session)
-        : undefined;
-    return message;
+  toJSON(message: QuerySessionResponse): JsonSafe<QuerySessionResponse> {
+    const obj: any = {};
+    message.session !== undefined && (obj.session = message.session ? Session.toJSON(message.session) : undefined);
+    return obj;
   },
+  fromPartial<I extends Exact<DeepPartial<QuerySessionResponse>, I>>(object: I): QuerySessionResponse {
+    const message = createBaseQuerySessionResponse();
+    if (object.session !== undefined && object.session !== null) {
+      message.session = Session.fromPartial(object.session);
+    }
+    return message;
+  }
 };
-
 function createBaseQuerySessionByAgentRequest(): QuerySessionByAgentRequest {
   return {
     account: "",
-    status: 0,
-    expireTime: undefined,
+    status: undefined,
+    expireTime: Timestamp.fromPartial({}),
     limit: Long.UZERO,
     orderDesc: false,
-    key: new Uint8Array(),
+    key: new Uint8Array()
   };
 }
-
 export const QuerySessionByAgentRequest = {
-  encode(
-    message: QuerySessionByAgentRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QuerySessionByAgentRequest",
+  encode(message: QuerySessionByAgentRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
-    if (message.status !== 0) {
+    if (message.status !== undefined) {
       writer.uint32(16).int32(message.status);
     }
     if (message.expireTime !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.expireTime),
-        writer.uint32(26).fork()
-      ).ldelim();
+      Timestamp.encode(message.expireTime, writer.uint32(26).fork()).ldelim();
     }
     if (!message.limit.isZero()) {
       writer.uint32(32).uint64(message.limit);
@@ -753,11 +595,7 @@ export const QuerySessionByAgentRequest = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QuerySessionByAgentRequest {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByAgentRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQuerySessionByAgentRequest();
@@ -771,9 +609,7 @@ export const QuerySessionByAgentRequest = {
           message.status = reader.int32() as any;
           break;
         case 3:
-          message.expireTime = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32())
-          );
+          message.expireTime = Timestamp.decode(reader, reader.uint32());
           break;
         case 4:
           message.limit = reader.uint64() as Long;
@@ -791,63 +627,50 @@ export const QuerySessionByAgentRequest = {
     }
     return message;
   },
-
   fromJSON(object: any): QuerySessionByAgentRequest {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      status: isSet(object.status) ? sessionStatusFromJSON(object.status) : 0,
-      expireTime: isSet(object.expireTime)
-        ? fromJsonTimestamp(object.expireTime)
-        : undefined,
-      limit: isSet(object.limit) ? Long.fromValue(object.limit) : Long.UZERO,
-      orderDesc: isSet(object.orderDesc) ? Boolean(object.orderDesc) : false,
-      key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(),
-    };
-  },
-
-  toJSON(message: QuerySessionByAgentRequest): unknown {
-    const obj: any = {};
-    message.account !== undefined && (obj.account = message.account);
-    message.status !== undefined &&
-      (obj.status = sessionStatusToJSON(message.status));
-    message.expireTime !== undefined &&
-      (obj.expireTime = message.expireTime.toISOString());
-    message.limit !== undefined &&
-      (obj.limit = (message.limit || Long.UZERO).toString());
-    message.orderDesc !== undefined && (obj.orderDesc = message.orderDesc);
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(
-        message.key !== undefined ? message.key : new Uint8Array()
-      ));
+    const obj = createBaseQuerySessionByAgentRequest();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.status)) obj.status = sessionStatusFromJSON(object.status);
+    if (isSet(object.expireTime)) obj.expireTime = fromJsonTimestamp(object.expireTime);
+    if (isSet(object.limit)) obj.limit = Long.fromValue(object.limit);
+    if (isSet(object.orderDesc)) obj.orderDesc = Boolean(object.orderDesc);
+    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QuerySessionByAgentRequest>, I>>(
-    object: I
-  ): QuerySessionByAgentRequest {
+  toJSON(message: QuerySessionByAgentRequest): JsonSafe<QuerySessionByAgentRequest> {
+    const obj: any = {};
+    message.account !== undefined && (obj.account = message.account);
+    message.status !== undefined && (obj.status = sessionStatusToJSON(message.status));
+    message.expireTime !== undefined && (obj.expireTime = fromTimestamp(message.expireTime).toISOString());
+    message.limit !== undefined && (obj.limit = (message.limit || Long.UZERO).toString());
+    message.orderDesc !== undefined && (obj.orderDesc = message.orderDesc);
+    message.key !== undefined && (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<QuerySessionByAgentRequest>, I>>(object: I): QuerySessionByAgentRequest {
     const message = createBaseQuerySessionByAgentRequest();
     message.account = object.account ?? "";
-    message.status = object.status ?? 0;
-    message.expireTime = object.expireTime ?? undefined;
-    message.limit =
-      object.limit !== undefined && object.limit !== null
-        ? Long.fromValue(object.limit)
-        : Long.UZERO;
+    message.status = object.status ?? undefined;
+    if (object.expireTime !== undefined && object.expireTime !== null) {
+      message.expireTime = Timestamp.fromPartial(object.expireTime);
+    }
+    if (object.limit !== undefined && object.limit !== null) {
+      message.limit = Long.fromValue(object.limit);
+    }
     message.orderDesc = object.orderDesc ?? false;
     message.key = object.key ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 function createBaseQuerySessionByAgentResponse(): QuerySessionByAgentResponse {
-  return { sessions: [], nextKey: new Uint8Array() };
+  return {
+    sessions: [],
+    nextKey: new Uint8Array()
+  };
 }
-
 export const QuerySessionByAgentResponse = {
-  encode(
-    message: QuerySessionByAgentResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QuerySessionByAgentResponse",
+  encode(message: QuerySessionByAgentResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     for (const v of message.sessions) {
       Session.encode(v!, writer.uint32(10).fork()).ldelim();
     }
@@ -856,11 +679,7 @@ export const QuerySessionByAgentResponse = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QuerySessionByAgentResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByAgentResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQuerySessionByAgentResponse();
@@ -880,60 +699,226 @@ export const QuerySessionByAgentResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): QuerySessionByAgentResponse {
-    return {
-      sessions: Array.isArray(object?.sessions)
-        ? object.sessions.map((e: any) => Session.fromJSON(e))
-        : [],
-      nextKey: isSet(object.nextKey)
-        ? bytesFromBase64(object.nextKey)
-        : new Uint8Array(),
-    };
+    const obj = createBaseQuerySessionByAgentResponse();
+    if (Array.isArray(object?.sessions)) obj.sessions = object.sessions.map((e: any) => Session.fromJSON(e));
+    if (isSet(object.nextKey)) obj.nextKey = bytesFromBase64(object.nextKey);
+    return obj;
   },
-
-  toJSON(message: QuerySessionByAgentResponse): unknown {
+  toJSON(message: QuerySessionByAgentResponse): JsonSafe<QuerySessionByAgentResponse> {
     const obj: any = {};
     if (message.sessions) {
-      obj.sessions = message.sessions.map((e) =>
-        e ? Session.toJSON(e) : undefined
-      );
+      obj.sessions = message.sessions.map(e => e ? Session.toJSON(e) : undefined);
     } else {
       obj.sessions = [];
     }
-    message.nextKey !== undefined &&
-      (obj.nextKey = base64FromBytes(
-        message.nextKey !== undefined ? message.nextKey : new Uint8Array()
-      ));
+    message.nextKey !== undefined && (obj.nextKey = base64FromBytes(message.nextKey !== undefined ? message.nextKey : new Uint8Array()));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QuerySessionByAgentResponse>, I>>(
-    object: I
-  ): QuerySessionByAgentResponse {
+  fromPartial<I extends Exact<DeepPartial<QuerySessionByAgentResponse>, I>>(object: I): QuerySessionByAgentResponse {
     const message = createBaseQuerySessionByAgentResponse();
-    message.sessions =
-      object.sessions?.map((e) => Session.fromPartial(e)) || [];
+    message.sessions = object.sessions?.map(e => Session.fromPartial(e)) || [];
     message.nextKey = object.nextKey ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
-function createBaseQueryVRFSeedRequest(): QueryVRFSeedRequest {
-  return { account: "" };
+function createBaseQuerySessionByChallengeRequest(): QuerySessionByChallengeRequest {
+  return {
+    account: "",
+    limit: Long.UZERO,
+    key: new Uint8Array()
+  };
 }
-
+export const QuerySessionByChallengeRequest = {
+  typeUrl: "/agent.v1.QuerySessionByChallengeRequest",
+  encode(message: QuerySessionByChallengeRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.account !== "") {
+      writer.uint32(10).string(message.account);
+    }
+    if (!message.limit.isZero()) {
+      writer.uint32(16).uint64(message.limit);
+    }
+    if (message.key.length !== 0) {
+      writer.uint32(26).bytes(message.key);
+    }
+    return writer;
+  },
+  decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByChallengeRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQuerySessionByChallengeRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.account = reader.string();
+          break;
+        case 2:
+          message.limit = reader.uint64() as Long;
+          break;
+        case 3:
+          message.key = reader.bytes();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): QuerySessionByChallengeRequest {
+    const obj = createBaseQuerySessionByChallengeRequest();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.limit)) obj.limit = Long.fromValue(object.limit);
+    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
+    return obj;
+  },
+  toJSON(message: QuerySessionByChallengeRequest): JsonSafe<QuerySessionByChallengeRequest> {
+    const obj: any = {};
+    message.account !== undefined && (obj.account = message.account);
+    message.limit !== undefined && (obj.limit = (message.limit || Long.UZERO).toString());
+    message.key !== undefined && (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<QuerySessionByChallengeRequest>, I>>(object: I): QuerySessionByChallengeRequest {
+    const message = createBaseQuerySessionByChallengeRequest();
+    message.account = object.account ?? "";
+    if (object.limit !== undefined && object.limit !== null) {
+      message.limit = Long.fromValue(object.limit);
+    }
+    message.key = object.key ?? new Uint8Array();
+    return message;
+  }
+};
+function createBaseSessionIdStatus(): SessionIdStatus {
+  return {
+    sessionId: "",
+    status: 0
+  };
+}
+export const SessionIdStatus = {
+  typeUrl: "/agent.v1.SessionIdStatus",
+  encode(message: SessionIdStatus, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.sessionId !== "") {
+      writer.uint32(10).string(message.sessionId);
+    }
+    if (message.status !== 0) {
+      writer.uint32(16).int32(message.status);
+    }
+    return writer;
+  },
+  decode(input: _m0.Reader | Uint8Array, length?: number): SessionIdStatus {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSessionIdStatus();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.sessionId = reader.string();
+          break;
+        case 2:
+          message.status = reader.int32() as any;
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): SessionIdStatus {
+    const obj = createBaseSessionIdStatus();
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.status)) obj.status = sessionStatusFromJSON(object.status);
+    return obj;
+  },
+  toJSON(message: SessionIdStatus): JsonSafe<SessionIdStatus> {
+    const obj: any = {};
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
+    message.status !== undefined && (obj.status = sessionStatusToJSON(message.status));
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<SessionIdStatus>, I>>(object: I): SessionIdStatus {
+    const message = createBaseSessionIdStatus();
+    message.sessionId = object.sessionId ?? "";
+    message.status = object.status ?? 0;
+    return message;
+  }
+};
+function createBaseQuerySessionByChallengeResponse(): QuerySessionByChallengeResponse {
+  return {
+    sesssionIdStatus: [],
+    nextKey: new Uint8Array()
+  };
+}
+export const QuerySessionByChallengeResponse = {
+  typeUrl: "/agent.v1.QuerySessionByChallengeResponse",
+  encode(message: QuerySessionByChallengeResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    for (const v of message.sesssionIdStatus) {
+      SessionIdStatus.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.nextKey.length !== 0) {
+      writer.uint32(18).bytes(message.nextKey);
+    }
+    return writer;
+  },
+  decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByChallengeResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQuerySessionByChallengeResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.sesssionIdStatus.push(SessionIdStatus.decode(reader, reader.uint32()));
+          break;
+        case 2:
+          message.nextKey = reader.bytes();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): QuerySessionByChallengeResponse {
+    const obj = createBaseQuerySessionByChallengeResponse();
+    if (Array.isArray(object?.sesssionIdStatus)) obj.sesssionIdStatus = object.sesssionIdStatus.map((e: any) => SessionIdStatus.fromJSON(e));
+    if (isSet(object.nextKey)) obj.nextKey = bytesFromBase64(object.nextKey);
+    return obj;
+  },
+  toJSON(message: QuerySessionByChallengeResponse): JsonSafe<QuerySessionByChallengeResponse> {
+    const obj: any = {};
+    if (message.sesssionIdStatus) {
+      obj.sesssionIdStatus = message.sesssionIdStatus.map(e => e ? SessionIdStatus.toJSON(e) : undefined);
+    } else {
+      obj.sesssionIdStatus = [];
+    }
+    message.nextKey !== undefined && (obj.nextKey = base64FromBytes(message.nextKey !== undefined ? message.nextKey : new Uint8Array()));
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<QuerySessionByChallengeResponse>, I>>(object: I): QuerySessionByChallengeResponse {
+    const message = createBaseQuerySessionByChallengeResponse();
+    message.sesssionIdStatus = object.sesssionIdStatus?.map(e => SessionIdStatus.fromPartial(e)) || [];
+    message.nextKey = object.nextKey ?? new Uint8Array();
+    return message;
+  }
+};
+function createBaseQueryVRFSeedRequest(): QueryVRFSeedRequest {
+  return {
+    account: ""
+  };
+}
 export const QueryVRFSeedRequest = {
-  encode(
-    message: QueryVRFSeedRequest,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryVRFSeedRequest",
+  encode(message: QueryVRFSeedRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): QueryVRFSeedRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -951,47 +936,36 @@ export const QueryVRFSeedRequest = {
     }
     return message;
   },
-
   fromJSON(object: any): QueryVRFSeedRequest {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-    };
+    const obj = createBaseQueryVRFSeedRequest();
+    if (isSet(object.account)) obj.account = String(object.account);
+    return obj;
   },
-
-  toJSON(message: QueryVRFSeedRequest): unknown {
+  toJSON(message: QueryVRFSeedRequest): JsonSafe<QueryVRFSeedRequest> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryVRFSeedRequest>, I>>(
-    object: I
-  ): QueryVRFSeedRequest {
+  fromPartial<I extends Exact<DeepPartial<QueryVRFSeedRequest>, I>>(object: I): QueryVRFSeedRequest {
     const message = createBaseQueryVRFSeedRequest();
     message.account = object.account ?? "";
     return message;
-  },
+  }
 };
-
 function createBaseQueryVRFSeedResponse(): QueryVRFSeedResponse {
-  return { seed: new Uint8Array() };
+  return {
+    seed: new Uint8Array()
+  };
 }
-
 export const QueryVRFSeedResponse = {
-  encode(
-    message: QueryVRFSeedResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.QueryVRFSeedResponse",
+  encode(message: QueryVRFSeedResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.seed.length !== 0) {
       writer.uint32(10).bytes(message.seed);
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): QueryVRFSeedResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryVRFSeedResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseQueryVRFSeedResponse();
@@ -1008,48 +982,31 @@ export const QueryVRFSeedResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): QueryVRFSeedResponse {
-    return {
-      seed: isSet(object.seed)
-        ? bytesFromBase64(object.seed)
-        : new Uint8Array(),
-    };
-  },
-
-  toJSON(message: QueryVRFSeedResponse): unknown {
-    const obj: any = {};
-    message.seed !== undefined &&
-      (obj.seed = base64FromBytes(
-        message.seed !== undefined ? message.seed : new Uint8Array()
-      ));
+    const obj = createBaseQueryVRFSeedResponse();
+    if (isSet(object.seed)) obj.seed = bytesFromBase64(object.seed);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<QueryVRFSeedResponse>, I>>(
-    object: I
-  ): QueryVRFSeedResponse {
+  toJSON(message: QueryVRFSeedResponse): JsonSafe<QueryVRFSeedResponse> {
+    const obj: any = {};
+    message.seed !== undefined && (obj.seed = base64FromBytes(message.seed !== undefined ? message.seed : new Uint8Array()));
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<QueryVRFSeedResponse>, I>>(object: I): QueryVRFSeedResponse {
     const message = createBaseQueryVRFSeedResponse();
     message.seed = object.seed ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 export interface Query {
-  Params(request: QueryParamsRequest): Promise<QueryParamsResponse>;
-  InferenceAgentRequest(
-    request: QueryInferenceAgentRequest
-  ): Promise<QueryInferenceAgentResponse>;
-  AgentByModelRequest(
-    request: QueryAgentByModelRequest
-  ): Promise<QueryAgentByModelResponse>;
+  Params(request?: QueryParamsRequest): Promise<QueryParamsResponse>;
+  InferenceAgentRequest(request: QueryInferenceAgentRequest): Promise<QueryInferenceAgentResponse>;
+  AgentByModelRequest(request: QueryAgentByModelRequest): Promise<QueryAgentByModelResponse>;
   SessionRequest(request: QuerySessionRequest): Promise<QuerySessionResponse>;
-  SessionByAgentRequest(
-    request: QuerySessionByAgentRequest
-  ): Promise<QuerySessionByAgentResponse>;
+  SessionByAgentRequest(request: QuerySessionByAgentRequest): Promise<QuerySessionByAgentResponse>;
+  SessionByChallengeRequest(request: QuerySessionByChallengeRequest): Promise<QuerySessionByChallengeResponse>;
   VRFSeedRequest(request: QueryVRFSeedRequest): Promise<QueryVRFSeedResponse>;
 }
-
 export class QueryClientImpl implements Query {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
@@ -1059,178 +1016,42 @@ export class QueryClientImpl implements Query {
     this.AgentByModelRequest = this.AgentByModelRequest.bind(this);
     this.SessionRequest = this.SessionRequest.bind(this);
     this.SessionByAgentRequest = this.SessionByAgentRequest.bind(this);
+    this.SessionByChallengeRequest = this.SessionByChallengeRequest.bind(this);
     this.VRFSeedRequest = this.VRFSeedRequest.bind(this);
   }
-  Params(request: QueryParamsRequest): Promise<QueryParamsResponse> {
+  Params(request: QueryParamsRequest = {}): Promise<QueryParamsResponse> {
     const data = QueryParamsRequest.encode(request).finish();
     const promise = this.rpc.request("agent.v1.Query", "Params", data);
-    return promise.then((data) =>
-      QueryParamsResponse.decode(new _m0.Reader(data))
-    );
+    return promise.then(data => QueryParamsResponse.decode(new _m0.Reader(data)));
   }
-
-  InferenceAgentRequest(
-    request: QueryInferenceAgentRequest
-  ): Promise<QueryInferenceAgentResponse> {
+  InferenceAgentRequest(request: QueryInferenceAgentRequest): Promise<QueryInferenceAgentResponse> {
     const data = QueryInferenceAgentRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Query",
-      "InferenceAgentRequest",
-      data
-    );
-    return promise.then((data) =>
-      QueryInferenceAgentResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Query", "InferenceAgentRequest", data);
+    return promise.then(data => QueryInferenceAgentResponse.decode(new _m0.Reader(data)));
   }
-
-  AgentByModelRequest(
-    request: QueryAgentByModelRequest
-  ): Promise<QueryAgentByModelResponse> {
+  AgentByModelRequest(request: QueryAgentByModelRequest): Promise<QueryAgentByModelResponse> {
     const data = QueryAgentByModelRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Query",
-      "AgentByModelRequest",
-      data
-    );
-    return promise.then((data) =>
-      QueryAgentByModelResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Query", "AgentByModelRequest", data);
+    return promise.then(data => QueryAgentByModelResponse.decode(new _m0.Reader(data)));
   }
-
   SessionRequest(request: QuerySessionRequest): Promise<QuerySessionResponse> {
     const data = QuerySessionRequest.encode(request).finish();
     const promise = this.rpc.request("agent.v1.Query", "SessionRequest", data);
-    return promise.then((data) =>
-      QuerySessionResponse.decode(new _m0.Reader(data))
-    );
+    return promise.then(data => QuerySessionResponse.decode(new _m0.Reader(data)));
   }
-
-  SessionByAgentRequest(
-    request: QuerySessionByAgentRequest
-  ): Promise<QuerySessionByAgentResponse> {
+  SessionByAgentRequest(request: QuerySessionByAgentRequest): Promise<QuerySessionByAgentResponse> {
     const data = QuerySessionByAgentRequest.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Query",
-      "SessionByAgentRequest",
-      data
-    );
-    return promise.then((data) =>
-      QuerySessionByAgentResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Query", "SessionByAgentRequest", data);
+    return promise.then(data => QuerySessionByAgentResponse.decode(new _m0.Reader(data)));
   }
-
+  SessionByChallengeRequest(request: QuerySessionByChallengeRequest): Promise<QuerySessionByChallengeResponse> {
+    const data = QuerySessionByChallengeRequest.encode(request).finish();
+    const promise = this.rpc.request("agent.v1.Query", "SessionByChallengeRequest", data);
+    return promise.then(data => QuerySessionByChallengeResponse.decode(new _m0.Reader(data)));
+  }
   VRFSeedRequest(request: QueryVRFSeedRequest): Promise<QueryVRFSeedResponse> {
     const data = QueryVRFSeedRequest.encode(request).finish();
     const promise = this.rpc.request("agent.v1.Query", "VRFSeedRequest", data);
-    return promise.then((data) =>
-      QueryVRFSeedResponse.decode(new _m0.Reader(data))
-    );
+    return promise.then(data => QueryVRFSeedResponse.decode(new _m0.Reader(data)));
   }
-}
-
-interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: Uint8Array
-  ): Promise<Uint8Array>;
-}
-
-declare var self: any | undefined;
-declare var window: any | undefined;
-declare var global: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw "Unable to locate global object";
-})();
-
-function bytesFromBase64(b64: string): Uint8Array {
-  if (globalThis.Buffer) {
-    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
-  } else {
-    const bin = globalThis.atob(b64);
-    const arr = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; ++i) {
-      arr[i] = bin.charCodeAt(i);
-    }
-    return arr;
-  }
-}
-
-function base64FromBytes(arr: Uint8Array): string {
-  if (globalThis.Buffer) {
-    return globalThis.Buffer.from(arr).toString("base64");
-  } else {
-    const bin: string[] = [];
-    arr.forEach((byte) => {
-      bin.push(String.fromCharCode(byte));
-    });
-    return globalThis.btoa(bin.join(""));
-  }
-}
-
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
-
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends Long
-  ? string | number | Long
-  : T extends Array<infer U>
-  ? Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U>
-  ? ReadonlyArray<DeepPartial<U>>
-  : T extends {}
-  ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
-
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
-
-function toTimestamp(date: Date): Timestamp {
-  const seconds = numberToLong(date.getTime() / 1_000);
-  const nanos = (date.getTime() % 1_000) * 1_000_000;
-  return { seconds, nanos };
-}
-
-function fromTimestamp(t: Timestamp): Date {
-  let millis = t.seconds.toNumber() * 1_000;
-  millis += t.nanos / 1_000_000;
-  return new Date(millis);
-}
-
-function fromJsonTimestamp(o: any): Date {
-  if (o instanceof Date) {
-    return o;
-  } else if (typeof o === "string") {
-    return new Date(o);
-  } else {
-    return fromTimestamp(Timestamp.fromJSON(o));
-  }
-}
-
-function numberToLong(number: number) {
-  return Long.fromNumber(number);
-}
-
-if (_m0.util.Long !== Long) {
-  _m0.util.Long = Long as any;
-  _m0.configure();
-}
-
-function isSet(value: any): boolean {
-  return value !== null && value !== undefined;
 }

@@ -1,9 +1,8 @@
 /* eslint-disable */
-import Long from "long";
-import _m0 from "protobufjs/minimal";
-
+import { Long, isSet, DeepPartial, Exact } from "../../helpers";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../json-safe";
 export const protobufPackage = "google.protobuf";
-
 /**
  * A Duration represents a signed, fixed-length span of time represented
  * as a count of seconds and fractions of seconds at nanosecond
@@ -11,18 +10,18 @@ export const protobufPackage = "google.protobuf";
  * or "month". It is related to Timestamp in that the difference between
  * two Timestamp values is a Duration and it can be added or subtracted
  * from a Timestamp. Range is approximately +-10,000 years.
- *
+ * 
  * # Examples
- *
+ * 
  * Example 1: Compute Duration from two Timestamps in pseudo code.
- *
+ * 
  *     Timestamp start = ...;
  *     Timestamp end = ...;
  *     Duration duration = ...;
- *
+ * 
  *     duration.seconds = end.seconds - start.seconds;
  *     duration.nanos = end.nanos - start.nanos;
- *
+ * 
  *     if (duration.seconds < 0 && duration.nanos > 0) {
  *       duration.seconds += 1;
  *       duration.nanos -= 1000000000;
@@ -30,16 +29,16 @@ export const protobufPackage = "google.protobuf";
  *       duration.seconds -= 1;
  *       duration.nanos += 1000000000;
  *     }
- *
+ * 
  * Example 2: Compute Timestamp from Timestamp + Duration in pseudo code.
- *
+ * 
  *     Timestamp start = ...;
  *     Duration duration = ...;
  *     Timestamp end = ...;
- *
+ * 
  *     end.seconds = start.seconds + duration.seconds;
  *     end.nanos = start.nanos + duration.nanos;
- *
+ * 
  *     if (end.nanos < 0) {
  *       end.seconds -= 1;
  *       end.nanos += 1000000000;
@@ -47,15 +46,15 @@ export const protobufPackage = "google.protobuf";
  *       end.seconds += 1;
  *       end.nanos -= 1000000000;
  *     }
- *
+ * 
  * Example 3: Compute Duration from datetime.timedelta in Python.
- *
+ * 
  *     td = datetime.timedelta(days=3, minutes=10)
  *     duration = Duration()
  *     duration.FromTimedelta(td)
- *
+ * 
  * # JSON Mapping
- *
+ * 
  * In JSON format, the Duration type is encoded as a string rather than an
  * object, where the string ends in the suffix "s" (indicating seconds) and
  * is preceded by the number of seconds, with nanoseconds expressed as
@@ -81,16 +80,15 @@ export interface Duration {
    */
   nanos: number;
 }
-
 function createBaseDuration(): Duration {
-  return { seconds: Long.ZERO, nanos: 0 };
+  return {
+    seconds: Long.ZERO,
+    nanos: 0
+  };
 }
-
 export const Duration = {
-  encode(
-    message: Duration,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/google.protobuf.Duration",
+  encode(message: Duration, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.seconds.isZero()) {
       writer.uint32(8).int64(message.seconds);
     }
@@ -99,7 +97,6 @@ export const Duration = {
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): Duration {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -120,68 +117,24 @@ export const Duration = {
     }
     return message;
   },
-
   fromJSON(object: any): Duration {
-    return {
-      seconds: isSet(object.seconds)
-        ? Long.fromValue(object.seconds)
-        : Long.ZERO,
-      nanos: isSet(object.nanos) ? Number(object.nanos) : 0,
-    };
+    const obj = createBaseDuration();
+    if (isSet(object.seconds)) obj.seconds = Long.fromValue(object.seconds);
+    if (isSet(object.nanos)) obj.nanos = Number(object.nanos);
+    return obj;
   },
-
-  toJSON(message: Duration): unknown {
+  toJSON(message: Duration): JsonSafe<Duration> {
     const obj: any = {};
-    message.seconds !== undefined &&
-      (obj.seconds = (message.seconds || Long.ZERO).toString());
+    message.seconds !== undefined && (obj.seconds = (message.seconds || Long.ZERO).toString());
     message.nanos !== undefined && (obj.nanos = Math.round(message.nanos));
     return obj;
   },
-
   fromPartial<I extends Exact<DeepPartial<Duration>, I>>(object: I): Duration {
     const message = createBaseDuration();
-    message.seconds =
-      object.seconds !== undefined && object.seconds !== null
-        ? Long.fromValue(object.seconds)
-        : Long.ZERO;
+    if (object.seconds !== undefined && object.seconds !== null) {
+      message.seconds = Long.fromValue(object.seconds);
+    }
     message.nanos = object.nanos ?? 0;
     return message;
-  },
+  }
 };
-
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
-
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends Long
-  ? string | number | Long
-  : T extends Array<infer U>
-  ? Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U>
-  ? ReadonlyArray<DeepPartial<U>>
-  : T extends {}
-  ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
-
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
-
-if (_m0.util.Long !== Long) {
-  _m0.util.Long = Long as any;
-  _m0.configure();
-}
-
-function isSet(value: any): boolean {
-  return value !== null && value !== undefined;
-}

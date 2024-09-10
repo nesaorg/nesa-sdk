@@ -1,77 +1,67 @@
 /* eslint-disable */
-import Long from "long";
-import _m0 from "protobufjs/minimal";
-
+import { Long, isSet, DeepPartial, Exact } from "../../helpers";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../json-safe";
 export const protobufPackage = "google.protobuf";
-
 /**
  * A Timestamp represents a point in time independent of any time zone or local
  * calendar, encoded as a count of seconds and fractions of seconds at
  * nanosecond resolution. The count is relative to an epoch at UTC midnight on
  * January 1, 1970, in the proleptic Gregorian calendar which extends the
  * Gregorian calendar backwards to year one.
- *
+ * 
  * All minutes are 60 seconds long. Leap seconds are "smeared" so that no leap
  * second table is needed for interpretation, using a [24-hour linear
  * smear](https://developers.google.com/time/smear).
- *
+ * 
  * The range is from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59.999999999Z. By
  * restricting to that range, we ensure that we can convert to and from [RFC
  * 3339](https://www.ietf.org/rfc/rfc3339.txt) date strings.
- *
+ * 
  * # Examples
- *
+ * 
  * Example 1: Compute Timestamp from POSIX `time()`.
- *
+ * 
  *     Timestamp timestamp;
  *     timestamp.set_seconds(time(NULL));
  *     timestamp.set_nanos(0);
- *
+ * 
  * Example 2: Compute Timestamp from POSIX `gettimeofday()`.
- *
+ * 
  *     struct timeval tv;
  *     gettimeofday(&tv, NULL);
- *
+ * 
  *     Timestamp timestamp;
  *     timestamp.set_seconds(tv.tv_sec);
  *     timestamp.set_nanos(tv.tv_usec * 1000);
- *
+ * 
  * Example 3: Compute Timestamp from Win32 `GetSystemTimeAsFileTime()`.
- *
+ * 
  *     FILETIME ft;
  *     GetSystemTimeAsFileTime(&ft);
  *     UINT64 ticks = (((UINT64)ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
- *
+ * 
  *     // A Windows tick is 100 nanoseconds. Windows epoch 1601-01-01T00:00:00Z
  *     // is 11644473600 seconds before Unix epoch 1970-01-01T00:00:00Z.
  *     Timestamp timestamp;
  *     timestamp.set_seconds((INT64) ((ticks / 10000000) - 11644473600LL));
  *     timestamp.set_nanos((INT32) ((ticks % 10000000) * 100));
- *
+ * 
  * Example 4: Compute Timestamp from Java `System.currentTimeMillis()`.
- *
+ * 
  *     long millis = System.currentTimeMillis();
- *
+ * 
  *     Timestamp timestamp = Timestamp.newBuilder().setSeconds(millis / 1000)
  *         .setNanos((int) ((millis % 1000) * 1000000)).build();
- *
- *
- * Example 5: Compute Timestamp from Java `Instant.now()`.
- *
- *     Instant now = Instant.now();
- *
- *     Timestamp timestamp =
- *         Timestamp.newBuilder().setSeconds(now.getEpochSecond())
- *             .setNanos(now.getNano()).build();
- *
- *
- * Example 6: Compute Timestamp from current time in Python.
- *
+ * 
+ * 
+ * Example 5: Compute Timestamp from current time in Python.
+ * 
  *     timestamp = Timestamp()
  *     timestamp.GetCurrentTime()
- *
+ * 
  * # JSON Mapping
- *
+ * 
  * In JSON format, the Timestamp type is encoded as a string in the
  * [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format. That is, the
  * format is "{year}-{month}-{day}T{hour}:{min}:{sec}[.{frac_sec}]Z"
@@ -82,10 +72,10 @@ export const protobufPackage = "google.protobuf";
  * is required. A proto3 JSON serializer should always use UTC (as indicated by
  * "Z") when printing the Timestamp type and a proto3 JSON parser should be
  * able to accept both UTC and other timezones (as indicated by an offset).
- *
+ * 
  * For example, "2017-01-15T01:30:15.01Z" encodes 15.01 seconds past
  * 01:30 UTC on January 15, 2017.
- *
+ * 
  * In JavaScript, one can convert a Date object to this format using the
  * standard
  * [toISOString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString)
@@ -112,16 +102,15 @@ export interface Timestamp {
    */
   nanos: number;
 }
-
 function createBaseTimestamp(): Timestamp {
-  return { seconds: Long.ZERO, nanos: 0 };
+  return {
+    seconds: Long.ZERO,
+    nanos: 0
+  };
 }
-
 export const Timestamp = {
-  encode(
-    message: Timestamp,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/google.protobuf.Timestamp",
+  encode(message: Timestamp, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (!message.seconds.isZero()) {
       writer.uint32(8).int64(message.seconds);
     }
@@ -130,7 +119,6 @@ export const Timestamp = {
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): Timestamp {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -151,70 +139,24 @@ export const Timestamp = {
     }
     return message;
   },
-
   fromJSON(object: any): Timestamp {
-    return {
-      seconds: isSet(object.seconds)
-        ? Long.fromValue(object.seconds)
-        : Long.ZERO,
-      nanos: isSet(object.nanos) ? Number(object.nanos) : 0,
-    };
+    const obj = createBaseTimestamp();
+    if (isSet(object.seconds)) obj.seconds = Long.fromValue(object.seconds);
+    if (isSet(object.nanos)) obj.nanos = Number(object.nanos);
+    return obj;
   },
-
-  toJSON(message: Timestamp): unknown {
+  toJSON(message: Timestamp): JsonSafe<Timestamp> {
     const obj: any = {};
-    message.seconds !== undefined &&
-      (obj.seconds = (message.seconds || Long.ZERO).toString());
+    message.seconds !== undefined && (obj.seconds = (message.seconds || Long.ZERO).toString());
     message.nanos !== undefined && (obj.nanos = Math.round(message.nanos));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<Timestamp>, I>>(
-    object: I
-  ): Timestamp {
+  fromPartial<I extends Exact<DeepPartial<Timestamp>, I>>(object: I): Timestamp {
     const message = createBaseTimestamp();
-    message.seconds =
-      object.seconds !== undefined && object.seconds !== null
-        ? Long.fromValue(object.seconds)
-        : Long.ZERO;
+    if (object.seconds !== undefined && object.seconds !== null) {
+      message.seconds = Long.fromValue(object.seconds);
+    }
     message.nanos = object.nanos ?? 0;
     return message;
-  },
+  }
 };
-
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
-
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends Long
-  ? string | number | Long
-  : T extends Array<infer U>
-  ? Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U>
-  ? ReadonlyArray<DeepPartial<U>>
-  : T extends {}
-  ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
-
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
-
-if (_m0.util.Long !== Long) {
-  _m0.util.Long = Long as any;
-  _m0.configure();
-}
-
-function isSet(value: any): boolean {
-  return value !== null && value !== undefined;
-}

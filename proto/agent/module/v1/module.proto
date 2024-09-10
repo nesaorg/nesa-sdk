@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package nesaorg.nesachain.agent.module.v1;
+
+import "cosmos/app/v1alpha1/module.proto";
+
+message Module {
+  option (cosmos.app.v1alpha1.module) = {
+    go_import : "github.com/nesaorg/nesachain"
+  };
+
+  string authority = 1;
+}

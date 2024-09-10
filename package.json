@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "codegen": "rm -rf ./src/codec && ./scripts/codegen.js",
     "build": "tsc -p tsconfig.json"
   },
   "author": "",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
+    "@cosmology/telescope": "^1.0.7",
     "ts-node": "^10.9.2"
   }
 }

@@ -9,6 +9,12 @@ npm install
 node devnet.ts
 ```
 
+### Compile Protocol Buffer 
+
+```sh
+npm run codegen # proto ==> ts, Generate .ts files into ./src/codec
+```
+
 ### Init SDK
 
 ```

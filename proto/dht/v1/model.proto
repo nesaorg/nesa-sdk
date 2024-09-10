@@ -1,0 +1,22 @@
+syntax = "proto3";
+package dht.v1;
+
+import "dht/v1/model_block.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+message TokenPrice {
+  option (gogoproto.equal) = true;
+
+  cosmos.base.v1beta1.Coin input_price = 1 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin output_price = 2 [(gogoproto.nullable) = false];
+}
+
+message Model {
+  string creator = 1;
+  string model_name = 2;
+  repeated string block_cids = 3;
+  TokenPrice token_price = 4 [(gogoproto.nullable) = false];
+}

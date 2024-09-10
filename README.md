@@ -17,6 +17,12 @@ npm link
 npm link nesa-sdk
 ```
 
+### Compile Protocol Buffer 
+
+```sh
+npm run codegen # proto ==> ts, Generate .ts files into ./src/codec
+```
+
 #### Init SDK
 
 ```
