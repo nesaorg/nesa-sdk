@@ -19,15 +19,16 @@ import {
   MsgSubmitPayment,
   VRF,
 } from "./codec/agent/v1/tx";
-import { Payment, Params, SessionStatus,TokenPrice } from "./codec/agent/v1/agent";
+import { Payment, Params, SessionStatus,TokenPrice, AgentModelStatus } from "./codec/agent/v1/agent";
 import { Coin } from "./codec/cosmos/base/v1beta1/coin";
 import { setupAgentExtension,setupDHTExtension } from "./queries";
 import { StdFee } from "@cosmjs/amino";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { sha256 } from "@cosmjs/crypto";
 import { toHex } from "@cosmjs/encoding";
-import { QueryGetModelResponse } from "./codec/dht/v1/query";
 import { MsgRegisterModel, MsgUpdateModel } from "./codec/dht/v1/tx";
+import { PageRequest } from "./codec/cosmos/base/query/v1beta1/pagination";
+import { Availability, InferenceType } from "./codec/dht/v1/orchestrator";
 
 export type NesaClientOptions = SigningStargateClientOptions & {
   logger?: Logger;
@@ -434,6 +435,17 @@ export class NesaClient {
     return result;
   }
 
+  public async getAgentByModel(
+    modelName: string,
+    status: AgentModelStatus
+  ) {
+    const result = await this.query.agent.agentByModelRequest(
+      modelName,
+      status
+    );
+    return result;
+  }
+
   public async getSession(sessionId: string) {
     const result = await this.query.agent.sessionRequest(sessionId);
     return result;
@@ -448,7 +460,25 @@ export class NesaClient {
     key: Uint8Array
   ) {
     const result = await this.query.agent.sessionByAgentRequest(
-      account, status, expireTime,limit, orderDesc, key
+      account,
+      status,
+      expireTime,
+      limit,
+      orderDesc,
+      key
+    );
+    return result;
+  }
+
+  public async getSessionByChallenge(
+    account: string,
+    limit: Long,
+    key: Uint8Array
+  ) {
+    const result = await this.query.agent.sessionByChallengeRequest(
+      account,
+      limit,
+      key
     );
     return result;
   }
@@ -458,8 +488,63 @@ export class NesaClient {
     return result;
   }
 
-  public async getModel(modelName: string): Promise<QueryGetModelResponse> {
+  public async getDhtParams() {
+    const result = await this.query.dht.params();
+    return result;
+  }
+
+  public async getModel(modelName: string) {
     const result = await this.query.dht.getModel(modelName);
+    return result;
+  }
+
+  public async getModelBlocks(modelName: string, pagination?: PageRequest) {
+    const result = await this.query.dht.getModelBlocks(modelName,pagination);
+    return result;
+  }
+
+  public async getNode(nodeId: string) {
+    const result = await this.query.dht.getNode(nodeId);
+    return result;
+  }
+
+  public async getMiner(nodeId: string) {
+    const result = await this.query.dht.getMiner(nodeId);
+    return result;
+  }
+  
+  public async getOrchestrator(nodeId: string) {
+    const result = await this.query.dht.getOrchestrator(nodeId);
+    return result;
+  }
+
+  public async getAllOrchestrator(pagination?: PageRequest) {
+    const result = await this.query.dht.getAllOrchestrator(pagination);
+    return result;
+  }
+
+  public async getOrchestratorsByParams(
+    inferenceType: InferenceType,
+    availability: Availability,
+    limit: number,
+    key: Uint8Array
+  ) {
+    const result = await this.query.dht.getOrchestratorsByParams(
+      inferenceType,
+      availability,
+      limit,
+      key
+    );
+    return result;
+  }
+  
+  public async getOrchestratorHeartbeat(nodeId: string) {
+    const result = await this.query.dht.getOrchestratorHeartbeat(nodeId);
+    return result;
+  }
+
+  public async getMinerHeartbeat(nodeId: string) {
+    const result = await this.query.dht.getMinerHeartbeat(nodeId);
     return result;
   }
 }
