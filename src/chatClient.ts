@@ -207,10 +207,12 @@ class ChatClient {
     this.lastUserMinimumLockPromise = new Promise((resolve) => {
       WalletOperation.requestParams(nesaClient)
         .then((params) => {
-          this.chatProgressReadable?.push({
-            code: 301,
-            message: "Connected to Nesa chain",
-          });
+          if (!this.chatProgressReadable?.isClosed) {
+            this.chatProgressReadable?.push({
+              code: 301,
+              message: "Connected to Nesa chain",
+            });
+          }
           resolve(params);
         })
         .catch((error) => {
@@ -331,13 +333,15 @@ class ChatClient {
               })
             );
           } else {
-            readableStream.push({
-              code: 201,
-              message:
-                "No signature found or the signature has expired, please sign again",
-            });
-            this.isChatting = false;
-            readableStream.push(null);
+            if (!readableStream.isClosed) {
+              readableStream.push({
+                code: 201,
+                message:
+                  "No signature found or the signature has expired, please sign again",
+              });
+              this.isChatting = false;
+              readableStream.push(null);
+            }
           }
         }
       });
@@ -353,39 +357,54 @@ class ChatClient {
         }
         if (messageTimes === 0) {
           if (messageJson === "ack") {
-            this.chatProgressReadable?.push({
-              code: 305,
-              message: "Conducting inference",
-            });
+            if (!this.chatProgressReadable?.isClosed) {
+              this.chatProgressReadable?.push({
+                code: 305,
+                message: "Conducting inference",
+              });
+            }
           } else {
             ws.close();
-            readableStream.push({
-              code: 202,
-              message: "Illegal link",
-            });
-            readableStream.push(null);
+
+            if (!readableStream.isClosed) {
+              readableStream.push({
+                code: 202,
+                message: "Illegal link",
+              });
+              readableStream.push(null);
+            }
             this.isChatting = false;
           }
           messageTimes += 1;
         } else if (messageJson?.content?.startsWith("[DONE]")) {
           ws.close();
-          readableStream.push({
-            code: 203,
-            message: messageJson?.content?.split("[DONE]")[1],
-          });
 
-          this.chatProgressReadable?.push({
-            code: 307,
-            message: "Task completed, wait for another query",
-          });
-          readableStream.push(null);
+          if (!readableStream.isClosed) {
+            readableStream.push({
+              code: 203,
+              message: messageJson?.content?.split("[DONE]")[1],
+            });
+          }
+
+          if (!this.chatProgressReadable?.isClosed) {
+            this.chatProgressReadable?.push({
+              code: 307,
+              message: "Task completed, wait for another query",
+            });
+          }
+
+          if (!readableStream.isClosed) {
+            readableStream.push(null);
+          }
           this.isChatting = false;
         } else {
           if (messageTimes === 1) {
-            this.chatProgressReadable?.push({
-              code: 306,
-              message: "Receiving responses",
-            });
+            if (!this.chatProgressReadable?.isClosed) {
+              this.chatProgressReadable?.push({
+                code: 306,
+                message: "Receiving responses",
+              });
+            }
             messageTimes += 1;
           }
           const signedMessage = this.checkSinglePaymentAmount();
@@ -393,21 +412,26 @@ class ChatClient {
             amount: this.totalSignedPayment,
             denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
           };
-          readableStream.push({
-            code: 200,
-            message: messageJson?.content,
-            session_id: messageJson?.session_id || "",
-            total_payment,
-          });
+
+          if (!readableStream.isClosed) {
+            readableStream.push({
+              code: 200,
+              message: messageJson?.content,
+              session_id: messageJson?.session_id || "",
+              total_payment,
+            });
+          }
           this.totalUsedPayment += this.tokenPrice;
 
           if (
             new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
           ) {
-            readableStream.push({
-              code: 205,
-              message: '{"code":1015,"msg":"balance insufficient"}',
-            });
+            if (!readableStream.isClosed) {
+              readableStream.push({
+                code: 205,
+                message: '{"code":1015,"msg":"balance insufficient"}',
+              });
+            }
             ws.close();
           } else if (signedMessage) {
             const data = JSON.stringify({
@@ -420,18 +444,24 @@ class ChatClient {
         }
       };
       ws.onclose = (error) => {
-        this.chatProgressReadable?.push({
-          code: 307,
-          message: "Task completed, wait for another query",
-        });
-        if (error?.reason) {
-          console.log("onclose: ", error?.reason);
-          readableStream.push({
-            code: 205,
-            message: error?.reason,
+        if (!this.chatProgressReadable?.isClosed) {
+          this.chatProgressReadable?.push({
+            code: 307,
+            message: "Task completed, wait for another query",
           });
         }
-        readableStream.push(null);
+        if (error?.reason) {
+          console.log("onclose: ", error?.reason);
+          if (!readableStream.isClosed) {
+            readableStream.push({
+              code: 205,
+              message: error?.reason,
+            });
+          }
+        }
+        if (!readableStream.isClosed) {
+          readableStream.push(null);
+        }
         this.isChatting = false;
         if (this.chatQueue.length > 0) {
           const { readableStream: nextReadableStream, question: nextQuestion } =
@@ -440,15 +470,20 @@ class ChatClient {
         }
       };
       ws.onerror = (error: any) => {
-        this.chatProgressReadable?.push({
-          code: 307,
-          message: "Task completed, wait for another query",
-        });
-        readableStream.push({
-          code: 204,
-          message: error?.reason || "Error: Connection failed",
-        });
-        readableStream.push(null);
+        if (!this.chatProgressReadable?.isClosed) {
+          this.chatProgressReadable?.push({
+            code: 307,
+            message: "Task completed, wait for another query",
+          });
+        }
+
+        if (!readableStream.isClosed) {
+          readableStream.push({
+            code: 204,
+            message: error?.reason || "Error: Connection failed",
+          });
+          readableStream.push(null);
+        }
         this.isChatting = false;
         if (this.chatQueue.length > 0) {
           const { readableStream: nextReadableStream, question: nextQuestion } =
@@ -457,16 +492,21 @@ class ChatClient {
         }
       };
     } catch (error: any) {
-      this.chatProgressReadable?.push({
-        code: 307,
-        message: "Task completed, wait for another query",
-      });
+      if (!this.chatProgressReadable?.isClosed) {
+        this.chatProgressReadable?.push({
+          code: 307,
+          message: "Task completed, wait for another query",
+        });
+      }
       console.log("websocketCatchError: ", error);
-      readableStream.push({
-        code: 207,
-        message: error?.message || "Error: Connection failed",
-      });
-      readableStream.push(null);
+
+      if (!readableStream.isClosed) {
+        readableStream.push({
+          code: 207,
+          message: error?.message || "Error: Connection failed",
+        });
+        readableStream.push(null);
+      }
       this.isChatting = false;
       if (this.chatQueue.length > 0) {
         const { readableStream: nextReadableStream, question: nextQuestion } =
@@ -499,10 +539,12 @@ class ChatClient {
 
             let firstInitHeartbeat = true;
 
-            this.chatProgressReadable?.push({
-              code: 303,
-              message: "Connecting to the validator",
-            });
+            if (!this.chatProgressReadable?.isClosed) {
+              this.chatProgressReadable?.push({
+                code: 303,
+                message: "Connecting to the validator",
+              });
+            }
             socket.init({
               recordId: this.chatId,
               modelName: this.modelName,
@@ -512,31 +554,41 @@ class ChatClient {
                   this.agentUrl = agentWsUrl;
                   this.isRegisteringSession = false;
 
-                  this.chatProgressReadable?.push({
-                    code: 304,
-                    message: "Waiting for query",
-                  });
-                  readableStream?.push(null);
+                  if (!this.chatProgressReadable?.isClosed) {
+                    this.chatProgressReadable?.push({
+                      code: 304,
+                      message: "Waiting for query",
+                    });
+                  }
+
+                  if (!readableStream.isClosed) {
+                    readableStream?.push(null);
+                  }
                   firstInitHeartbeat = false;
                   resolve(result);
                 }
               },
               onerror: () => {
-                readableStream?.push({
-                  code: 319,
-                  message: "Agent connection error: " + selectAgent.url,
-                });
-                readableStream?.push(null);
+                if (!readableStream.isClosed) {
+                  readableStream.push({
+                    code: 319,
+                    message: "Agent connection error: " + selectAgent.url,
+                  });
+                  readableStream.push(null);
+                }
                 reject(new Error("Agent heartbeat packet connection failed"));
               },
             });
           } else {
             this.isRegisteringSession = false;
-            readableStream?.push({
-              code: 319,
-              message: "Agent not found",
-            });
-            readableStream?.push(null);
+
+            if (!readableStream.isClosed) {
+              readableStream?.push({
+                code: 319,
+                message: "Agent not found",
+              });
+              readableStream?.push(null);
+            }
             reject(new Error("No agent found"));
           }
         })
@@ -544,12 +596,14 @@ class ChatClient {
           console.log("requestAgentInfoError: ", error);
           this.lastGetAgentInfoPromise = undefined;
 
-          readableStream?.push({
-            code: 319,
-            message:
-              "Agent connection error: " + error?.message || error.toString(),
-          });
-          readableStream?.push(null);
+          if (!readableStream.isClosed) {
+            readableStream?.push({
+              code: 319,
+              message:
+                "Agent connection error: " + error?.message || error.toString(),
+            });
+            readableStream?.push(null);
+          }
           reject(error);
         });
     });
@@ -575,11 +629,14 @@ class ChatClient {
           .catch((error: any) => {
             console.log("checkSignBroadcastResultError: ", error);
 
-            readableStream?.push({
-              code: 318,
-              message: error?.message,
-            });
-            readableStream?.push(null);
+            if (!readableStream.isClosed) {
+              readableStream?.push({
+                code: 318,
+                message: error?.message,
+              });
+              readableStream?.push(null);
+            }
+
             reject(error);
           });
       }
@@ -635,7 +692,7 @@ class ChatClient {
         try {
           const params = await this.getChainParams(nesaClient);
 
-          if (!params?.params) {
+          if (!params?.params && !readableStream.isClosed) {
             readableStream.push({
               code: 314,
               message: JSON.stringify(params),
@@ -648,7 +705,8 @@ class ChatClient {
           if (
             new BigNumber(this.lockAmount).isLessThan(
               params?.params?.userMinimumLock?.amount
-            )
+            ) &&
+            !readableStream.isClosed
           ) {
             readableStream.push({
               code: 311,
@@ -673,51 +731,68 @@ class ChatClient {
 
             console.log("registerSession-result: ", result);
             if (result?.transactionHash) {
-              this.chatProgressReadable?.push({
-                code: 302,
-                message: "Choosing an inference validator",
-              });
-              readableStream.push({
-                code: 200,
-                message: result?.transactionHash,
-              });
+              if (!this.chatProgressReadable?.isClosed) {
+                this.chatProgressReadable?.push({
+                  code: 302,
+                  message: "Choosing an inference validator",
+                });
+              }
+
+              if (!readableStream.isClosed) {
+                readableStream.push({
+                  code: 200,
+                  message: result?.transactionHash,
+                });
+              }
               this.checkSignBroadcastResult(readableStream).catch(() => {});
 
               return readableStream;
             }
 
             this.isRegisteringSession = false;
-            readableStream.push({
-              code: 312,
-              message: JSON.stringify(result),
-            });
+
+            if (!readableStream.isClosed) {
+              readableStream.push({
+                code: 312,
+                message: JSON.stringify(result),
+              });
+            }
 
             return readableStream;
           } catch (error: any) {
             console.log("313 error", error);
-            readableStream.push({
-              code: 313,
-              message: error?.message || error.toString(),
-            });
+
+            if (!readableStream.isClosed) {
+              readableStream.push({
+                code: 313,
+                message: error?.message || error.toString(),
+              });
+            }
             this.isRegisteringSession = false;
           }
         } catch (error: any) {
+          if (!readableStream.isClosed) {
+            readableStream.push({
+              code: 315,
+              message: error?.message || error.toString(),
+            });
+          }
+        }
+      } catch (error: any) {
+        if (!readableStream.isClosed) {
           readableStream.push({
-            code: 315,
+            code: 316,
             message: error?.message || error.toString(),
           });
         }
-      } catch (error: any) {
+      }
+    } catch (error: any) {
+      if (!readableStream.isClosed) {
         readableStream.push({
-          code: 316,
+          code: 317,
           message: error?.message || error.toString(),
         });
       }
-    } catch (error: any) {
-      readableStream.push({
-        code: 317,
-        message: error?.message || error.toString(),
-      });
     }
 
     return readableStream;
