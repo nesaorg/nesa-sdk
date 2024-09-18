@@ -608,14 +608,20 @@ class ChatClient {
           console.log("requestAgentInfoError: ", error);
           this.lastGetAgentInfoPromise = undefined;
 
-          if (!readableStream.isClosed) {
-            readableStream?.push({
-              code: 319,
-              message:
-                "Agent connection error: " + error?.message || error.toString(),
-            });
-            readableStream?.push(null);
+          try {
+            if (!readableStream.isClosed) {
+              readableStream?.push({
+                code: 319,
+                message:
+                  "Agent connection error: " + error?.message ||
+                  error.toString(),
+              });
+              readableStream?.push(null);
+            }
+          } catch (e) {
+            console.error("request agent error", e);
           }
+
           reject(error);
         });
     });
