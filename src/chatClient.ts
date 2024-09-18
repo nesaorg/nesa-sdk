@@ -478,7 +478,7 @@ class ChatClient {
             });
           }
         } catch (e) {
-          console.error(e);
+          console.error("ws", e);
         }
 
         try {
@@ -490,7 +490,7 @@ class ChatClient {
             readableStream.push(null);
           }
         } catch (e) {
-          console.error(e);
+          console.error("ws: Error: Connection failed", e);
         }
         this.isChatting = false;
         if (this.chatQueue.length > 0) {
@@ -586,7 +586,7 @@ class ChatClient {
                     readableStream.push(null);
                   }
                 } catch (e) {
-                  console.error(e);
+                  console.error(e, "Agent heartbeat packet connection failed");
                 }
                 reject(new Error("Agent heartbeat packet connection failed"));
               },
