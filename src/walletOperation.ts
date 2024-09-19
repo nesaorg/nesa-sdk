@@ -46,28 +46,30 @@ class WalletOperation {
     offlineSigner: CosmjsOfflineSigner
   ) {
     EncryptUtils.generateKey(recordId);
-
     const [resVrf, resModel] = await Promise.all([
       EncryptUtils.requestVrf(recordId, client, offlineSigner),
       this.requestModel(client, modelName)
     ])
-    
+    if (!resVrf?.vrf) {
+      throw new Error("Vrf is null");
+    }
+    if (!resVrf?.sessionId) {
+      throw new Error("SessionId is null");
+    }
+    if (!resModel?.model) {
+      throw new Error('Model is null');
+    }
+    if (!resModel?.model?.tokenPrice) {
+      throw new Error('Model token price is null');
+    }
     const fee = {
       amount: [
         { denom: chainInfo.feeCurrencies[0].coinMinimalDenom, amount: "6" },
       ],
       gas: "200000",
     };
-
     const lockBalance = { denom: denom, amount: lockAmount };
-
-    if (!(resVrf?.vrf && resVrf?.sessionId)) {
-      throw new Error('Vrf seed is null')
-    } else if (!(resModel?.model && resModel.model?.tokenPrice)) {
-      throw new Error('Model tokenPrice is null')
-    } else {
-      return client.signRegisterSession(resVrf.sessionId, modelName, fee, lockBalance, resVrf.vrf, resModel.model.tokenPrice);
-    }
+    return client.signRegisterSession(resVrf.sessionId, modelName, fee, lockBalance, resVrf.vrf, resModel.model.tokenPrice);
   }
 
   static requestAgentInfo(
