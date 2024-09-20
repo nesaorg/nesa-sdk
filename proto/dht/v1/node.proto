@@ -1,0 +1,17 @@
+syntax = "proto3";
+package dht.v1;
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+message Node {
+  string node_id = 1;
+  string public_name = 2;
+  string version = 3;
+  string network_address = 4;
+  string wallet_address = 5;
+  uint64 vram = 6;
+  double network_rps = 7;
+  repeated bytes next_pings = 8;
+  bool using_relay = 9;
+  repeated string labels = 10;
+}

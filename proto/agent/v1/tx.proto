@@ -1,0 +1,188 @@
+syntax = "proto3";
+
+package agent.v1;
+
+option go_package = "github.com/nesaorg/nesachain/x/agent/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "agent/v1/agent.proto";
+
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  // RegisterInferenceAgent defines a method to register an inference agent to the chain.
+  rpc RegisterInferenceAgent(MsgRegisterInferenceAgent)
+      returns (MsgRegisterInferenceAgentResponse);
+  // UpdateInferenceAgent defines a method to update an existing inference agent.
+  rpc UpdateInferenceAgent(MsgUpdateInferenceAgent) returns (MsgUpdateInferenceAgentResponse);
+  // RegisterAgentModel defines a method to register a batch of models belonging to an agent on the blockchain.
+  rpc RegisterAgentModel(MsgRegisterAgentModel)
+      returns (MsgRegisterAgentModelResponse);
+  // UpdateAgentModel defines a method to update a batch of existing models.
+  rpc UpdateAgentModel(MsgUpdateAgentModel) returns (MsgUpdateAgentModelResponse);
+  rpc RegisterSession(MsgRegisterSession) returns (MsgRegisterSessionResponse);
+  rpc CancelSession(MsgCancelSession) returns (MsgCancelSessionResponse);
+  rpc SubmitPayment(MsgSubmitPayment) returns (MsgSubmitPaymentResponse);
+  rpc DeleteExpiredSession(MsgDeleteExpiredSession) returns (MsgDeleteExpiredSessionResponse);
+  rpc SubmitChallengeCID(MsgSubmitChallengeCID) returns (MsgSubmitChallengeCIDResponse);
+  rpc SubmitChallengeReply(MsgSubmitChallengeReply) returns (MsgSubmitChallengeReplyResponse);
+  rpc SubmitChallengeMerkleTree(MsgSubmitChallengeMerkleTree) returns (MsgSubmitChallengeMerkleTreeResponse);
+  rpc SubmitChallengeOriginHash(MsgSubmitChallengeOriginHash) returns (MsgSubmitChallengeOriginHashResponse);
+}
+
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateParamsResponse {}
+
+message MsgRegisterInferenceAgent {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string url = 2 [ (gogoproto.customname) = "URL" ];
+  uint64 version = 3;
+}
+
+message MsgRegisterInferenceAgentResponse {
+}
+
+message MsgUpdateInferenceAgent {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string url = 2 [ (gogoproto.customname) = "URL", (gogoproto.nullable) = true ];
+  uint64 version = 3 [ (gogoproto.nullable) = true ];
+  AgentStatus status = 4 [ (gogoproto.nullable) = true ];
+}
+
+message MsgUpdateInferenceAgentResponse {}
+
+message MsgRegisterAgentModel {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  repeated string model_name = 2;
+  repeated uint64 lock = 3;
+}
+
+message MsgRegisterAgentModelResponse {
+}
+
+message MsgUpdateAgentModel {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  repeated string model_name = 2;
+  repeated uint64 lock = 3;
+  AgentModelStatus status = 4;
+}
+
+message MsgUpdateAgentModelResponse {
+}
+
+message VRF {
+  bytes seed = 1;
+  bytes proof = 2;
+  bytes hash_random = 3;
+}
+
+message MsgRegisterSession {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string session_id = 1;
+  string account = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string model_name = 3;
+  cosmos.base.v1beta1.Coin lock_balance = 4 [ (gogoproto.nullable) = false ];
+  VRF vrf = 5 [ (gogoproto.nullable) = false ];
+  TokenPrice token_price = 6 [ (gogoproto.nullable) = false ];
+}
+
+message MsgRegisterSessionResponse {
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string model_name = 2;
+}
+
+message MsgCancelSession {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string session_id = 1;
+  string account = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+message MsgCancelSessionResponse {
+}
+
+message MsgSubmitPayment {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string session_id = 2;
+  Payment payment = 3;
+  bytes signature = 4;
+}
+
+message MsgSubmitPaymentResponse {
+}
+
+message MsgDeleteExpiredSession {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string session_id = 2;
+}
+
+message MsgDeleteExpiredSessionResponse {
+}
+
+message MsgSubmitChallengeCID {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string session_id = 2;
+  string cid = 3 [ (gogoproto.customname) = "CID" ];
+}
+
+message MsgSubmitChallengeCIDResponse {
+}
+
+message MsgSubmitChallengeReply {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string session_id = 2;
+  bytes hash = 3;
+}
+
+message MsgSubmitChallengeReplyResponse {
+}
+
+message MsgSubmitChallengeMerkleTree {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string session_id = 2;
+  bytes answer_hash = 3;
+  repeated bytes merkle_tree = 4;
+}
+
+message MsgSubmitChallengeMerkleTreeResponse {
+}
+
+message MsgSubmitChallengeOriginHash {
+  option (cosmos.msg.v1.signer) = "account";
+
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string session_id = 2;
+  bytes hash = 3;
+}
+
+message MsgSubmitChallengeOriginHashResponse {
+}

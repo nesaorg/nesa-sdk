@@ -1,0 +1,303 @@
+syntax = "proto3";
+
+package dht.v1;
+
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "dht/v1/params.proto";
+import "dht/v1/orchestrator.proto";
+import "dht/v1/model.proto";
+import "dht/v1/reputation.proto";
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+// Msg defines the Msg service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // UpdateParams defines a (governance) operation for updating the module
+  // parameters. The authority defaults to the x/gov module account.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  rpc UpdateModelCreatorAllowList(MsgUpdateModelCreatorAllowList) returns (MsgModelCreatorAllowListResponse);
+  rpc RegisterModel(MsgRegisterModel) returns (MsgRegisterModelResponse);
+  rpc UpdateModel(MsgUpdateModel) returns (MsgUpdateModelResponse);
+  // rpc DeleteModel(MsgDeleteModel) returns (MsgDeleteModelResponse);
+  rpc RegisterNode(MsgRegisterNode) returns (MsgRegisterNodeResponse);
+  rpc DeleteNode(MsgDeleteNode) returns (MsgDeleteNodeResponse);
+  rpc RegisterMiner(MsgRegisterMiner) returns (MsgRegisterMinerResponse);
+  rpc DeleteMiner(MsgDeleteMiner) returns (MsgDeleteMinerResponse);
+  rpc RegisterOrchestrator(MsgRegisterOrchestrator)
+      returns (MsgRegisterOrchestratorResponse);
+  rpc DeleteOrchestrator(MsgDeleteOrchestrator) returns (MsgDeleteOrchestratorResponse);
+  rpc OrchestratorHeartbeat(MsgOrchestratorHeartbeat)
+      returns (MsgOrchestratorHeartbeatResponse);
+  rpc MinerHeartbeat(MsgMinerHeartbeat) returns (MsgMinerHeartbeatResponse);
+
+  // AddMinerDeposit defines a method for depositing tokens to the miner.
+  rpc AddMinerDeposit(MsgAddMinerDeposit) returns (MsgAddMinerDepositResponse);
+  // WithdrawMiner defines a method for withdrawing tokens from the miner.
+  rpc WithdrawMiner(MsgWithdrawMiner) returns (MsgWithdrawMinerResponse);
+  // AddOrchestratorDeposit defines a method for depositing tokens to the orchestrator.
+  rpc AddOrchestratorDeposit(MsgAddOrchestratorDeposit)
+      returns (MsgAddOrchestratorDepositResponse);
+  // WithdrawOrchestrator defines a method for withdrawing tokens from the orchestrator.
+  rpc WithdrawOrchestrator(MsgWithdrawOrchestrator)
+      returns (MsgWithdrawOrchestratorResponse);
+
+  // TODO optimize and streamline interfaces
+  // UpdateNodeLabel defines a method for updating the node label.
+  rpc UpdateNodeLabel(MsgUpdateNodeLabel) returns (MsgUpdateNodeLabelResponse);
+  // UpdateMinerReputation defines a method for updating the miner reputation.
+  rpc UpdateMinerReputation(MsgUpdateMinerReputation)
+      returns (MsgUpdateMinerReputationResponse);
+  // UpdateOrchestratorReputation defines a method for updating the orchestrator reputation.
+  rpc UpdateOrchestratorReputation(MsgUpdateOrchestratorReputation)
+      returns (MsgUpdateOrchestratorReputationResponse);
+}
+
+// MsgUpdateParams is the Msg/UpdateParams request type.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name) = "nesachain/x/dht/MsgUpdateParams";
+
+  // authority is the address that controls the module (defaults to x/gov unless
+  // overwritten).
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // params defines the module parameters to update.
+
+  // NOTE: All parameters must be supplied.
+  Params params = 2
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
+
+message MsgRegisterModel {
+  option (cosmos.msg.v1.signer) = "creator";
+
+  string creator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string model_name = 2;
+  repeated string block_cids = 3;
+  repeated string allow_list = 4;
+  TokenPrice token_price = 5 [ (gogoproto.nullable) = true ];
+}
+
+message MsgRegisterModelResponse {}
+
+// message MsgDeleteModel {
+//   option (cosmos.msg.v1.signer) = "creator";
+
+//   string creator = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+//   string model_id = 2;
+// }
+
+// message MsgDeleteModelResponse {
+// }
+
+message MsgRegisterNode {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string node_id = 2;
+  string public_name = 3;
+  string version = 4;
+  string network_address = 5;
+  string wallet_address = 6;
+  uint64 vram = 7;
+  double network_rps = 8;
+  bool using_relay = 9;
+  repeated bytes next_pings = 10;
+}
+
+message MsgRegisterNodeResponse {}
+
+message MsgDeleteNode{
+  option (cosmos.msg.v1.signer) = "creator";
+
+  string creator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string node_id = 2;
+}
+
+message MsgDeleteNodeResponse {}
+
+message MsgRegisterMiner {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string node_id = 2;
+  uint64 start_block = 3;
+  uint64 end_block = 4;
+  repeated uint32 block_ids = 5;
+  string torch_dtype = 6;
+  string quant_type = 7;
+  uint64 cache_tokens_left = 8;
+  double inference_rps = 9;
+  string model_name = 10;
+}
+
+message MsgRegisterMinerResponse {}
+
+message MsgDeleteMiner {
+  option (cosmos.msg.v1.signer) = "creator";
+
+  string creator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string node_id = 2;
+}
+
+message MsgDeleteMinerResponse {}
+
+message MsgRegisterOrchestrator {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string node_id = 2;
+  Availability status = 3;
+  repeated uint64 block_count = 4;
+  repeated string miner_ids = 5;
+  InferenceType inference_type = 6;
+  string model_name = 7;
+}
+
+message MsgRegisterOrchestratorResponse {}
+
+message MsgDeleteOrchestrator {
+  option (cosmos.msg.v1.signer) = "creator";
+
+  string creator = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string node_id = 2;
+}
+
+message MsgDeleteOrchestratorResponse {}
+
+
+message MsgOrchestratorHeartbeat {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string node_id = 2;
+}
+
+message MsgOrchestratorHeartbeatResponse {}
+
+message MsgMinerHeartbeat {
+  option (cosmos.msg.v1.signer) = "creator";
+  string creator = 1;
+  string node_id = 2;
+}
+
+message MsgMinerHeartbeatResponse {}
+
+// AddMinerDeposit defines a request for depositing tokens to the miner.
+message MsgAddMinerDeposit {
+  option (cosmos.msg.v1.signer) = "depositor";
+
+  string depositor = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string node_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+}
+
+// MsgAddMinerDepositResponse defines the response for rpc AddMinerDeposit
+message MsgAddMinerDepositResponse {}
+
+// WithdrawMiner defines a request for withdrawing tokens from the miner.
+message MsgWithdrawMiner {
+  option (cosmos.msg.v1.signer) = "depositor";
+
+  string depositor = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string node_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+  string receiver = 4 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgWithdrawMinerResponse defines the response for rpc WithdrawMiner
+message MsgWithdrawMinerResponse {}
+
+// AddOrchestratorDeposit defines a request for depositing tokens to the orchestrator.
+message MsgAddOrchestratorDeposit {
+  option (cosmos.msg.v1.signer) = "depositor";
+
+  string depositor = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string node_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+}
+
+// MsgAddOrchestratorDepositResponse defines the response for rpc AddOrchestratorDeposit
+message MsgAddOrchestratorDepositResponse {}
+
+// WithdrawOrchestrator defines a request for withdrawing tokens from the orchestrator.
+message MsgWithdrawOrchestrator {
+  option (cosmos.msg.v1.signer) = "depositor";
+
+  string depositor = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string node_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+  string receiver = 4 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgWithdrawOrchestratorResponse defines the response for rpc WithdrawOrchestrator
+message MsgWithdrawOrchestratorResponse {}
+
+// MsgUpdateMinerLabel defines a method for updating the miner label.
+message MsgUpdateNodeLabel {
+  option (cosmos.msg.v1.signer) = "creator";
+
+  string creator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string node_id = 2;
+  // NOTE: All labels need to be provided
+  repeated string labels = 3;
+}
+
+// MsgUpdateMinerLabelResponse defines the MsgUpdateMinerLabel response type.
+message MsgUpdateNodeLabelResponse {}
+
+// MsgUpdateModel defines a request for updating allow_list from model.
+message MsgUpdateModel{
+  option (cosmos.msg.v1.signer) = "account";
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string model_name = 2;
+  // NOTE: All allow list need to be provided
+  repeated string allow_list = 3;
+  // NOTE: All token prices need to be provided
+  TokenPrice token_price = 4 [ (gogoproto.nullable) = false ];
+}
+
+// MsgUpdateModelResponse defines the MsgUpdateModel response type
+message MsgUpdateModelResponse{}
+
+// MsgUpdateModelCreatorAllowList defines a request for updating model_creators.
+message MsgUpdateModelCreatorAllowList{
+  option (cosmos.msg.v1.signer) = "account";
+  string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  repeated string model_creators  = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgModelCreatorAllowListResponse defines the MsgUpdateModelCreatorAllowList response type
+message MsgModelCreatorAllowListResponse{}
+
+// MsgUpdateMinerReputation defines a request for updating miner reputation.
+message MsgUpdateMinerReputation {
+  option (cosmos.msg.v1.signer) = "creator";
+
+  string creator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string node_id = 2;
+  // NOTE: All reputations need to be provided
+  repeated Reputation reputations = 3;
+}
+
+// MsgUpdateMinerReputationResponse defines the MsgUpdateMinerReputation response type.
+message MsgUpdateMinerReputationResponse {}
+
+// MsgUpdateOrchestratorReputation defines a request for updating orchestrator reputation.
+message MsgUpdateOrchestratorReputation {
+  option (cosmos.msg.v1.signer) = "creator";
+
+  string creator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string node_id = 2;
+  // NOTE: All reputations need to be provided
+  repeated Reputation reputations = 3;
+}
+
+// MsgUpdateOrchestratorReputationResponse defines the MsgUpdateOrchestratorReputation response type.
+message MsgUpdateOrchestratorReputationResponse {}

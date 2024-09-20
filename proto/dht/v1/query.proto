@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package dht.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "dht/v1/params.proto";
+import "dht/v1/node.proto";
+import "dht/v1/miner.proto";
+import "dht/v1/model.proto";
+import "dht/v1/model_block.proto";
+import "dht/v1/orchestrator.proto";
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+// Query defines the gRPC querier service.
+service Query {
+
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/nesachain/dht/params";
+  }
+
+  rpc GetModel(QueryGetModelRequest) returns (QueryGetModelResponse) {
+    option (google.api.http).get = "/nesachain/dht/get_model/{model_name}";
+  }
+
+  // Queries a list of GetModelBlocks items.
+  rpc GetModelBlocks(QueryGetModelBlocksRequest) returns (QueryGetModelBlocksResponse) {
+    option (google.api.http).get = "/nesachain/dht/get_model_blocks/{model_name}";
+  }
+
+  // Queries a list of GetNode items.
+  rpc GetNode(QueryGetNodeRequest) returns (QueryGetNodeResponse) {
+    option (google.api.http).get = "/nesachain/dht/get_node/{node_id}";
+  }
+
+  // Queries a list of GetMiner items.
+  rpc GetMiner(QueryGetMinerRequest) returns (QueryGetMinerResponse) {
+    option (google.api.http).get = "/nesachain/dht/get_miner/{node_id}";
+  }
+
+  // Queries a list of GetOrchestrator items.
+  rpc GetOrchestrator(QueryGetOrchestratorRequest)
+      returns (QueryGetOrchestratorResponse) {
+    option (google.api.http).get =
+        "/nesachain/dht/get_orchestrator/{node_id}";
+  }
+
+  rpc GetAllOrchestrator(QueryGetAllOrchestratorRequest)
+      returns (QueryGetAllOrchestratorResponse) {
+    option (google.api.http).get = "/nesachain/dht/get_orchestrators";
+  }
+
+  rpc GetOrchestratorsByParams(QueryGetOrchestratorsByParamsRequest)
+      returns (QueryGetOrchestratorsByParamsResponse) {
+    option (google.api.http).get = "/nesachain/dht/get_orchestrators_by_params/{inference_type}";
+  }
+
+  // Queries a list of GetOrchestratorHeartbeat items.
+  rpc GetOrchestratorHeartbeat(QueryGetOrchestratorHeartbeatRequest)
+      returns (QueryGetOrchestratorHeartbeatResponse) {
+    option (google.api.http).get =
+        "/nesachain/dht/get_orchestrator_heartbeat/{node_id}";
+  }
+
+  // Queries a list of GetMinerHeartbeat items.
+  rpc GetMinerHeartbeat(QueryGetMinerHeartbeatRequest)
+      returns (QueryGetMinerHeartbeatResponse) {
+    option (google.api.http).get =
+        "/nesachain/dht/get_miner_heartbeat/{node_id}";
+  }
+}
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+message QueryGetModelRequest {
+  string model_name = 1;
+}
+
+message QueryGetModelResponse {
+  Model model = 1;
+}
+
+message QueryGetModelBlocksRequest {
+  string model_name = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryGetModelBlocksResponse { 
+  repeated ModelBlock blocks = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetNodeRequest { string node_id = 1; }
+
+message QueryGetNodeResponse { Node node = 1; }
+
+message QueryGetMinerRequest { string node_id = 1; }
+
+message QueryGetMinerResponse {
+  Miner miner = 1;
+  Node node = 2;
+}
+
+message QueryGetOrchestratorRequest { string node_id = 1; }
+
+message QueryGetOrchestratorResponse {
+  Orchestrator orchestrator = 1;
+  Node node = 2;
+}
+
+message QueryGetOrchestratorsByParamsRequest {
+  InferenceType inference_type = 1;
+  Availability availability = 2;
+  uint32 limit = 3;
+  bytes key = 4;
+}
+
+message QueryGetOrchestratorsByParamsResponse {
+  repeated Orchestrator orchestrators = 1;
+  bytes next_key = 2;
+}
+
+message QueryGetAllOrchestratorRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+};
+
+message QueryGetAllOrchestratorResponse {
+  repeated Orchestrator orchestrators = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetOrchestratorHeartbeatRequest { string node_id = 1; }
+
+message QueryGetOrchestratorHeartbeatResponse { int32 timestamp = 1; }
+
+message QueryGetMinerHeartbeatRequest { string node_id = 1; }
+
+message QueryGetMinerHeartbeatResponse { int32 timestamp = 1; }

@@ -1,138 +1,109 @@
 /* eslint-disable */
-import {
-  Params,
-  AgentStatus,
-  AgentModelStatus,
-  Payment,
-  agentStatusFromJSON,
-  agentStatusToJSON,
-  agentModelStatusFromJSON,
-  agentModelStatusToJSON,
-} from "./agent";
+import { Params, AgentStatus, AgentModelStatus, TokenPrice, Payment, agentStatusFromJSON, agentStatusToJSON, agentModelStatusFromJSON, agentModelStatusToJSON } from "./agent";
 import { Coin } from "../../cosmos/base/v1beta1/coin";
-import Long from "long";
-import _m0 from "protobufjs/minimal";
-
+import { Long, isSet, DeepPartial, Exact, bytesFromBase64, base64FromBytes, Rpc } from "../../helpers";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../json-safe";
 export const protobufPackage = "agent.v1";
-
 export interface MsgUpdateParams {
   authority: string;
-  params?: Params;
+  params: Params;
 }
-
 export interface MsgUpdateParamsResponse {}
-
 export interface MsgRegisterInferenceAgent {
   account: string;
   url: string;
   version: Long;
 }
-
 export interface MsgRegisterInferenceAgentResponse {}
-
 export interface MsgUpdateInferenceAgent {
   account: string;
-  url: string;
-  version: Long;
-  status: AgentStatus;
+  url?: string;
+  version?: Long;
+  status?: AgentStatus;
 }
-
 export interface MsgUpdateInferenceAgentResponse {}
-
 export interface MsgRegisterAgentModel {
   account: string;
   modelName: string[];
   lock: Long[];
 }
-
 export interface MsgRegisterAgentModelResponse {}
-
 export interface MsgUpdateAgentModel {
   account: string;
   modelName: string[];
   lock: Long[];
   status: AgentModelStatus;
 }
-
 export interface MsgUpdateAgentModelResponse {}
-
 export interface VRF {
   seed: Uint8Array;
   proof: Uint8Array;
   hashRandom: Uint8Array;
 }
-
 export interface MsgRegisterSession {
   sessionId: string;
   account: string;
   modelName: string;
-  lockBalance?: Coin;
-  vrf?: VRF;
+  lockBalance: Coin;
+  vrf: VRF;
+  tokenPrice: TokenPrice;
 }
-
 export interface MsgRegisterSessionResponse {
   account: string;
   modelName: string;
 }
-
+export interface MsgCancelSession {
+  sessionId: string;
+  account: string;
+}
+export interface MsgCancelSessionResponse {}
 export interface MsgSubmitPayment {
   account: string;
   sessionId: string;
   payment?: Payment;
   signature: Uint8Array;
 }
-
 export interface MsgSubmitPaymentResponse {}
-
 export interface MsgDeleteExpiredSession {
   account: string;
   sessionId: string;
 }
-
 export interface MsgDeleteExpiredSessionResponse {}
-
 export interface MsgSubmitChallengeCID {
   account: string;
   sessionId: string;
   cid: string;
 }
-
 export interface MsgSubmitChallengeCIDResponse {}
-
 export interface MsgSubmitChallengeReply {
   account: string;
   sessionId: string;
   hash: Uint8Array;
 }
-
 export interface MsgSubmitChallengeReplyResponse {}
-
 export interface MsgSubmitChallengeMerkleTree {
   account: string;
   sessionId: string;
   answerHash: Uint8Array;
   merkleTree: Uint8Array[];
 }
-
 export interface MsgSubmitChallengeMerkleTreeResponse {}
-
 export interface MsgSubmitChallengeOriginHash {
   account: string;
   sessionId: string;
   hash: Uint8Array;
 }
-
 export interface MsgSubmitChallengeOriginHashResponse {}
-
 function createBaseMsgUpdateParams(): MsgUpdateParams {
-  return { authority: "", params: undefined };
+  return {
+    authority: "",
+    params: Params.fromPartial({})
+  };
 }
-
 export const MsgUpdateParams = {
-  encode(
-    message: MsgUpdateParams,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgUpdateParams",
+  encode(message: MsgUpdateParams, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.authority !== "") {
       writer.uint32(10).string(message.authority);
     }
@@ -141,7 +112,6 @@ export const MsgUpdateParams = {
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateParams {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -162,51 +132,36 @@ export const MsgUpdateParams = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgUpdateParams {
-    return {
-      authority: isSet(object.authority) ? String(object.authority) : "",
-      params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
-    };
-  },
-
-  toJSON(message: MsgUpdateParams): unknown {
-    const obj: any = {};
-    message.authority !== undefined && (obj.authority = message.authority);
-    message.params !== undefined &&
-      (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+    const obj = createBaseMsgUpdateParams();
+    if (isSet(object.authority)) obj.authority = String(object.authority);
+    if (isSet(object.params)) obj.params = Params.fromJSON(object.params);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateParams>, I>>(
-    object: I
-  ): MsgUpdateParams {
+  toJSON(message: MsgUpdateParams): JsonSafe<MsgUpdateParams> {
+    const obj: any = {};
+    message.authority !== undefined && (obj.authority = message.authority);
+    message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined);
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateParams>, I>>(object: I): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
-    message.params =
-      object.params !== undefined && object.params !== null
-        ? Params.fromPartial(object.params)
-        : undefined;
+    if (object.params !== undefined && object.params !== null) {
+      message.params = Params.fromPartial(object.params);
+    }
     return message;
-  },
+  }
 };
-
 function createBaseMsgUpdateParamsResponse(): MsgUpdateParamsResponse {
   return {};
 }
-
 export const MsgUpdateParamsResponse = {
-  encode(
-    _: MsgUpdateParamsResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgUpdateParamsResponse",
+  encode(_: MsgUpdateParamsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgUpdateParamsResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateParamsResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgUpdateParamsResponse();
@@ -220,33 +175,29 @@ export const MsgUpdateParamsResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgUpdateParamsResponse {
-    return {};
+    const obj = createBaseMsgUpdateParamsResponse();
+    return obj;
   },
-
-  toJSON(_: MsgUpdateParamsResponse): unknown {
+  toJSON(_: MsgUpdateParamsResponse): JsonSafe<MsgUpdateParamsResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateParamsResponse>, I>>(
-    _: I
-  ): MsgUpdateParamsResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateParamsResponse>, I>>(_: I): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgRegisterInferenceAgent(): MsgRegisterInferenceAgent {
-  return { account: "", url: "", version: Long.UZERO };
+  return {
+    account: "",
+    url: "",
+    version: Long.UZERO
+  };
 }
-
 export const MsgRegisterInferenceAgent = {
-  encode(
-    message: MsgRegisterInferenceAgent,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgRegisterInferenceAgent",
+  encode(message: MsgRegisterInferenceAgent, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -258,11 +209,7 @@ export const MsgRegisterInferenceAgent = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgRegisterInferenceAgent {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterInferenceAgent {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgRegisterInferenceAgent();
@@ -285,56 +232,39 @@ export const MsgRegisterInferenceAgent = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgRegisterInferenceAgent {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      url: isSet(object.url) ? String(object.url) : "",
-      version: isSet(object.version)
-        ? Long.fromValue(object.version)
-        : Long.UZERO,
-    };
+    const obj = createBaseMsgRegisterInferenceAgent();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.url)) obj.url = String(object.url);
+    if (isSet(object.version)) obj.version = Long.fromValue(object.version);
+    return obj;
   },
-
-  toJSON(message: MsgRegisterInferenceAgent): unknown {
+  toJSON(message: MsgRegisterInferenceAgent): JsonSafe<MsgRegisterInferenceAgent> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.url !== undefined && (obj.url = message.url);
-    message.version !== undefined &&
-      (obj.version = (message.version || Long.UZERO).toString());
+    message.version !== undefined && (obj.version = (message.version || Long.UZERO).toString());
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgRegisterInferenceAgent>, I>>(
-    object: I
-  ): MsgRegisterInferenceAgent {
+  fromPartial<I extends Exact<DeepPartial<MsgRegisterInferenceAgent>, I>>(object: I): MsgRegisterInferenceAgent {
     const message = createBaseMsgRegisterInferenceAgent();
     message.account = object.account ?? "";
     message.url = object.url ?? "";
-    message.version =
-      object.version !== undefined && object.version !== null
-        ? Long.fromValue(object.version)
-        : Long.UZERO;
+    if (object.version !== undefined && object.version !== null) {
+      message.version = Long.fromValue(object.version);
+    }
     return message;
-  },
+  }
 };
-
 function createBaseMsgRegisterInferenceAgentResponse(): MsgRegisterInferenceAgentResponse {
   return {};
 }
-
 export const MsgRegisterInferenceAgentResponse = {
-  encode(
-    _: MsgRegisterInferenceAgentResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgRegisterInferenceAgentResponse",
+  encode(_: MsgRegisterInferenceAgentResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgRegisterInferenceAgentResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterInferenceAgentResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgRegisterInferenceAgentResponse();
@@ -348,52 +278,45 @@ export const MsgRegisterInferenceAgentResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgRegisterInferenceAgentResponse {
-    return {};
+    const obj = createBaseMsgRegisterInferenceAgentResponse();
+    return obj;
   },
-
-  toJSON(_: MsgRegisterInferenceAgentResponse): unknown {
+  toJSON(_: MsgRegisterInferenceAgentResponse): JsonSafe<MsgRegisterInferenceAgentResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<
-    I extends Exact<DeepPartial<MsgRegisterInferenceAgentResponse>, I>
-  >(_: I): MsgRegisterInferenceAgentResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgRegisterInferenceAgentResponse>, I>>(_: I): MsgRegisterInferenceAgentResponse {
     const message = createBaseMsgRegisterInferenceAgentResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgUpdateInferenceAgent(): MsgUpdateInferenceAgent {
-  return { account: "", url: "", version: Long.UZERO, status: 0 };
+  return {
+    account: "",
+    url: undefined,
+    version: undefined,
+    status: undefined
+  };
 }
-
 export const MsgUpdateInferenceAgent = {
-  encode(
-    message: MsgUpdateInferenceAgent,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgUpdateInferenceAgent",
+  encode(message: MsgUpdateInferenceAgent, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
-    if (message.url !== "") {
+    if (message.url !== undefined) {
       writer.uint32(18).string(message.url);
     }
-    if (!message.version.isZero()) {
+    if (message.version !== undefined) {
       writer.uint32(24).uint64(message.version);
     }
-    if (message.status !== 0) {
+    if (message.status !== undefined) {
       writer.uint32(32).int32(message.status);
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgUpdateInferenceAgent {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateInferenceAgent {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgUpdateInferenceAgent();
@@ -419,60 +342,44 @@ export const MsgUpdateInferenceAgent = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgUpdateInferenceAgent {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      url: isSet(object.url) ? String(object.url) : "",
-      version: isSet(object.version)
-        ? Long.fromValue(object.version)
-        : Long.UZERO,
-      status: isSet(object.status) ? agentStatusFromJSON(object.status) : 0,
-    };
+    const obj = createBaseMsgUpdateInferenceAgent();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.url)) obj.url = String(object.url);
+    if (isSet(object.version)) obj.version = Long.fromValue(object.version);
+    if (isSet(object.status)) obj.status = agentStatusFromJSON(object.status);
+    return obj;
   },
-
-  toJSON(message: MsgUpdateInferenceAgent): unknown {
+  toJSON(message: MsgUpdateInferenceAgent): JsonSafe<MsgUpdateInferenceAgent> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.url !== undefined && (obj.url = message.url);
-    message.version !== undefined &&
-      (obj.version = (message.version || Long.UZERO).toString());
-    message.status !== undefined &&
-      (obj.status = agentStatusToJSON(message.status));
+    if (message.version !== undefined) {
+      obj.version = message.version.toString();
+    }
+    message.status !== undefined && (obj.status = agentStatusToJSON(message.status));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateInferenceAgent>, I>>(
-    object: I
-  ): MsgUpdateInferenceAgent {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateInferenceAgent>, I>>(object: I): MsgUpdateInferenceAgent {
     const message = createBaseMsgUpdateInferenceAgent();
     message.account = object.account ?? "";
-    message.url = object.url ?? "";
-    message.version =
-      object.version !== undefined && object.version !== null
-        ? Long.fromValue(object.version)
-        : Long.UZERO;
-    message.status = object.status ?? 0;
+    message.url = object.url ?? undefined;
+    if (object.version !== undefined && object.version !== null) {
+      message.version = Long.fromValue(object.version);
+    }
+    message.status = object.status ?? undefined;
     return message;
-  },
+  }
 };
-
 function createBaseMsgUpdateInferenceAgentResponse(): MsgUpdateInferenceAgentResponse {
   return {};
 }
-
 export const MsgUpdateInferenceAgentResponse = {
-  encode(
-    _: MsgUpdateInferenceAgentResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgUpdateInferenceAgentResponse",
+  encode(_: MsgUpdateInferenceAgentResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgUpdateInferenceAgentResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateInferenceAgentResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgUpdateInferenceAgentResponse();
@@ -486,33 +393,29 @@ export const MsgUpdateInferenceAgentResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgUpdateInferenceAgentResponse {
-    return {};
+    const obj = createBaseMsgUpdateInferenceAgentResponse();
+    return obj;
   },
-
-  toJSON(_: MsgUpdateInferenceAgentResponse): unknown {
+  toJSON(_: MsgUpdateInferenceAgentResponse): JsonSafe<MsgUpdateInferenceAgentResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateInferenceAgentResponse>, I>>(
-    _: I
-  ): MsgUpdateInferenceAgentResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateInferenceAgentResponse>, I>>(_: I): MsgUpdateInferenceAgentResponse {
     const message = createBaseMsgUpdateInferenceAgentResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgRegisterAgentModel(): MsgRegisterAgentModel {
-  return { account: "", modelName: [], lock: [] };
+  return {
+    account: "",
+    modelName: [],
+    lock: []
+  };
 }
-
 export const MsgRegisterAgentModel = {
-  encode(
-    message: MsgRegisterAgentModel,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgRegisterAgentModel",
+  encode(message: MsgRegisterAgentModel, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -526,11 +429,7 @@ export const MsgRegisterAgentModel = {
     writer.ldelim();
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgRegisterAgentModel {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterAgentModel {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgRegisterAgentModel();
@@ -560,62 +459,45 @@ export const MsgRegisterAgentModel = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgRegisterAgentModel {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      modelName: Array.isArray(object?.modelName)
-        ? object.modelName.map((e: any) => String(e))
-        : [],
-      lock: Array.isArray(object?.lock)
-        ? object.lock.map((e: any) => Long.fromValue(e))
-        : [],
-    };
+    const obj = createBaseMsgRegisterAgentModel();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (Array.isArray(object?.modelName)) obj.modelName = object.modelName.map((e: any) => String(e));
+    if (Array.isArray(object?.lock)) obj.lock = object.lock.map((e: any) => Long.fromValue(e));
+    return obj;
   },
-
-  toJSON(message: MsgRegisterAgentModel): unknown {
+  toJSON(message: MsgRegisterAgentModel): JsonSafe<MsgRegisterAgentModel> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     if (message.modelName) {
-      obj.modelName = message.modelName.map((e) => e);
+      obj.modelName = message.modelName.map(e => e);
     } else {
       obj.modelName = [];
     }
     if (message.lock) {
-      obj.lock = message.lock.map((e) => (e || Long.UZERO).toString());
+      obj.lock = message.lock.map(e => (e || Long.UZERO).toString());
     } else {
       obj.lock = [];
     }
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgRegisterAgentModel>, I>>(
-    object: I
-  ): MsgRegisterAgentModel {
+  fromPartial<I extends Exact<DeepPartial<MsgRegisterAgentModel>, I>>(object: I): MsgRegisterAgentModel {
     const message = createBaseMsgRegisterAgentModel();
     message.account = object.account ?? "";
-    message.modelName = object.modelName?.map((e) => e) || [];
-    message.lock = object.lock?.map((e) => Long.fromValue(e)) || [];
+    message.modelName = object.modelName?.map(e => e) || [];
+    message.lock = object.lock?.map(e => Long.fromValue(e)) || [];
     return message;
-  },
+  }
 };
-
 function createBaseMsgRegisterAgentModelResponse(): MsgRegisterAgentModelResponse {
   return {};
 }
-
 export const MsgRegisterAgentModelResponse = {
-  encode(
-    _: MsgRegisterAgentModelResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgRegisterAgentModelResponse",
+  encode(_: MsgRegisterAgentModelResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgRegisterAgentModelResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterAgentModelResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgRegisterAgentModelResponse();
@@ -629,33 +511,30 @@ export const MsgRegisterAgentModelResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgRegisterAgentModelResponse {
-    return {};
+    const obj = createBaseMsgRegisterAgentModelResponse();
+    return obj;
   },
-
-  toJSON(_: MsgRegisterAgentModelResponse): unknown {
+  toJSON(_: MsgRegisterAgentModelResponse): JsonSafe<MsgRegisterAgentModelResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgRegisterAgentModelResponse>, I>>(
-    _: I
-  ): MsgRegisterAgentModelResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgRegisterAgentModelResponse>, I>>(_: I): MsgRegisterAgentModelResponse {
     const message = createBaseMsgRegisterAgentModelResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgUpdateAgentModel(): MsgUpdateAgentModel {
-  return { account: "", modelName: [], lock: [], status: 0 };
+  return {
+    account: "",
+    modelName: [],
+    lock: [],
+    status: 0
+  };
 }
-
 export const MsgUpdateAgentModel = {
-  encode(
-    message: MsgUpdateAgentModel,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgUpdateAgentModel",
+  encode(message: MsgUpdateAgentModel, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -672,7 +551,6 @@ export const MsgUpdateAgentModel = {
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateAgentModel {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -706,68 +584,48 @@ export const MsgUpdateAgentModel = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgUpdateAgentModel {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      modelName: Array.isArray(object?.modelName)
-        ? object.modelName.map((e: any) => String(e))
-        : [],
-      lock: Array.isArray(object?.lock)
-        ? object.lock.map((e: any) => Long.fromValue(e))
-        : [],
-      status: isSet(object.status)
-        ? agentModelStatusFromJSON(object.status)
-        : 0,
-    };
+    const obj = createBaseMsgUpdateAgentModel();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (Array.isArray(object?.modelName)) obj.modelName = object.modelName.map((e: any) => String(e));
+    if (Array.isArray(object?.lock)) obj.lock = object.lock.map((e: any) => Long.fromValue(e));
+    if (isSet(object.status)) obj.status = agentModelStatusFromJSON(object.status);
+    return obj;
   },
-
-  toJSON(message: MsgUpdateAgentModel): unknown {
+  toJSON(message: MsgUpdateAgentModel): JsonSafe<MsgUpdateAgentModel> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     if (message.modelName) {
-      obj.modelName = message.modelName.map((e) => e);
+      obj.modelName = message.modelName.map(e => e);
     } else {
       obj.modelName = [];
     }
     if (message.lock) {
-      obj.lock = message.lock.map((e) => (e || Long.UZERO).toString());
+      obj.lock = message.lock.map(e => (e || Long.UZERO).toString());
     } else {
       obj.lock = [];
     }
-    message.status !== undefined &&
-      (obj.status = agentModelStatusToJSON(message.status));
+    message.status !== undefined && (obj.status = agentModelStatusToJSON(message.status));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateAgentModel>, I>>(
-    object: I
-  ): MsgUpdateAgentModel {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateAgentModel>, I>>(object: I): MsgUpdateAgentModel {
     const message = createBaseMsgUpdateAgentModel();
     message.account = object.account ?? "";
-    message.modelName = object.modelName?.map((e) => e) || [];
-    message.lock = object.lock?.map((e) => Long.fromValue(e)) || [];
+    message.modelName = object.modelName?.map(e => e) || [];
+    message.lock = object.lock?.map(e => Long.fromValue(e)) || [];
     message.status = object.status ?? 0;
     return message;
-  },
+  }
 };
-
 function createBaseMsgUpdateAgentModelResponse(): MsgUpdateAgentModelResponse {
   return {};
 }
-
 export const MsgUpdateAgentModelResponse = {
-  encode(
-    _: MsgUpdateAgentModelResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgUpdateAgentModelResponse",
+  encode(_: MsgUpdateAgentModelResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgUpdateAgentModelResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateAgentModelResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgUpdateAgentModelResponse();
@@ -781,33 +639,28 @@ export const MsgUpdateAgentModelResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgUpdateAgentModelResponse {
-    return {};
+    const obj = createBaseMsgUpdateAgentModelResponse();
+    return obj;
   },
-
-  toJSON(_: MsgUpdateAgentModelResponse): unknown {
+  toJSON(_: MsgUpdateAgentModelResponse): JsonSafe<MsgUpdateAgentModelResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateAgentModelResponse>, I>>(
-    _: I
-  ): MsgUpdateAgentModelResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateAgentModelResponse>, I>>(_: I): MsgUpdateAgentModelResponse {
     const message = createBaseMsgUpdateAgentModelResponse();
     return message;
-  },
+  }
 };
-
 function createBaseVRF(): VRF {
   return {
     seed: new Uint8Array(),
     proof: new Uint8Array(),
-    hashRandom: new Uint8Array(),
+    hashRandom: new Uint8Array()
   };
 }
-
 export const VRF = {
+  typeUrl: "/agent.v1.VRF",
   encode(message: VRF, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.seed.length !== 0) {
       writer.uint32(10).bytes(message.seed);
@@ -820,7 +673,6 @@ export const VRF = {
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): VRF {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -844,62 +696,41 @@ export const VRF = {
     }
     return message;
   },
-
   fromJSON(object: any): VRF {
-    return {
-      seed: isSet(object.seed)
-        ? bytesFromBase64(object.seed)
-        : new Uint8Array(),
-      proof: isSet(object.proof)
-        ? bytesFromBase64(object.proof)
-        : new Uint8Array(),
-      hashRandom: isSet(object.hashRandom)
-        ? bytesFromBase64(object.hashRandom)
-        : new Uint8Array(),
-    };
-  },
-
-  toJSON(message: VRF): unknown {
-    const obj: any = {};
-    message.seed !== undefined &&
-      (obj.seed = base64FromBytes(
-        message.seed !== undefined ? message.seed : new Uint8Array()
-      ));
-    message.proof !== undefined &&
-      (obj.proof = base64FromBytes(
-        message.proof !== undefined ? message.proof : new Uint8Array()
-      ));
-    message.hashRandom !== undefined &&
-      (obj.hashRandom = base64FromBytes(
-        message.hashRandom !== undefined ? message.hashRandom : new Uint8Array()
-      ));
+    const obj = createBaseVRF();
+    if (isSet(object.seed)) obj.seed = bytesFromBase64(object.seed);
+    if (isSet(object.proof)) obj.proof = bytesFromBase64(object.proof);
+    if (isSet(object.hashRandom)) obj.hashRandom = bytesFromBase64(object.hashRandom);
     return obj;
   },
-
+  toJSON(message: VRF): JsonSafe<VRF> {
+    const obj: any = {};
+    message.seed !== undefined && (obj.seed = base64FromBytes(message.seed !== undefined ? message.seed : new Uint8Array()));
+    message.proof !== undefined && (obj.proof = base64FromBytes(message.proof !== undefined ? message.proof : new Uint8Array()));
+    message.hashRandom !== undefined && (obj.hashRandom = base64FromBytes(message.hashRandom !== undefined ? message.hashRandom : new Uint8Array()));
+    return obj;
+  },
   fromPartial<I extends Exact<DeepPartial<VRF>, I>>(object: I): VRF {
     const message = createBaseVRF();
     message.seed = object.seed ?? new Uint8Array();
     message.proof = object.proof ?? new Uint8Array();
     message.hashRandom = object.hashRandom ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 function createBaseMsgRegisterSession(): MsgRegisterSession {
   return {
     sessionId: "",
     account: "",
     modelName: "",
-    lockBalance: undefined,
-    vrf: undefined,
+    lockBalance: Coin.fromPartial({}),
+    vrf: VRF.fromPartial({}),
+    tokenPrice: TokenPrice.fromPartial({})
   };
 }
-
 export const MsgRegisterSession = {
-  encode(
-    message: MsgRegisterSession,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgRegisterSession",
+  encode(message: MsgRegisterSession, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.sessionId !== "") {
       writer.uint32(10).string(message.sessionId);
     }
@@ -915,9 +746,11 @@ export const MsgRegisterSession = {
     if (message.vrf !== undefined) {
       VRF.encode(message.vrf, writer.uint32(42).fork()).ldelim();
     }
+    if (message.tokenPrice !== undefined) {
+      TokenPrice.encode(message.tokenPrice, writer.uint32(50).fork()).ldelim();
+    }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterSession {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -940,6 +773,9 @@ export const MsgRegisterSession = {
         case 5:
           message.vrf = VRF.decode(reader, reader.uint32());
           break;
+        case 6:
+          message.tokenPrice = TokenPrice.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -947,61 +783,52 @@ export const MsgRegisterSession = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgRegisterSession {
-    return {
-      sessionId: isSet(object.sessionId) ? String(object.sessionId) : "",
-      account: isSet(object.account) ? String(object.account) : "",
-      modelName: isSet(object.modelName) ? String(object.modelName) : "",
-      lockBalance: isSet(object.lockBalance)
-        ? Coin.fromJSON(object.lockBalance)
-        : undefined,
-      vrf: isSet(object.vrf) ? VRF.fromJSON(object.vrf) : undefined,
-    };
+    const obj = createBaseMsgRegisterSession();
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.modelName)) obj.modelName = String(object.modelName);
+    if (isSet(object.lockBalance)) obj.lockBalance = Coin.fromJSON(object.lockBalance);
+    if (isSet(object.vrf)) obj.vrf = VRF.fromJSON(object.vrf);
+    if (isSet(object.tokenPrice)) obj.tokenPrice = TokenPrice.fromJSON(object.tokenPrice);
+    return obj;
   },
-
-  toJSON(message: MsgRegisterSession): unknown {
+  toJSON(message: MsgRegisterSession): JsonSafe<MsgRegisterSession> {
     const obj: any = {};
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     message.account !== undefined && (obj.account = message.account);
     message.modelName !== undefined && (obj.modelName = message.modelName);
-    message.lockBalance !== undefined &&
-      (obj.lockBalance = message.lockBalance
-        ? Coin.toJSON(message.lockBalance)
-        : undefined);
-    message.vrf !== undefined &&
-      (obj.vrf = message.vrf ? VRF.toJSON(message.vrf) : undefined);
+    message.lockBalance !== undefined && (obj.lockBalance = message.lockBalance ? Coin.toJSON(message.lockBalance) : undefined);
+    message.vrf !== undefined && (obj.vrf = message.vrf ? VRF.toJSON(message.vrf) : undefined);
+    message.tokenPrice !== undefined && (obj.tokenPrice = message.tokenPrice ? TokenPrice.toJSON(message.tokenPrice) : undefined);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgRegisterSession>, I>>(
-    object: I
-  ): MsgRegisterSession {
+  fromPartial<I extends Exact<DeepPartial<MsgRegisterSession>, I>>(object: I): MsgRegisterSession {
     const message = createBaseMsgRegisterSession();
     message.sessionId = object.sessionId ?? "";
     message.account = object.account ?? "";
     message.modelName = object.modelName ?? "";
-    message.lockBalance =
-      object.lockBalance !== undefined && object.lockBalance !== null
-        ? Coin.fromPartial(object.lockBalance)
-        : undefined;
-    message.vrf =
-      object.vrf !== undefined && object.vrf !== null
-        ? VRF.fromPartial(object.vrf)
-        : undefined;
+    if (object.lockBalance !== undefined && object.lockBalance !== null) {
+      message.lockBalance = Coin.fromPartial(object.lockBalance);
+    }
+    if (object.vrf !== undefined && object.vrf !== null) {
+      message.vrf = VRF.fromPartial(object.vrf);
+    }
+    if (object.tokenPrice !== undefined && object.tokenPrice !== null) {
+      message.tokenPrice = TokenPrice.fromPartial(object.tokenPrice);
+    }
     return message;
-  },
+  }
 };
-
 function createBaseMsgRegisterSessionResponse(): MsgRegisterSessionResponse {
-  return { account: "", modelName: "" };
+  return {
+    account: "",
+    modelName: ""
+  };
 }
-
 export const MsgRegisterSessionResponse = {
-  encode(
-    message: MsgRegisterSessionResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgRegisterSessionResponse",
+  encode(message: MsgRegisterSessionResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -1010,11 +837,7 @@ export const MsgRegisterSessionResponse = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgRegisterSessionResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterSessionResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgRegisterSessionResponse();
@@ -1034,45 +857,127 @@ export const MsgRegisterSessionResponse = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgRegisterSessionResponse {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      modelName: isSet(object.modelName) ? String(object.modelName) : "",
-    };
+    const obj = createBaseMsgRegisterSessionResponse();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.modelName)) obj.modelName = String(object.modelName);
+    return obj;
   },
-
-  toJSON(message: MsgRegisterSessionResponse): unknown {
+  toJSON(message: MsgRegisterSessionResponse): JsonSafe<MsgRegisterSessionResponse> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.modelName !== undefined && (obj.modelName = message.modelName);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgRegisterSessionResponse>, I>>(
-    object: I
-  ): MsgRegisterSessionResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgRegisterSessionResponse>, I>>(object: I): MsgRegisterSessionResponse {
     const message = createBaseMsgRegisterSessionResponse();
     message.account = object.account ?? "";
     message.modelName = object.modelName ?? "";
     return message;
-  },
+  }
 };
-
+function createBaseMsgCancelSession(): MsgCancelSession {
+  return {
+    sessionId: "",
+    account: ""
+  };
+}
+export const MsgCancelSession = {
+  typeUrl: "/agent.v1.MsgCancelSession",
+  encode(message: MsgCancelSession, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.sessionId !== "") {
+      writer.uint32(10).string(message.sessionId);
+    }
+    if (message.account !== "") {
+      writer.uint32(18).string(message.account);
+    }
+    return writer;
+  },
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgCancelSession {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgCancelSession();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.sessionId = reader.string();
+          break;
+        case 2:
+          message.account = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(object: any): MsgCancelSession {
+    const obj = createBaseMsgCancelSession();
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.account)) obj.account = String(object.account);
+    return obj;
+  },
+  toJSON(message: MsgCancelSession): JsonSafe<MsgCancelSession> {
+    const obj: any = {};
+    message.sessionId !== undefined && (obj.sessionId = message.sessionId);
+    message.account !== undefined && (obj.account = message.account);
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<MsgCancelSession>, I>>(object: I): MsgCancelSession {
+    const message = createBaseMsgCancelSession();
+    message.sessionId = object.sessionId ?? "";
+    message.account = object.account ?? "";
+    return message;
+  }
+};
+function createBaseMsgCancelSessionResponse(): MsgCancelSessionResponse {
+  return {};
+}
+export const MsgCancelSessionResponse = {
+  typeUrl: "/agent.v1.MsgCancelSessionResponse",
+  encode(_: MsgCancelSessionResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgCancelSessionResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMsgCancelSessionResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+  fromJSON(_: any): MsgCancelSessionResponse {
+    const obj = createBaseMsgCancelSessionResponse();
+    return obj;
+  },
+  toJSON(_: MsgCancelSessionResponse): JsonSafe<MsgCancelSessionResponse> {
+    const obj: any = {};
+    return obj;
+  },
+  fromPartial<I extends Exact<DeepPartial<MsgCancelSessionResponse>, I>>(_: I): MsgCancelSessionResponse {
+    const message = createBaseMsgCancelSessionResponse();
+    return message;
+  }
+};
 function createBaseMsgSubmitPayment(): MsgSubmitPayment {
   return {
     account: "",
     sessionId: "",
     payment: undefined,
-    signature: new Uint8Array(),
+    signature: new Uint8Array()
   };
 }
-
 export const MsgSubmitPayment = {
-  encode(
-    message: MsgSubmitPayment,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitPayment",
+  encode(message: MsgSubmitPayment, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -1087,7 +992,6 @@ export const MsgSubmitPayment = {
     }
     return writer;
   },
-
   decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitPayment {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
@@ -1114,66 +1018,42 @@ export const MsgSubmitPayment = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgSubmitPayment {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      sessionId: isSet(object.sessionId) ? String(object.sessionId) : "",
-      payment: isSet(object.payment)
-        ? Payment.fromJSON(object.payment)
-        : undefined,
-      signature: isSet(object.signature)
-        ? bytesFromBase64(object.signature)
-        : new Uint8Array(),
-    };
+    const obj = createBaseMsgSubmitPayment();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.payment)) obj.payment = Payment.fromJSON(object.payment);
+    if (isSet(object.signature)) obj.signature = bytesFromBase64(object.signature);
+    return obj;
   },
-
-  toJSON(message: MsgSubmitPayment): unknown {
+  toJSON(message: MsgSubmitPayment): JsonSafe<MsgSubmitPayment> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
-    message.payment !== undefined &&
-      (obj.payment = message.payment
-        ? Payment.toJSON(message.payment)
-        : undefined);
-    message.signature !== undefined &&
-      (obj.signature = base64FromBytes(
-        message.signature !== undefined ? message.signature : new Uint8Array()
-      ));
+    message.payment !== undefined && (obj.payment = message.payment ? Payment.toJSON(message.payment) : undefined);
+    message.signature !== undefined && (obj.signature = base64FromBytes(message.signature !== undefined ? message.signature : new Uint8Array()));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitPayment>, I>>(
-    object: I
-  ): MsgSubmitPayment {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitPayment>, I>>(object: I): MsgSubmitPayment {
     const message = createBaseMsgSubmitPayment();
     message.account = object.account ?? "";
     message.sessionId = object.sessionId ?? "";
-    message.payment =
-      object.payment !== undefined && object.payment !== null
-        ? Payment.fromPartial(object.payment)
-        : undefined;
+    if (object.payment !== undefined && object.payment !== null) {
+      message.payment = Payment.fromPartial(object.payment);
+    }
     message.signature = object.signature ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitPaymentResponse(): MsgSubmitPaymentResponse {
   return {};
 }
-
 export const MsgSubmitPaymentResponse = {
-  encode(
-    _: MsgSubmitPaymentResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitPaymentResponse",
+  encode(_: MsgSubmitPaymentResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitPaymentResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitPaymentResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitPaymentResponse();
@@ -1187,33 +1067,28 @@ export const MsgSubmitPaymentResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgSubmitPaymentResponse {
-    return {};
+    const obj = createBaseMsgSubmitPaymentResponse();
+    return obj;
   },
-
-  toJSON(_: MsgSubmitPaymentResponse): unknown {
+  toJSON(_: MsgSubmitPaymentResponse): JsonSafe<MsgSubmitPaymentResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitPaymentResponse>, I>>(
-    _: I
-  ): MsgSubmitPaymentResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitPaymentResponse>, I>>(_: I): MsgSubmitPaymentResponse {
     const message = createBaseMsgSubmitPaymentResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgDeleteExpiredSession(): MsgDeleteExpiredSession {
-  return { account: "", sessionId: "" };
+  return {
+    account: "",
+    sessionId: ""
+  };
 }
-
 export const MsgDeleteExpiredSession = {
-  encode(
-    message: MsgDeleteExpiredSession,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgDeleteExpiredSession",
+  encode(message: MsgDeleteExpiredSession, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -1222,11 +1097,7 @@ export const MsgDeleteExpiredSession = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgDeleteExpiredSession {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteExpiredSession {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgDeleteExpiredSession();
@@ -1246,47 +1117,34 @@ export const MsgDeleteExpiredSession = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgDeleteExpiredSession {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      sessionId: isSet(object.sessionId) ? String(object.sessionId) : "",
-    };
+    const obj = createBaseMsgDeleteExpiredSession();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    return obj;
   },
-
-  toJSON(message: MsgDeleteExpiredSession): unknown {
+  toJSON(message: MsgDeleteExpiredSession): JsonSafe<MsgDeleteExpiredSession> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgDeleteExpiredSession>, I>>(
-    object: I
-  ): MsgDeleteExpiredSession {
+  fromPartial<I extends Exact<DeepPartial<MsgDeleteExpiredSession>, I>>(object: I): MsgDeleteExpiredSession {
     const message = createBaseMsgDeleteExpiredSession();
     message.account = object.account ?? "";
     message.sessionId = object.sessionId ?? "";
     return message;
-  },
+  }
 };
-
 function createBaseMsgDeleteExpiredSessionResponse(): MsgDeleteExpiredSessionResponse {
   return {};
 }
-
 export const MsgDeleteExpiredSessionResponse = {
-  encode(
-    _: MsgDeleteExpiredSessionResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgDeleteExpiredSessionResponse",
+  encode(_: MsgDeleteExpiredSessionResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgDeleteExpiredSessionResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteExpiredSessionResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgDeleteExpiredSessionResponse();
@@ -1300,33 +1158,29 @@ export const MsgDeleteExpiredSessionResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgDeleteExpiredSessionResponse {
-    return {};
+    const obj = createBaseMsgDeleteExpiredSessionResponse();
+    return obj;
   },
-
-  toJSON(_: MsgDeleteExpiredSessionResponse): unknown {
+  toJSON(_: MsgDeleteExpiredSessionResponse): JsonSafe<MsgDeleteExpiredSessionResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgDeleteExpiredSessionResponse>, I>>(
-    _: I
-  ): MsgDeleteExpiredSessionResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgDeleteExpiredSessionResponse>, I>>(_: I): MsgDeleteExpiredSessionResponse {
     const message = createBaseMsgDeleteExpiredSessionResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeCID(): MsgSubmitChallengeCID {
-  return { account: "", sessionId: "", cid: "" };
+  return {
+    account: "",
+    sessionId: "",
+    cid: ""
+  };
 }
-
 export const MsgSubmitChallengeCID = {
-  encode(
-    message: MsgSubmitChallengeCID,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeCID",
+  encode(message: MsgSubmitChallengeCID, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -1338,11 +1192,7 @@ export const MsgSubmitChallengeCID = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeCID {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeCID {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeCID();
@@ -1365,50 +1215,37 @@ export const MsgSubmitChallengeCID = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgSubmitChallengeCID {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      sessionId: isSet(object.sessionId) ? String(object.sessionId) : "",
-      cid: isSet(object.cid) ? String(object.cid) : "",
-    };
+    const obj = createBaseMsgSubmitChallengeCID();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.cid)) obj.cid = String(object.cid);
+    return obj;
   },
-
-  toJSON(message: MsgSubmitChallengeCID): unknown {
+  toJSON(message: MsgSubmitChallengeCID): JsonSafe<MsgSubmitChallengeCID> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
     message.cid !== undefined && (obj.cid = message.cid);
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeCID>, I>>(
-    object: I
-  ): MsgSubmitChallengeCID {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeCID>, I>>(object: I): MsgSubmitChallengeCID {
     const message = createBaseMsgSubmitChallengeCID();
     message.account = object.account ?? "";
     message.sessionId = object.sessionId ?? "";
     message.cid = object.cid ?? "";
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeCIDResponse(): MsgSubmitChallengeCIDResponse {
   return {};
 }
-
 export const MsgSubmitChallengeCIDResponse = {
-  encode(
-    _: MsgSubmitChallengeCIDResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeCIDResponse",
+  encode(_: MsgSubmitChallengeCIDResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeCIDResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeCIDResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeCIDResponse();
@@ -1422,33 +1259,29 @@ export const MsgSubmitChallengeCIDResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgSubmitChallengeCIDResponse {
-    return {};
+    const obj = createBaseMsgSubmitChallengeCIDResponse();
+    return obj;
   },
-
-  toJSON(_: MsgSubmitChallengeCIDResponse): unknown {
+  toJSON(_: MsgSubmitChallengeCIDResponse): JsonSafe<MsgSubmitChallengeCIDResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeCIDResponse>, I>>(
-    _: I
-  ): MsgSubmitChallengeCIDResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeCIDResponse>, I>>(_: I): MsgSubmitChallengeCIDResponse {
     const message = createBaseMsgSubmitChallengeCIDResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeReply(): MsgSubmitChallengeReply {
-  return { account: "", sessionId: "", hash: new Uint8Array() };
+  return {
+    account: "",
+    sessionId: "",
+    hash: new Uint8Array()
+  };
 }
-
 export const MsgSubmitChallengeReply = {
-  encode(
-    message: MsgSubmitChallengeReply,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeReply",
+  encode(message: MsgSubmitChallengeReply, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -1460,11 +1293,7 @@ export const MsgSubmitChallengeReply = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeReply {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeReply {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeReply();
@@ -1487,55 +1316,37 @@ export const MsgSubmitChallengeReply = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgSubmitChallengeReply {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      sessionId: isSet(object.sessionId) ? String(object.sessionId) : "",
-      hash: isSet(object.hash)
-        ? bytesFromBase64(object.hash)
-        : new Uint8Array(),
-    };
+    const obj = createBaseMsgSubmitChallengeReply();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.hash)) obj.hash = bytesFromBase64(object.hash);
+    return obj;
   },
-
-  toJSON(message: MsgSubmitChallengeReply): unknown {
+  toJSON(message: MsgSubmitChallengeReply): JsonSafe<MsgSubmitChallengeReply> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
-    message.hash !== undefined &&
-      (obj.hash = base64FromBytes(
-        message.hash !== undefined ? message.hash : new Uint8Array()
-      ));
+    message.hash !== undefined && (obj.hash = base64FromBytes(message.hash !== undefined ? message.hash : new Uint8Array()));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeReply>, I>>(
-    object: I
-  ): MsgSubmitChallengeReply {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeReply>, I>>(object: I): MsgSubmitChallengeReply {
     const message = createBaseMsgSubmitChallengeReply();
     message.account = object.account ?? "";
     message.sessionId = object.sessionId ?? "";
     message.hash = object.hash ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeReplyResponse(): MsgSubmitChallengeReplyResponse {
   return {};
 }
-
 export const MsgSubmitChallengeReplyResponse = {
-  encode(
-    _: MsgSubmitChallengeReplyResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeReplyResponse",
+  encode(_: MsgSubmitChallengeReplyResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeReplyResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeReplyResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeReplyResponse();
@@ -1549,38 +1360,30 @@ export const MsgSubmitChallengeReplyResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgSubmitChallengeReplyResponse {
-    return {};
+    const obj = createBaseMsgSubmitChallengeReplyResponse();
+    return obj;
   },
-
-  toJSON(_: MsgSubmitChallengeReplyResponse): unknown {
+  toJSON(_: MsgSubmitChallengeReplyResponse): JsonSafe<MsgSubmitChallengeReplyResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeReplyResponse>, I>>(
-    _: I
-  ): MsgSubmitChallengeReplyResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeReplyResponse>, I>>(_: I): MsgSubmitChallengeReplyResponse {
     const message = createBaseMsgSubmitChallengeReplyResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeMerkleTree(): MsgSubmitChallengeMerkleTree {
   return {
     account: "",
     sessionId: "",
     answerHash: new Uint8Array(),
-    merkleTree: [],
+    merkleTree: []
   };
 }
-
 export const MsgSubmitChallengeMerkleTree = {
-  encode(
-    message: MsgSubmitChallengeMerkleTree,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeMerkleTree",
+  encode(message: MsgSubmitChallengeMerkleTree, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -1595,11 +1398,7 @@ export const MsgSubmitChallengeMerkleTree = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeMerkleTree {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeMerkleTree {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeMerkleTree();
@@ -1625,66 +1424,44 @@ export const MsgSubmitChallengeMerkleTree = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgSubmitChallengeMerkleTree {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      sessionId: isSet(object.sessionId) ? String(object.sessionId) : "",
-      answerHash: isSet(object.answerHash)
-        ? bytesFromBase64(object.answerHash)
-        : new Uint8Array(),
-      merkleTree: Array.isArray(object?.merkleTree)
-        ? object.merkleTree.map((e: any) => bytesFromBase64(e))
-        : [],
-    };
+    const obj = createBaseMsgSubmitChallengeMerkleTree();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.answerHash)) obj.answerHash = bytesFromBase64(object.answerHash);
+    if (Array.isArray(object?.merkleTree)) obj.merkleTree = object.merkleTree.map((e: any) => bytesFromBase64(e));
+    return obj;
   },
-
-  toJSON(message: MsgSubmitChallengeMerkleTree): unknown {
+  toJSON(message: MsgSubmitChallengeMerkleTree): JsonSafe<MsgSubmitChallengeMerkleTree> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
-    message.answerHash !== undefined &&
-      (obj.answerHash = base64FromBytes(
-        message.answerHash !== undefined ? message.answerHash : new Uint8Array()
-      ));
+    message.answerHash !== undefined && (obj.answerHash = base64FromBytes(message.answerHash !== undefined ? message.answerHash : new Uint8Array()));
     if (message.merkleTree) {
-      obj.merkleTree = message.merkleTree.map((e) =>
-        base64FromBytes(e !== undefined ? e : new Uint8Array())
-      );
+      obj.merkleTree = message.merkleTree.map(e => base64FromBytes(e !== undefined ? e : new Uint8Array()));
     } else {
       obj.merkleTree = [];
     }
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeMerkleTree>, I>>(
-    object: I
-  ): MsgSubmitChallengeMerkleTree {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeMerkleTree>, I>>(object: I): MsgSubmitChallengeMerkleTree {
     const message = createBaseMsgSubmitChallengeMerkleTree();
     message.account = object.account ?? "";
     message.sessionId = object.sessionId ?? "";
     message.answerHash = object.answerHash ?? new Uint8Array();
-    message.merkleTree = object.merkleTree?.map((e) => e) || [];
+    message.merkleTree = object.merkleTree?.map(e => e) || [];
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeMerkleTreeResponse(): MsgSubmitChallengeMerkleTreeResponse {
   return {};
 }
-
 export const MsgSubmitChallengeMerkleTreeResponse = {
-  encode(
-    _: MsgSubmitChallengeMerkleTreeResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeMerkleTreeResponse",
+  encode(_: MsgSubmitChallengeMerkleTreeResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeMerkleTreeResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeMerkleTreeResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeMerkleTreeResponse();
@@ -1698,33 +1475,29 @@ export const MsgSubmitChallengeMerkleTreeResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgSubmitChallengeMerkleTreeResponse {
-    return {};
+    const obj = createBaseMsgSubmitChallengeMerkleTreeResponse();
+    return obj;
   },
-
-  toJSON(_: MsgSubmitChallengeMerkleTreeResponse): unknown {
+  toJSON(_: MsgSubmitChallengeMerkleTreeResponse): JsonSafe<MsgSubmitChallengeMerkleTreeResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<
-    I extends Exact<DeepPartial<MsgSubmitChallengeMerkleTreeResponse>, I>
-  >(_: I): MsgSubmitChallengeMerkleTreeResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeMerkleTreeResponse>, I>>(_: I): MsgSubmitChallengeMerkleTreeResponse {
     const message = createBaseMsgSubmitChallengeMerkleTreeResponse();
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeOriginHash(): MsgSubmitChallengeOriginHash {
-  return { account: "", sessionId: "", hash: new Uint8Array() };
+  return {
+    account: "",
+    sessionId: "",
+    hash: new Uint8Array()
+  };
 }
-
 export const MsgSubmitChallengeOriginHash = {
-  encode(
-    message: MsgSubmitChallengeOriginHash,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeOriginHash",
+  encode(message: MsgSubmitChallengeOriginHash, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.account !== "") {
       writer.uint32(10).string(message.account);
     }
@@ -1736,11 +1509,7 @@ export const MsgSubmitChallengeOriginHash = {
     }
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeOriginHash {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeOriginHash {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeOriginHash();
@@ -1763,55 +1532,37 @@ export const MsgSubmitChallengeOriginHash = {
     }
     return message;
   },
-
   fromJSON(object: any): MsgSubmitChallengeOriginHash {
-    return {
-      account: isSet(object.account) ? String(object.account) : "",
-      sessionId: isSet(object.sessionId) ? String(object.sessionId) : "",
-      hash: isSet(object.hash)
-        ? bytesFromBase64(object.hash)
-        : new Uint8Array(),
-    };
+    const obj = createBaseMsgSubmitChallengeOriginHash();
+    if (isSet(object.account)) obj.account = String(object.account);
+    if (isSet(object.sessionId)) obj.sessionId = String(object.sessionId);
+    if (isSet(object.hash)) obj.hash = bytesFromBase64(object.hash);
+    return obj;
   },
-
-  toJSON(message: MsgSubmitChallengeOriginHash): unknown {
+  toJSON(message: MsgSubmitChallengeOriginHash): JsonSafe<MsgSubmitChallengeOriginHash> {
     const obj: any = {};
     message.account !== undefined && (obj.account = message.account);
     message.sessionId !== undefined && (obj.sessionId = message.sessionId);
-    message.hash !== undefined &&
-      (obj.hash = base64FromBytes(
-        message.hash !== undefined ? message.hash : new Uint8Array()
-      ));
+    message.hash !== undefined && (obj.hash = base64FromBytes(message.hash !== undefined ? message.hash : new Uint8Array()));
     return obj;
   },
-
-  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeOriginHash>, I>>(
-    object: I
-  ): MsgSubmitChallengeOriginHash {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeOriginHash>, I>>(object: I): MsgSubmitChallengeOriginHash {
     const message = createBaseMsgSubmitChallengeOriginHash();
     message.account = object.account ?? "";
     message.sessionId = object.sessionId ?? "";
     message.hash = object.hash ?? new Uint8Array();
     return message;
-  },
+  }
 };
-
 function createBaseMsgSubmitChallengeOriginHashResponse(): MsgSubmitChallengeOriginHashResponse {
   return {};
 }
-
 export const MsgSubmitChallengeOriginHashResponse = {
-  encode(
-    _: MsgSubmitChallengeOriginHashResponse,
-    writer: _m0.Writer = _m0.Writer.create()
-  ): _m0.Writer {
+  typeUrl: "/agent.v1.MsgSubmitChallengeOriginHashResponse",
+  encode(_: MsgSubmitChallengeOriginHashResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     return writer;
   },
-
-  decode(
-    input: _m0.Reader | Uint8Array,
-    length?: number
-  ): MsgSubmitChallengeOriginHashResponse {
+  decode(input: _m0.Reader | Uint8Array, length?: number): MsgSubmitChallengeOriginHashResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgSubmitChallengeOriginHashResponse();
@@ -1825,59 +1576,38 @@ export const MsgSubmitChallengeOriginHashResponse = {
     }
     return message;
   },
-
   fromJSON(_: any): MsgSubmitChallengeOriginHashResponse {
-    return {};
+    const obj = createBaseMsgSubmitChallengeOriginHashResponse();
+    return obj;
   },
-
-  toJSON(_: MsgSubmitChallengeOriginHashResponse): unknown {
+  toJSON(_: MsgSubmitChallengeOriginHashResponse): JsonSafe<MsgSubmitChallengeOriginHashResponse> {
     const obj: any = {};
     return obj;
   },
-
-  fromPartial<
-    I extends Exact<DeepPartial<MsgSubmitChallengeOriginHashResponse>, I>
-  >(_: I): MsgSubmitChallengeOriginHashResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgSubmitChallengeOriginHashResponse>, I>>(_: I): MsgSubmitChallengeOriginHashResponse {
     const message = createBaseMsgSubmitChallengeOriginHashResponse();
     return message;
-  },
+  }
 };
-
 export interface Msg {
   UpdateParams(request: MsgUpdateParams): Promise<MsgUpdateParamsResponse>;
-  RegisterInferenceAgent(
-    request: MsgRegisterInferenceAgent
-  ): Promise<MsgRegisterInferenceAgentResponse>;
-  UpdateInferenceAgent(
-    request: MsgUpdateInferenceAgent
-  ): Promise<MsgUpdateInferenceAgentResponse>;
-  RegisterAgentModel(
-    request: MsgRegisterAgentModel
-  ): Promise<MsgRegisterAgentModelResponse>;
-  UpdateAgentModel(
-    request: MsgUpdateAgentModel
-  ): Promise<MsgUpdateAgentModelResponse>;
-  RegisterSession(
-    request: MsgRegisterSession
-  ): Promise<MsgRegisterSessionResponse>;
+  /** RegisterInferenceAgent defines a method to register an inference agent to the chain. */
+  RegisterInferenceAgent(request: MsgRegisterInferenceAgent): Promise<MsgRegisterInferenceAgentResponse>;
+  /** UpdateInferenceAgent defines a method to update an existing inference agent. */
+  UpdateInferenceAgent(request: MsgUpdateInferenceAgent): Promise<MsgUpdateInferenceAgentResponse>;
+  /** RegisterAgentModel defines a method to register a batch of models belonging to an agent on the blockchain. */
+  RegisterAgentModel(request: MsgRegisterAgentModel): Promise<MsgRegisterAgentModelResponse>;
+  /** UpdateAgentModel defines a method to update a batch of existing models. */
+  UpdateAgentModel(request: MsgUpdateAgentModel): Promise<MsgUpdateAgentModelResponse>;
+  RegisterSession(request: MsgRegisterSession): Promise<MsgRegisterSessionResponse>;
+  CancelSession(request: MsgCancelSession): Promise<MsgCancelSessionResponse>;
   SubmitPayment(request: MsgSubmitPayment): Promise<MsgSubmitPaymentResponse>;
-  DeleteExpiredSession(
-    request: MsgDeleteExpiredSession
-  ): Promise<MsgDeleteExpiredSessionResponse>;
-  SubmitChallengeCID(
-    request: MsgSubmitChallengeCID
-  ): Promise<MsgSubmitChallengeCIDResponse>;
-  SubmitChallengeReply(
-    request: MsgSubmitChallengeReply
-  ): Promise<MsgSubmitChallengeReplyResponse>;
-  SubmitChallengeMerkleTree(
-    request: MsgSubmitChallengeMerkleTree
-  ): Promise<MsgSubmitChallengeMerkleTreeResponse>;
-  SubmitChallengeOriginHash(
-    request: MsgSubmitChallengeOriginHash
-  ): Promise<MsgSubmitChallengeOriginHashResponse>;
+  DeleteExpiredSession(request: MsgDeleteExpiredSession): Promise<MsgDeleteExpiredSessionResponse>;
+  SubmitChallengeCID(request: MsgSubmitChallengeCID): Promise<MsgSubmitChallengeCIDResponse>;
+  SubmitChallengeReply(request: MsgSubmitChallengeReply): Promise<MsgSubmitChallengeReplyResponse>;
+  SubmitChallengeMerkleTree(request: MsgSubmitChallengeMerkleTree): Promise<MsgSubmitChallengeMerkleTreeResponse>;
+  SubmitChallengeOriginHash(request: MsgSubmitChallengeOriginHash): Promise<MsgSubmitChallengeOriginHashResponse>;
 }
-
 export class MsgClientImpl implements Msg {
   private readonly rpc: Rpc;
   constructor(rpc: Rpc) {
@@ -1888,6 +1618,7 @@ export class MsgClientImpl implements Msg {
     this.RegisterAgentModel = this.RegisterAgentModel.bind(this);
     this.UpdateAgentModel = this.UpdateAgentModel.bind(this);
     this.RegisterSession = this.RegisterSession.bind(this);
+    this.CancelSession = this.CancelSession.bind(this);
     this.SubmitPayment = this.SubmitPayment.bind(this);
     this.DeleteExpiredSession = this.DeleteExpiredSession.bind(this);
     this.SubmitChallengeCID = this.SubmitChallengeCID.bind(this);
@@ -1898,229 +1629,66 @@ export class MsgClientImpl implements Msg {
   UpdateParams(request: MsgUpdateParams): Promise<MsgUpdateParamsResponse> {
     const data = MsgUpdateParams.encode(request).finish();
     const promise = this.rpc.request("agent.v1.Msg", "UpdateParams", data);
-    return promise.then((data) =>
-      MsgUpdateParamsResponse.decode(new _m0.Reader(data))
-    );
+    return promise.then(data => MsgUpdateParamsResponse.decode(new _m0.Reader(data)));
   }
-
-  RegisterInferenceAgent(
-    request: MsgRegisterInferenceAgent
-  ): Promise<MsgRegisterInferenceAgentResponse> {
+  RegisterInferenceAgent(request: MsgRegisterInferenceAgent): Promise<MsgRegisterInferenceAgentResponse> {
     const data = MsgRegisterInferenceAgent.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "RegisterInferenceAgent",
-      data
-    );
-    return promise.then((data) =>
-      MsgRegisterInferenceAgentResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "RegisterInferenceAgent", data);
+    return promise.then(data => MsgRegisterInferenceAgentResponse.decode(new _m0.Reader(data)));
   }
-
-  UpdateInferenceAgent(
-    request: MsgUpdateInferenceAgent
-  ): Promise<MsgUpdateInferenceAgentResponse> {
+  UpdateInferenceAgent(request: MsgUpdateInferenceAgent): Promise<MsgUpdateInferenceAgentResponse> {
     const data = MsgUpdateInferenceAgent.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "UpdateInferenceAgent",
-      data
-    );
-    return promise.then((data) =>
-      MsgUpdateInferenceAgentResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "UpdateInferenceAgent", data);
+    return promise.then(data => MsgUpdateInferenceAgentResponse.decode(new _m0.Reader(data)));
   }
-
-  RegisterAgentModel(
-    request: MsgRegisterAgentModel
-  ): Promise<MsgRegisterAgentModelResponse> {
+  RegisterAgentModel(request: MsgRegisterAgentModel): Promise<MsgRegisterAgentModelResponse> {
     const data = MsgRegisterAgentModel.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "RegisterAgentModel",
-      data
-    );
-    return promise.then((data) =>
-      MsgRegisterAgentModelResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "RegisterAgentModel", data);
+    return promise.then(data => MsgRegisterAgentModelResponse.decode(new _m0.Reader(data)));
   }
-
-  UpdateAgentModel(
-    request: MsgUpdateAgentModel
-  ): Promise<MsgUpdateAgentModelResponse> {
+  UpdateAgentModel(request: MsgUpdateAgentModel): Promise<MsgUpdateAgentModelResponse> {
     const data = MsgUpdateAgentModel.encode(request).finish();
     const promise = this.rpc.request("agent.v1.Msg", "UpdateAgentModel", data);
-    return promise.then((data) =>
-      MsgUpdateAgentModelResponse.decode(new _m0.Reader(data))
-    );
+    return promise.then(data => MsgUpdateAgentModelResponse.decode(new _m0.Reader(data)));
   }
-
-  RegisterSession(
-    request: MsgRegisterSession
-  ): Promise<MsgRegisterSessionResponse> {
+  RegisterSession(request: MsgRegisterSession): Promise<MsgRegisterSessionResponse> {
     const data = MsgRegisterSession.encode(request).finish();
     const promise = this.rpc.request("agent.v1.Msg", "RegisterSession", data);
-    return promise.then((data) =>
-      MsgRegisterSessionResponse.decode(new _m0.Reader(data))
-    );
+    return promise.then(data => MsgRegisterSessionResponse.decode(new _m0.Reader(data)));
   }
-
+  CancelSession(request: MsgCancelSession): Promise<MsgCancelSessionResponse> {
+    const data = MsgCancelSession.encode(request).finish();
+    const promise = this.rpc.request("agent.v1.Msg", "CancelSession", data);
+    return promise.then(data => MsgCancelSessionResponse.decode(new _m0.Reader(data)));
+  }
   SubmitPayment(request: MsgSubmitPayment): Promise<MsgSubmitPaymentResponse> {
     const data = MsgSubmitPayment.encode(request).finish();
     const promise = this.rpc.request("agent.v1.Msg", "SubmitPayment", data);
-    return promise.then((data) =>
-      MsgSubmitPaymentResponse.decode(new _m0.Reader(data))
-    );
+    return promise.then(data => MsgSubmitPaymentResponse.decode(new _m0.Reader(data)));
   }
-
-  DeleteExpiredSession(
-    request: MsgDeleteExpiredSession
-  ): Promise<MsgDeleteExpiredSessionResponse> {
+  DeleteExpiredSession(request: MsgDeleteExpiredSession): Promise<MsgDeleteExpiredSessionResponse> {
     const data = MsgDeleteExpiredSession.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "DeleteExpiredSession",
-      data
-    );
-    return promise.then((data) =>
-      MsgDeleteExpiredSessionResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "DeleteExpiredSession", data);
+    return promise.then(data => MsgDeleteExpiredSessionResponse.decode(new _m0.Reader(data)));
   }
-
-  SubmitChallengeCID(
-    request: MsgSubmitChallengeCID
-  ): Promise<MsgSubmitChallengeCIDResponse> {
+  SubmitChallengeCID(request: MsgSubmitChallengeCID): Promise<MsgSubmitChallengeCIDResponse> {
     const data = MsgSubmitChallengeCID.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "SubmitChallengeCID",
-      data
-    );
-    return promise.then((data) =>
-      MsgSubmitChallengeCIDResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "SubmitChallengeCID", data);
+    return promise.then(data => MsgSubmitChallengeCIDResponse.decode(new _m0.Reader(data)));
   }
-
-  SubmitChallengeReply(
-    request: MsgSubmitChallengeReply
-  ): Promise<MsgSubmitChallengeReplyResponse> {
+  SubmitChallengeReply(request: MsgSubmitChallengeReply): Promise<MsgSubmitChallengeReplyResponse> {
     const data = MsgSubmitChallengeReply.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "SubmitChallengeReply",
-      data
-    );
-    return promise.then((data) =>
-      MsgSubmitChallengeReplyResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "SubmitChallengeReply", data);
+    return promise.then(data => MsgSubmitChallengeReplyResponse.decode(new _m0.Reader(data)));
   }
-
-  SubmitChallengeMerkleTree(
-    request: MsgSubmitChallengeMerkleTree
-  ): Promise<MsgSubmitChallengeMerkleTreeResponse> {
+  SubmitChallengeMerkleTree(request: MsgSubmitChallengeMerkleTree): Promise<MsgSubmitChallengeMerkleTreeResponse> {
     const data = MsgSubmitChallengeMerkleTree.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "SubmitChallengeMerkleTree",
-      data
-    );
-    return promise.then((data) =>
-      MsgSubmitChallengeMerkleTreeResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "SubmitChallengeMerkleTree", data);
+    return promise.then(data => MsgSubmitChallengeMerkleTreeResponse.decode(new _m0.Reader(data)));
   }
-
-  SubmitChallengeOriginHash(
-    request: MsgSubmitChallengeOriginHash
-  ): Promise<MsgSubmitChallengeOriginHashResponse> {
+  SubmitChallengeOriginHash(request: MsgSubmitChallengeOriginHash): Promise<MsgSubmitChallengeOriginHashResponse> {
     const data = MsgSubmitChallengeOriginHash.encode(request).finish();
-    const promise = this.rpc.request(
-      "agent.v1.Msg",
-      "SubmitChallengeOriginHash",
-      data
-    );
-    return promise.then((data) =>
-      MsgSubmitChallengeOriginHashResponse.decode(new _m0.Reader(data))
-    );
+    const promise = this.rpc.request("agent.v1.Msg", "SubmitChallengeOriginHash", data);
+    return promise.then(data => MsgSubmitChallengeOriginHashResponse.decode(new _m0.Reader(data)));
   }
-}
-
-interface Rpc {
-  request(
-    service: string,
-    method: string,
-    data: Uint8Array
-  ): Promise<Uint8Array>;
-}
-
-declare var self: any | undefined;
-declare var window: any | undefined;
-declare var global: any | undefined;
-var globalThis: any = (() => {
-  if (typeof globalThis !== "undefined") return globalThis;
-  if (typeof self !== "undefined") return self;
-  if (typeof window !== "undefined") return window;
-  if (typeof global !== "undefined") return global;
-  throw "Unable to locate global object";
-})();
-
-function bytesFromBase64(b64: string): Uint8Array {
-  if (globalThis.Buffer) {
-    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
-  } else {
-    const bin = globalThis.atob(b64);
-    const arr = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; ++i) {
-      arr[i] = bin.charCodeAt(i);
-    }
-    return arr;
-  }
-}
-
-function base64FromBytes(arr: Uint8Array): string {
-  if (globalThis.Buffer) {
-    return globalThis.Buffer.from(arr).toString("base64");
-  } else {
-    const bin: string[] = [];
-    arr.forEach((byte) => {
-      bin.push(String.fromCharCode(byte));
-    });
-    return globalThis.btoa(bin.join(""));
-  }
-}
-
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | undefined;
-
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends Long
-  ? string | number | Long
-  : T extends Array<infer U>
-  ? Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U>
-  ? ReadonlyArray<DeepPartial<U>>
-  : T extends {}
-  ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
-
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
-
-if (_m0.util.Long !== Long) {
-  _m0.util.Long = Long as any;
-  _m0.configure();
-}
-
-function isSet(value: any): boolean {
-  return value !== null && value !== undefined;
 }

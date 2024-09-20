@@ -1,0 +1,37 @@
+syntax = "proto3";
+package dht.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+// BondStatus defines the deposit status of a miner or Orchestrator.
+enum BondStatus {
+
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // UNSPECIFIED defines an invalid validator status.
+  BOND_STATUS_UNSPECIFIED = 0
+      [ (gogoproto.enumvalue_customname) = "Unspecified" ];
+
+  // UNBONDED defines a validator that is not bonded.
+  BOND_STATUS_UNBONDED = 1 [ (gogoproto.enumvalue_customname) = "Unbonded" ];
+
+  // UNBONDING defines a validator that is unbonding.
+  BOND_STATUS_UNBONDING = 2 [ (gogoproto.enumvalue_customname) = "Unbonding" ];
+
+  // BONDED defines a validator that is bonded.
+  BOND_STATUS_BONDED = 3 [ (gogoproto.enumvalue_customname) = "Bonded" ];
+}
+
+// UnbondingEntry defines an unbonding entry of a miner or Orchestrator.
+message UnbondingEntry {
+  string node_id = 1;
+  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
+  google.protobuf.Timestamp completion_time = 3
+      [ (gogoproto.stdtime) = true, (gogoproto.nullable) = false ];
+  string receiver = 4 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}

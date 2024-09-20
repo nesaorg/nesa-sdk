@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package agent.v1;
+
+option go_package = "github.com/nesaorg/nesachain/x/agent/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos_proto/cosmos.proto";
+import "agent/v1/agent.proto";
+import "google/protobuf/timestamp.proto";
+
+service Query {
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+        option (google.api.http).get = "/agent/v1/params";
+    }
+    rpc InferenceAgentRequest(QueryInferenceAgentRequest) returns (QueryInferenceAgentResponse) {
+        option (google.api.http).get = "/agent/v1/inference_agent/{account}";
+    }
+    rpc AgentByModelRequest(QueryAgentByModelRequest) returns (QueryAgentByModelResponse) {
+        option (google.api.http).get = "/agent/v1/inference_agent_model";
+    }
+    rpc SessionRequest(QuerySessionRequest) returns (QuerySessionResponse) {
+        option (google.api.http).get = "/agent/v1/session/{id}";
+    }
+    rpc SessionByAgentRequest(QuerySessionByAgentRequest) returns (QuerySessionByAgentResponse) {
+        option (google.api.http).get = "/agent/v1/sessions/agent/{account}";
+    }
+
+    rpc SessionByChallengeRequest(QuerySessionByChallengeRequest) returns (QuerySessionByChallengeResponse) {
+        option (google.api.http).get = "/agent/v1/sessions/challenge/{account}";
+    }
+    rpc VRFSeedRequest(QueryVRFSeedRequest) returns (QueryVRFSeedResponse) {
+        option (google.api.http).get = "/agent/v1/vrf_seed/{account}";
+    }
+}
+
+message QueryParamsRequest {}
+
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1;
+}
+
+
+message QueryInferenceAgentRequest {
+    string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+    string model_name = 2;
+    uint64 limit = 3;
+    bytes key = 4;
+}
+
+message QueryInferenceAgentResponse {
+    InferenceAgent inference_agent = 1;
+    repeated AgentModel agent_models = 2;
+    bytes next_key = 3;
+}
+
+message QueryAgentByModelRequest {
+    string model_name = 1;
+    AgentModelStatus status = 2;
+}
+
+message ModelAgents {
+    string model_name = 1;
+    repeated InferenceAgent inference_agents = 2;
+}
+
+message QueryAgentByModelResponse {
+    repeated ModelAgents model_agents = 1;
+}
+
+message QuerySessionRequest {
+    string id = 1;
+}
+
+message QuerySessionResponse {
+    Session session = 1;
+}
+
+message QuerySessionByAgentRequest {
+    string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+    SessionStatus status = 2  [(gogoproto.nullable) = true];
+    google.protobuf.Timestamp expire_time = 3 [ (gogoproto.stdtime) = true, (gogoproto.nullable) = false ];
+    uint64 limit = 4;
+    bool order_desc = 5;
+    bytes key = 6;
+}
+
+message QuerySessionByAgentResponse {
+    repeated Session sessions = 1;
+    bytes next_key = 2;
+}
+
+message QuerySessionByChallengeRequest {
+    string account = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+    uint64 limit = 2;
+    bytes key = 3;
+}
+
+message SessionIdStatus {
+    string session_id = 1;
+    SessionStatus status = 2;
+}
+
+message QuerySessionByChallengeResponse {
+    repeated SessionIdStatus sesssion_id_status = 1;
+    bytes next_key = 2;
+}
+
+message QueryVRFSeedRequest {
+    string account = 1;
+}
+
+message QueryVRFSeedResponse {
+    bytes seed = 1;
+}

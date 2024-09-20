@@ -1,0 +1,28 @@
+syntax = "proto3";
+package dht.v1;
+
+import "dht/v1/deposit.proto";
+import "dht/v1/reputation.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+// Miner defines a miner of a model.
+message Miner {
+  string node_id = 1;
+  uint64 start_block = 2;
+  uint64 end_block = 3;
+  string torch_dtype = 4;
+  string quant_type = 5;
+  uint64 cache_tokens_left = 6;
+  double inference_rps = 7;
+  string model_name = 8;
+  google.protobuf.Timestamp valid_until = 9
+      [ (gogoproto.stdtime) = true, (gogoproto.nullable) = false ];
+  dht.v1.BondStatus bond_status = 10;
+  cosmos.base.v1beta1.Coin deposit = 11
+      [ (gogoproto.nullable) = false ];
+  repeated Reputation reputations = 12;
+}

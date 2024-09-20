@@ -1,0 +1,38 @@
+syntax = "proto3";
+package dht.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "dht/v1/params.proto";
+import "dht/v1/model.proto";
+import "dht/v1/node.proto";
+import "dht/v1/miner.proto";
+import "dht/v1/orchestrator.proto";
+import "dht/v1/model_block.proto";
+import "dht/v1/deposit.proto";
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+// OrchestratorMiner defines an association between an orchestrator and a miner.
+message OrchestratorMiner {
+  string orchestrator_id = 1;
+  string miner_id = 2;
+}
+
+// GenesisState defines the dht module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  
+  repeated Model model = 2 [ (gogoproto.nullable) = false ];
+  repeated Node node = 3 [ (gogoproto.nullable) = false ];
+  repeated Miner miner = 4 [ (gogoproto.nullable) = false ];
+  repeated Orchestrator orchestrator = 5 [ (gogoproto.nullable) = false ];
+  repeated OrchestratorMiner orchestrator_miner = 6 [ (gogoproto.nullable) = false ];
+  repeated ModelBlock model_block = 7 [ (gogoproto.nullable) = false ];
+  repeated dht.v1.UnbondingEntry miner_unbonding = 8 [ (gogoproto.nullable) = false ];
+  repeated dht.v1.UnbondingEntry orchestrator_unbonding = 9 [ (gogoproto.nullable) = false ];
+  repeated string ModelCreators = 10 ;
+  repeated string ModelAllowList = 11 ;
+}

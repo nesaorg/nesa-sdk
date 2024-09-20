@@ -1,0 +1,11 @@
+syntax = "proto3";
+package dht.v1;
+
+option go_package = "github.com/nesaorg/nesachain/x/dht/types";
+
+message ModelBlock {
+  string model_name = 1;
+  string node_id = 2;
+  uint32 block_id = 3;
+  string cid = 4;
+}
