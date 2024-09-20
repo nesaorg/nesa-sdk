@@ -333,7 +333,7 @@ class ChatClient {
               })
             );
           } else {
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream.push({
                 code: 201,
                 message:
@@ -366,7 +366,7 @@ class ChatClient {
           } else {
             ws.close();
 
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream.push({
                 code: 202,
                 message: "Illegal link",
@@ -379,7 +379,7 @@ class ChatClient {
         } else if (messageJson?.content?.startsWith("[DONE]")) {
           ws.close();
 
-          if (!readableStream?.isClosed) {
+          if (readableStream && !readableStream?.isClosed) {
             readableStream.push({
               code: 203,
               message: messageJson?.content?.split("[DONE]")[1],
@@ -393,7 +393,7 @@ class ChatClient {
             });
           }
 
-          if (!readableStream?.isClosed) {
+          if (readableStream && !readableStream?.isClosed) {
             readableStream.push(null);
           }
           this.isChatting = false;
@@ -413,7 +413,7 @@ class ChatClient {
             denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
           };
 
-          if (!readableStream?.isClosed) {
+          if (readableStream && !readableStream?.isClosed) {
             readableStream.push({
               code: 200,
               message: messageJson?.content,
@@ -426,7 +426,7 @@ class ChatClient {
           if (
             new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
           ) {
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream.push({
                 code: 205,
                 message: '{"code":1015,"msg":"balance insufficient"}',
@@ -452,14 +452,14 @@ class ChatClient {
         }
         if (error?.reason) {
           console.log("onclose: ", error?.reason);
-          if (!readableStream?.isClosed) {
+          if (readableStream && !readableStream?.isClosed) {
             readableStream.push({
               code: 205,
               message: error?.reason,
             });
           }
         }
-        if (!readableStream?.isClosed) {
+        if (readableStream && !readableStream?.isClosed) {
           readableStream.push(null);
         }
         this.isChatting = false;
@@ -482,7 +482,7 @@ class ChatClient {
         }
 
         try {
-          if (!readableStream?.isClosed) {
+          if (readableStream && !readableStream?.isClosed) {
             readableStream.push({
               code: 204,
               message: error?.reason || "Error: Connection failed",
@@ -508,7 +508,7 @@ class ChatClient {
       }
       console.log("websocketCatchError: ", error);
 
-      if (!readableStream?.isClosed) {
+      if (readableStream && !readableStream?.isClosed) {
         readableStream.push({
           code: 207,
           message: error?.message || "Error: Connection failed",
@@ -569,7 +569,7 @@ class ChatClient {
                     });
                   }
 
-                  if (!readableStream?.isClosed) {
+                  if (readableStream && !readableStream?.isClosed) {
                     readableStream?.push(null);
                   }
                   firstInitHeartbeat = false;
@@ -578,7 +578,7 @@ class ChatClient {
               },
               onerror: () => {
                 try {
-                  if (!readableStream?.isClosed) {
+                  if (readableStream && !readableStream?.isClosed) {
                     readableStream.push({
                       code: 319,
                       message: "Agent connection error: " + selectAgent.url,
@@ -594,7 +594,7 @@ class ChatClient {
           } else {
             this.isRegisteringSession = false;
 
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream?.push({
                 code: 319,
                 message: "Agent not found",
@@ -609,7 +609,7 @@ class ChatClient {
           this.lastGetAgentInfoPromise = undefined;
 
           try {
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream?.push({
                 code: 319,
                 message:
@@ -647,7 +647,7 @@ class ChatClient {
           .catch((error: any) => {
             console.log("checkSignBroadcastResultError: ", error);
 
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream?.push({
                 code: 318,
                 message: error?.message,
@@ -710,7 +710,7 @@ class ChatClient {
         try {
           const params = await this.getChainParams(nesaClient);
 
-          if (!params?.params && !readableStream?.isClosed) {
+          if (!params?.params && readableStream && !readableStream?.isClosed) {
             readableStream.push({
               code: 314,
               message: JSON.stringify(params),
@@ -724,7 +724,7 @@ class ChatClient {
             new BigNumber(this.lockAmount).isLessThan(
               params?.params?.userMinimumLock?.amount
             ) &&
-            !readableStream?.isClosed
+            readableStream && !readableStream?.isClosed
           ) {
             readableStream.push({
               code: 311,
@@ -756,7 +756,7 @@ class ChatClient {
                 });
               }
 
-              if (!readableStream?.isClosed) {
+              if (readableStream && !readableStream?.isClosed) {
                 readableStream.push({
                   code: 200,
                   message: result?.transactionHash,
@@ -769,7 +769,7 @@ class ChatClient {
 
             this.isRegisteringSession = false;
 
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream.push({
                 code: 312,
                 message: JSON.stringify(result),
@@ -780,7 +780,7 @@ class ChatClient {
           } catch (error: any) {
             console.log("313 error", error);
 
-            if (!readableStream?.isClosed) {
+            if (readableStream && !readableStream?.isClosed) {
               readableStream.push({
                 code: 313,
                 message: error?.message || error.toString(),
@@ -789,7 +789,7 @@ class ChatClient {
             this.isRegisteringSession = false;
           }
         } catch (error: any) {
-          if (!readableStream?.isClosed) {
+          if (readableStream && !readableStream?.isClosed) {
             readableStream.push({
               code: 315,
               message: error?.message || error.toString(),
@@ -797,7 +797,7 @@ class ChatClient {
           }
         }
       } catch (error: any) {
-        if (!readableStream?.isClosed) {
+        if (readableStream && !readableStream?.isClosed) {
           readableStream.push({
             code: 316,
             message: error?.message || error.toString(),
@@ -805,7 +805,7 @@ class ChatClient {
         }
       }
     } catch (error: any) {
-      if (!readableStream?.isClosed) {
+      if (readableStream && !readableStream?.isClosed) {
         readableStream.push({
           code: 317,
           message: error?.message || error.toString(),
