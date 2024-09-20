@@ -1,3 +1,1 @@
-
-    // Auto-generated, see scripts/codegen.js!
-    
+// Auto-generated, see scripts/codegen.js!
