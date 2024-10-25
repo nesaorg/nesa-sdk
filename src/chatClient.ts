@@ -553,6 +553,8 @@ class ChatClient {
           reject(error);
         });
     });
+
+    return this.lastGetAgentInfoPromise;
   }
 
   checkSignBroadcastResult(readableStream?: any) {
@@ -569,8 +571,9 @@ class ChatClient {
         );
         this.nesaClient
           .broadcastRegisterSession()
-          .then((result: any) => {
-            resolve(this.requestAgentInfo(result, readableStream));
+          .then(async (result: any) => {
+            await this.requestAgentInfo(result, readableStream)
+            resolve(result);
           })
           .catch((error: any) => {
             console.log("checkSignBroadcastResultError: ", error);

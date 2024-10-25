@@ -49,8 +49,14 @@ export const socket: ISocket = {
       if (this.signatureData === "") {
         handle?.onerror?.(new Error("SignatureData is null"));
       } else {
-        socket.heartbeat();
-        handle?.onopen?.();
+        socket.send({
+          message: "hello",
+          signature_message: this.signatureData,
+        }, () => {
+          console.log("websocket opened");
+          socket.heartbeat();
+          handle?.onopen?.();
+        });
       }
     };
     socket.web_socket!.onclose = (e) => {
