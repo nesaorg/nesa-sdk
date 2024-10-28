@@ -93,7 +93,7 @@ class ChatClient {
     this.tokenPrice = 0;
     this.chatId = options.chatId || Date.now().toString();
 
-    console.log("client options", options, this.chatId);
+    // console.log("client options", options, this.chatId);
     this.initWallet();
   }
 
@@ -147,7 +147,7 @@ class ChatClient {
                 Buffer.from(this.privateKey, "hex"),
                 "nesa"
               );
-              console.log("private key wallet", wallet);
+              // console.log("private key wallet", wallet);
               this.offlineSigner = wallet;
               resolve(this.offlineSigner);
               this.getNesaClient();
@@ -160,7 +160,7 @@ class ChatClient {
                 this.mnemonic,
                 { prefix: "nesa", hdPaths: [stringToPath("m/44'/118'/0'/0/0")] }
               );
-              console.log("private key wallet", wallet);
+              // console.log("private key wallet", wallet);
               this.offlineSigner = wallet;
               resolve(this.offlineSigner);
               this.getNesaClient();
@@ -496,7 +496,6 @@ class ChatClient {
             const selectAgent = agentInfo?.inferenceAgent;
 
             const { agentWsUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent);
-
             let firstInitHeartbeat = true;
 
             this.chatProgressReadable?.push({
@@ -521,13 +520,13 @@ class ChatClient {
                   resolve(result);
                 }
               },
-              onerror: () => {
+              onerror: (e: Event | Error) => {
                 readableStream?.push({
                   code: 319,
                   message: "Agent connection error: " + selectAgent.url,
                 });
                 readableStream?.push(null);
-                reject(new Error("Agent heartbeat packet connection failed"));
+                reject(new Error("Agent heartbeat packet connection failed, " + (e as Error)?.message));
               },
             });
           } else {
@@ -564,15 +563,17 @@ class ChatClient {
           new Error("Please wait for the requestSession registration result")
         );
       } else {
-        console.log(
-          "checkSignBroadcastResult this.modelName",
-          this.modelName,
-          this.nesaClient.broadcastRegisterSession()
-        );
+        // console.log(
+        //   "checkSignBroadcastResult this.modelName",
+        //   this.modelName,
+        //   this.nesaClient.broadcastRegisterSession()
+        // );
         this.nesaClient
           .broadcastRegisterSession()
           .then(async (result: any) => {
-            await this.requestAgentInfo(result, readableStream)
+            await this.requestAgentInfo(result, readableStream).catch((err: any) => {
+              reject(err);
+            });
             resolve(result);
           })
           .catch((error: any) => {
@@ -684,7 +685,9 @@ class ChatClient {
                 code: 200,
                 message: result?.transactionHash,
               });
-              this.checkSignBroadcastResult(readableStream).catch(() => {});
+              this.checkSignBroadcastResult(readableStream).catch((err: any) => {
+                console.error("checkSignBroadcastResult error", err);
+              });
 
               return readableStream;
             }

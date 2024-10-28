@@ -61,6 +61,7 @@ export const socket: ISocket = {
     };
     socket.web_socket!.onclose = (e) => {
       if (socket.ever_succeeded && !socket.forceClose) {
+        console.log("websocket closed, reconnecting");
         clearInterval(socket.heartbeat_timer);
         setTimeout(() => {
           socket.init(handle);

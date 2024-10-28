@@ -77,7 +77,7 @@ class WalletOperation {
     agentName: string,
     modelName: string
   ) {
-    console.log("modelName: ", modelName);
+    // console.log("modelName: ", modelName);
 
     if (!client) {
       throw "Client init failed";
