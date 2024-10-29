@@ -5,7 +5,7 @@ import { ChainInfo } from "@keplr-wallet/types";
 import {
   defaultChainInfo,
   defaultLockAmount,
-  defaultSinglePaymentAmount,
+  defaultPriceUnit,
   defaultLowBalance,
   sdkVersion,
 } from "./default.config";
@@ -20,13 +20,19 @@ import { stringToPath } from "@cosmjs/crypto";
 import { NesaClient } from "./client";
 import { getAgentUrls } from "./helpers/getAgentUrls";
 import { getIsChainInfoValid } from "./helpers/getIsChainInfoValid";
+import { TokenPrice } from "./codec/agent/v1/agent";
+
+interface TokenNumber {
+  inputTokens: number;
+  outputTokens: number;
+}
 
 interface ConfigOptions {
   modelName: string;
   lockAmount?: string;
   chainInfo?: ChainInfo;
   walletName?: string;
-  singlePaymentAmount?: string;
+  priceUnit?: string;
   lowBalance?: string;
   privateKey?: string;
   mnemonic?: string;
@@ -48,7 +54,7 @@ class ChatClient {
   public modelName: string;
   public chainInfo: ChainInfo;
   public lockAmount: string;
-  public singlePaymentAmount: string;
+  public priceUnit: string;
   public lowBalance: string;
   public lockAmountDenom: string;
   public chatId: string;
@@ -73,15 +79,14 @@ class ChatClient {
   private privateKey: string;
   private mnemonic: string;
   private isEverRequestSession: boolean;
-  private tokenPrice: number;
+  private tokenPrice: TokenPrice | undefined;
 
   constructor(options: ConfigOptions) {
     this.modelName = options?.modelName?.toLowerCase();
     this.chainInfo = options.chainInfo || defaultChainInfo;
     this.lockAmount = options.lockAmount || defaultLockAmount;
     this.signaturePayment = {};
-    this.singlePaymentAmount =
-      options.singlePaymentAmount || defaultSinglePaymentAmount;
+    this.priceUnit = options.priceUnit || defaultPriceUnit;
     this.lowBalance = options.lowBalance || defaultLowBalance;
     this.lockAmountDenom = "";
     this.walletName = options.walletName || "";
@@ -90,7 +95,6 @@ class ChatClient {
     this.isEverRequestSession = false;
     this.isBrowser = typeof window !== "undefined";
     this.isBrowser && (window.nesaSdkVersion = sdkVersion);
-    this.tokenPrice = 0;
     this.chatId = options.chatId || Date.now().toString();
 
     // console.log("client options", options, this.chatId);
@@ -242,7 +246,7 @@ class ChatClient {
     return signaturePayment;
   }
 
-  checkSinglePaymentAmount() {
+  checkSinglePaymentAmount(singlePaymentAmount:string) {
     if (
       new BigNumber(this.totalSignedPayment).isLessThanOrEqualTo(
         this.lowBalance
@@ -250,7 +254,7 @@ class ChatClient {
     ) {
       this.totalSignedPayment = Number(
         new BigNumber(this.totalSignedPayment)
-          .plus(this.singlePaymentAmount)
+          .plus(singlePaymentAmount)
           .toFixed(0, 1)
       );
       return this.getSignaturePayment();
@@ -268,12 +272,12 @@ class ChatClient {
       }
       if (
         new BigNumber(this.totalSignedPayment)
-          .plus(this.singlePaymentAmount)
+          .plus(singlePaymentAmount)
           .isLessThanOrEqualTo(this.lockAmount)
       ) {
         this.totalSignedPayment = Number(
           new BigNumber(this.totalSignedPayment)
-            .plus(this.singlePaymentAmount)
+            .plus(singlePaymentAmount)
             .toFixed(0, 1)
         );
       } else {
@@ -282,6 +286,12 @@ class ChatClient {
       return this.getSignaturePayment();
     }
     return this.getSignaturePayment();
+  }
+
+  computePaymentAmount(tokenNumber: TokenNumber,tokenPrice: TokenPrice) {
+    const inputAmount = new BigNumber(tokenNumber.inputTokens).multipliedBy(tokenPrice.inputPrice.amount);
+    const outputAmount = new BigNumber(tokenNumber.outputTokens).multipliedBy(tokenPrice.outputPrice.amount);
+    return inputAmount.plus(outputAmount).dividedBy(this.priceUnit).toFixed(0, 1);
   }
 
   requestChatQueue(readableStream: any, question: QuestionParams) {
@@ -388,7 +398,11 @@ class ChatClient {
             });
             messageTimes += 1;
           }
-          const signedMessage = this.checkSinglePaymentAmount();
+          const singlePaymentAmount = this.computePaymentAmount({
+            inputTokens: messageJson?.input_tokens,
+            outputTokens: messageJson?.output_tokens,
+          },this.tokenPrice!);
+          const signedMessage = this.checkSinglePaymentAmount(singlePaymentAmount);
           const total_payment = {
             amount: this.totalSignedPayment,
             denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
@@ -399,8 +413,7 @@ class ChatClient {
             session_id: messageJson?.session_id || "",
             total_payment,
           });
-          this.totalUsedPayment += this.tokenPrice;
-
+          this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(singlePaymentAmount).toNumber();
           if (
             new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
           ) {
@@ -617,11 +630,10 @@ class ChatClient {
 
     if (
       !this.lockAmount ||
-      new BigNumber(this.lockAmount).isNaN() ||
-      new BigNumber(this.lockAmount).isLessThan(this.singlePaymentAmount)
+      new BigNumber(this.lockAmount).isNaN()
     ) {
       throw new Error(
-        "LockAmount invalid value or less than singlePaymentAmount"
+        "LockAmount invalid value"
       );
     }
 
@@ -648,7 +660,6 @@ class ChatClient {
             return readableStream;
           }
 
-          this.tokenPrice = params?.params?.tokenPrice?.low;
           if (
             new BigNumber(this.lockAmount).isLessThan(
               params?.params?.userMinimumLock?.amount
@@ -674,7 +685,7 @@ class ChatClient {
               this.chainInfo,
               this.offlineSigner
             );
-
+            
             console.log("registerSession-result: ", result);
             if (result?.transactionHash) {
               this.chatProgressReadable?.push({
@@ -685,6 +696,7 @@ class ChatClient {
                 code: 200,
                 message: result?.transactionHash,
               });
+              this.tokenPrice = result?.tokenPrice;
               this.checkSignBroadcastResult(readableStream).catch((err: any) => {
                 console.error("checkSignBroadcastResult error", err);
               });
@@ -742,6 +754,10 @@ class ChatClient {
       throw new Error(
         "Please call requestSession first to complete Session registration"
       );
+    }
+
+    if(!this.tokenPrice) {
+      throw new Error("Please wait for the session registration to complete before requesting chat");
     }
 
     if (!this.agentUrl) {

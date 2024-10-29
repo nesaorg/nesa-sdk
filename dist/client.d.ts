@@ -57,6 +57,7 @@ export declare class NesaClient {
     broadcastRegisterSession(): any;
     signRegisterSession(sessionId: string, modelName: string, fee: StdFee, lockBalance: Coin, vrf: VRF, tokenPrice: TokenPrice): Promise<{
         sessionId: string;
+        tokenPrice: TokenPrice;
         transactionHash: string;
     }>;
     registerSession(sessionId: string, modelName: string, lockBalance: Coin, vrf: VRF, tokenPrice: TokenPrice): Promise<RegisterSessionResult>;

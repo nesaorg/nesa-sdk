@@ -1,11 +1,16 @@
 import { ChainInfo } from "@keplr-wallet/types";
 import { NesaClient } from "./client";
+import { TokenPrice } from "./codec/agent/v1/agent";
+interface TokenNumber {
+    inputTokens: number;
+    outputTokens: number;
+}
 interface ConfigOptions {
     modelName: string;
     lockAmount?: string;
     chainInfo?: ChainInfo;
     walletName?: string;
-    singlePaymentAmount?: string;
+    priceUnit?: string;
     lowBalance?: string;
     privateKey?: string;
     mnemonic?: string;
@@ -25,7 +30,7 @@ declare class ChatClient {
     modelName: string;
     chainInfo: ChainInfo;
     lockAmount: string;
-    singlePaymentAmount: string;
+    priceUnit: string;
     lowBalance: string;
     lockAmountDenom: string;
     chatId: string;
@@ -57,7 +62,8 @@ declare class ChatClient {
     getChainParams(nesaClient: NesaClient): any;
     version(): string;
     getSignaturePayment(): string;
-    checkSinglePaymentAmount(): string;
+    checkSinglePaymentAmount(singlePaymentAmount: string): string;
+    computePaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice): string;
     requestChatQueue(readableStream: any, question: QuestionParams): void;
     requestCloseHeartbeat(): void;
     requestAgentInfo(result: any, readableStream: any): any;

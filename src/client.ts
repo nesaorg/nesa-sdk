@@ -270,6 +270,7 @@ export class NesaClient {
 
     return {
       sessionId,
+      tokenPrice,
       transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
     };
   }
