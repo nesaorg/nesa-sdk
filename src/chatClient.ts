@@ -246,44 +246,13 @@ class ChatClient {
     return signaturePayment;
   }
 
-  checkSinglePaymentAmount(singlePaymentAmount:string) {
+  checkSinglePaymentAmount(totalSignedPayment: string) {
     if (
-      new BigNumber(this.totalSignedPayment).isLessThanOrEqualTo(
-        this.lowBalance
-      )
+      new BigNumber(totalSignedPayment).isLessThanOrEqualTo(this.lockAmount)
     ) {
-      this.totalSignedPayment = Number(
-        new BigNumber(this.totalSignedPayment)
-          .plus(singlePaymentAmount)
-          .toFixed(0, 1)
-      );
-      return this.getSignaturePayment();
-    }
-    if (
-      new BigNumber(this.totalSignedPayment)
-        .minus(this.totalUsedPayment)
-        .isLessThanOrEqualTo(this.lowBalance)
-    ) {
-      if (
-        new BigNumber(this.totalSignedPayment).isLessThan(this.totalUsedPayment)
-      ) {
-        this.totalSignedPayment = Number(this.totalUsedPayment);
-        return this.getSignaturePayment();
-      }
-      if (
-        new BigNumber(this.totalSignedPayment)
-          .plus(singlePaymentAmount)
-          .isLessThanOrEqualTo(this.lockAmount)
-      ) {
-        this.totalSignedPayment = Number(
-          new BigNumber(this.totalSignedPayment)
-            .plus(singlePaymentAmount)
-            .toFixed(0, 1)
-        );
-      } else {
-        this.totalSignedPayment = Number(this.lockAmount);
-      }
-      return this.getSignaturePayment();
+      this.totalSignedPayment = Number(totalSignedPayment);
+    } else {
+      this.totalSignedPayment = Number(this.lockAmount);
     }
     return this.getSignaturePayment();
   }
@@ -398,11 +367,11 @@ class ChatClient {
             });
             messageTimes += 1;
           }
-          const singlePaymentAmount = this.computePaymentAmount({
+          const totalSignedPayment = this.computePaymentAmount({
             inputTokens: messageJson?.input_tokens,
             outputTokens: messageJson?.output_tokens,
           },this.tokenPrice!);
-          const signedMessage = this.checkSinglePaymentAmount(singlePaymentAmount);
+          const signedMessage = this.checkSinglePaymentAmount(totalSignedPayment);
           const total_payment = {
             amount: this.totalSignedPayment,
             denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
@@ -413,7 +382,7 @@ class ChatClient {
             session_id: messageJson?.session_id || "",
             total_payment,
           });
-          this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(singlePaymentAmount).toNumber();
+          this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
           if (
             new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
           ) {
@@ -421,6 +390,7 @@ class ChatClient {
               code: 205,
               message: '{"code":1015,"msg":"balance insufficient"}',
             });
+            // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
             ws.close();
           } else if (signedMessage) {
             const data = JSON.stringify({
