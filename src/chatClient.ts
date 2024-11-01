@@ -80,6 +80,7 @@ class ChatClient {
   private mnemonic: string;
   private isEverRequestSession: boolean;
   private tokenPrice: TokenPrice | undefined;
+  private minerSessionId: string;
 
   constructor(options: ConfigOptions) {
     this.modelName = options?.modelName?.toLowerCase();
@@ -96,6 +97,7 @@ class ChatClient {
     this.isBrowser = typeof window !== "undefined";
     this.isBrowser && (window.nesaSdkVersion = sdkVersion);
     this.chatId = options.chatId || Date.now().toString();
+    this.minerSessionId = "";
 
     // console.log("client options", options, this.chatId);
     this.initWallet();
@@ -283,6 +285,7 @@ class ChatClient {
             stream: true,
             ...question,
             model: question?.model?.toLowerCase(),
+            miner_session_id: this.minerSessionId
           });
 
           if (question.messages && this.assistantRoleName) {
@@ -382,6 +385,9 @@ class ChatClient {
             session_id: messageJson?.session_id || "",
             total_payment,
           });
+          if (messageJson?.session_id) {
+            this.minerSessionId = messageJson?.session_id;
+          }
           this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
           if (
             new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
