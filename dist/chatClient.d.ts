@@ -56,13 +56,14 @@ declare class ChatClient {
     private mnemonic;
     private isEverRequestSession;
     private tokenPrice;
+    private minerSessionId;
     constructor(options: ConfigOptions);
     initWallet(): any;
     getNesaClient(): Promise<NesaClient>;
     getChainParams(nesaClient: NesaClient): any;
     version(): string;
     getSignaturePayment(): string;
-    checkSinglePaymentAmount(singlePaymentAmount: string): string;
+    checkSinglePaymentAmount(totalSignedPayment: string): string;
     computePaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice): string;
     requestChatQueue(readableStream: any, question: QuestionParams): void;
     requestCloseHeartbeat(): void;
