@@ -484,7 +484,7 @@ class ChatClient {
           if (agentInfo && agentInfo?.inferenceAgent) {
             const selectAgent = agentInfo?.inferenceAgent;
 
-            const { agentWsUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent);
+            const { agentWsUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent,this.chatId);
             let firstInitHeartbeat = true;
 
             this.chatProgressReadable?.push({
