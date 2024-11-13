@@ -1,15 +1,17 @@
 /// <reference types="node" />
 interface ISocket {
-    web_socket: WebSocket | null;
-    ws_url: string;
-    ever_succeeded: boolean;
-    socket_open: boolean;
-    heartbeat_timer: NodeJS.Timeout | string | number | undefined;
-    heartbeat_interval: number;
+    webSocket: WebSocket | null;
+    wsUrl: string;
+    everSucceeded: boolean;
+    socketOpen: boolean;
+    heartbeatTimer: NodeJS.Timeout | string | number | undefined;
+    heartbeatInterval: number;
     init: (handle: {
         modelName?: string;
         recordId: string;
-        ws_url: string;
+        wsUrl: string;
+        isBypass?: boolean;
+        authToken?: string;
         onopen: () => void;
         onclose?: (e: Event) => void;
         onerror?: (e: Event | Error) => void;

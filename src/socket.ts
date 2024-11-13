@@ -1,16 +1,18 @@
 import EncryptUtils from "./encryptUtils";
 
 interface ISocket {
-  web_socket: WebSocket | null;
-  ws_url: string;
-  ever_succeeded: boolean;
-  socket_open: boolean;
-  heartbeat_timer: NodeJS.Timeout | string | number | undefined;
-  heartbeat_interval: number;
+  webSocket: WebSocket | null;
+  wsUrl: string;
+  everSucceeded: boolean;
+  socketOpen: boolean;
+  heartbeatTimer: NodeJS.Timeout | string | number | undefined;
+  heartbeatInterval: number;
   init: (handle: {
     modelName?: string;
     recordId: string;
-    ws_url: string;
+    wsUrl: string;
+    isBypass?: boolean;
+    authToken?: string;
     onopen: () => void;
     onclose?: (e: Event) => void;
     onerror?: (e: Event | Error) => void;
@@ -23,30 +25,32 @@ interface ISocket {
 }
 
 export const socket: ISocket = {
-  web_socket: null,
-  ever_succeeded: false,
-  ws_url: "",
-  socket_open: false,
-  heartbeat_timer: undefined,
-  heartbeat_interval: 5000,
+  webSocket: null,
+  everSucceeded: false,
+  wsUrl: "",
+  socketOpen: false,
+  heartbeatTimer: undefined,
+  heartbeatInterval: 5000,
   signatureData: "",
   forceClose: false,
 
   init(handle) {
-    socket.ws_url = handle.ws_url;
-    let web_socket;
+    socket.wsUrl = handle.wsUrl;
+    let webSocket;
     if (typeof window === "undefined") {
       const WebSocket = require("ws");
-      web_socket = new WebSocket(socket.ws_url);
+      const protocols = [handle.authToken || ""];
+      webSocket = new WebSocket(socket.wsUrl, protocols);
     } else {
-      web_socket = new WebSocket(socket.ws_url);
+      const protocols = [handle.authToken || ""];
+      webSocket = new WebSocket(socket.wsUrl, protocols);
     }
-    socket.web_socket = web_socket;
-    socket.web_socket!.onopen = () => {
-      socket.socket_open = true;
-      socket.ever_succeeded = true;
+    socket.webSocket = webSocket;
+    socket.webSocket!.onopen = () => {
+      socket.socketOpen = true;
+      socket.everSucceeded = true;
       this.signatureData = EncryptUtils.signHeartbeat(handle.recordId, "hello");
-      if (this.signatureData === "") {
+      if (!handle.isBypass && this.signatureData === "") {
         handle?.onerror?.(new Error("SignatureData is null"));
       } else {
         socket.send({
@@ -59,47 +63,47 @@ export const socket: ISocket = {
         });
       }
     };
-    socket.web_socket!.onclose = (e) => {
-      if (socket.ever_succeeded && !socket.forceClose) {
+    socket.webSocket!.onclose = (e) => {
+      if (socket.everSucceeded && !socket.forceClose) {
         console.log("websocket closed, reconnecting");
-        clearInterval(socket.heartbeat_timer);
+        clearInterval(socket.heartbeatTimer);
         setTimeout(() => {
           socket.init(handle);
-        }, socket.heartbeat_interval);
-        socket.socket_open = false;
+        }, socket.heartbeatInterval);
+        socket.socketOpen = false;
         handle?.onclose?.(e);
       }
     };
-    socket.web_socket!.onerror = (e) => {
+    socket.webSocket!.onerror = (e) => {
       handle?.onerror?.(e);
     };
     return undefined;
   },
 
   heartbeat() {
-    if (socket.heartbeat_timer) {
-      clearInterval(socket.heartbeat_timer);
+    if (socket.heartbeatTimer) {
+      clearInterval(socket.heartbeatTimer);
     }
-    socket.heartbeat_timer = setInterval(() => {
+    socket.heartbeatTimer = setInterval(() => {
       socket.send({
         message: "hello",
         signature_message: this.signatureData,
       });
-    }, socket.heartbeat_interval);
+    }, socket.heartbeatInterval);
   },
 
   send(data: any, callback?: Function) {
     if (
-      socket.web_socket &&
-      !!socket.web_socket?.readyState === socket.socket_open
+      socket.webSocket &&
+      !!socket.webSocket?.readyState === socket.socketOpen
     ) {
-      socket.web_socket.send(JSON.stringify(data));
+      socket.webSocket.send(JSON.stringify(data));
       callback && callback();
     }
   },
 
   close() {
-    clearInterval(socket.heartbeat_timer);
-    socket.web_socket?.close();
+    clearInterval(socket.heartbeatTimer);
+    socket.webSocket?.close();
   },
 };

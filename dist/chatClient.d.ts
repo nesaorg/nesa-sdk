@@ -1,6 +1,6 @@
 import { ChainInfo } from "@keplr-wallet/types";
 import { NesaClient } from "./client";
-import { TokenPrice } from "./codec/agent/v1/agent";
+import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
 interface TokenNumber {
     inputTokens: number;
     outputTokens: number;
@@ -15,6 +15,9 @@ interface ConfigOptions {
     privateKey?: string;
     mnemonic?: string;
     chatId?: string;
+    isByPass?: boolean;
+    agentUrl?: string;
+    authToken?: string;
 }
 interface QuestionParams {
     messages: any;
@@ -42,6 +45,7 @@ declare class ChatClient {
     private isChatting;
     private isRegisteringSession;
     private agentUrl;
+    private agentChatUrl;
     private assistantRoleName;
     private lastNesaClientPromise;
     private lastUserMinimumLockPromise;
@@ -57,6 +61,9 @@ declare class ChatClient {
     private isEverRequestSession;
     private tokenPrice;
     private minerSessionId;
+    private agentSessionId;
+    private isByPass;
+    private authToken;
     constructor(options: ConfigOptions);
     initWallet(): any;
     getNesaClient(): Promise<NesaClient>;
@@ -72,5 +79,6 @@ declare class ChatClient {
     requestChatStatus(): any;
     requestSession(): Promise<any>;
     requestChat(question: QuestionParams): Promise<any>;
+    connectAgent(selectAgent: InferenceAgent, readableStream?: any): Promise<unknown>;
 }
 export default ChatClient;

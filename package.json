@@ -26,7 +26,8 @@
     "crypto-js": "^4.2.0",
     "elliptic": "^6.5.5",
     "stream-browserify": "^3.0.0",
-    "ws": "^7.5.9"
+    "ws": "^7.5.9",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
