@@ -20,8 +20,8 @@ import { stringToPath } from "@cosmjs/crypto";
 import { NesaClient } from "./client";
 import { getAgentUrls } from "./helpers/getAgentUrls";
 import { getIsChainInfoValid } from "./helpers/getIsChainInfoValid";
-import { TokenPrice } from "./codec/agent/v1/agent";
-
+import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
+import { v4 as uuidv4 } from 'uuid';
 interface TokenNumber {
   inputTokens: number;
   outputTokens: number;
@@ -37,6 +37,9 @@ interface ConfigOptions {
   privateKey?: string;
   mnemonic?: string;
   chatId?: string;
+  isByPass?: boolean;
+  agentUrl?: string;
+  authToken?: string;
 }
 
 interface QuestionParams {
@@ -66,6 +69,7 @@ class ChatClient {
   private isChatting = false;
   private isRegisteringSession = false;
   private agentUrl = "";
+  private agentChatUrl = "";
   private assistantRoleName = "";
   private lastNesaClientPromise: Promise<NesaClient> | undefined;
   private lastUserMinimumLockPromise: any;
@@ -81,6 +85,9 @@ class ChatClient {
   private isEverRequestSession: boolean;
   private tokenPrice: TokenPrice | undefined;
   private minerSessionId: string;
+  private agentSessionId = "";
+  private isByPass: boolean;
+  private authToken: string;
 
   constructor(options: ConfigOptions) {
     this.modelName = options?.modelName?.toLowerCase();
@@ -98,9 +105,20 @@ class ChatClient {
     this.isBrowser && (window.nesaSdkVersion = sdkVersion);
     this.chatId = options.chatId || Date.now().toString();
     this.minerSessionId = "";
-
+    this.isByPass = options.isByPass || false;
+    this.agentUrl = options.isByPass ? (options.agentUrl || "") : "";
+    this.authToken = options.authToken || "";
     // console.log("client options", options, this.chatId);
-    this.initWallet();
+    if (!this.isByPass) {
+      this.initWallet();
+    } else {
+      if (!this.agentUrl || this.agentUrl === "") {
+        throw new Error("Agent url is required in byPass mode");
+      }
+      if (!this.authToken || this.authToken === "") {
+        throw new Error("Auth token is required in byPass mode");
+      }
+    }
   }
 
   initWallet() {
@@ -272,12 +290,12 @@ class ChatClient {
 
     try {
       let ws: WebSocket;
-
+      const protocols = [this.authToken || ""];
       if (this.isBrowser) {
-        ws = new WebSocket(this.agentUrl);
+        ws = new WebSocket(this.agentChatUrl, protocols);
       } else {
         const WebSocket = require("ws");
-        ws = new WebSocket(this.agentUrl);
+        ws = new WebSocket(this.agentChatUrl, protocols);
       }
       ws.addEventListener("open", () => {
         if (ws.readyState === 1) {
@@ -297,29 +315,38 @@ class ChatClient {
             });
           }
 
-          const signedMessage = EncryptUtils.signMessage(
-            this.chatId,
-            questionStr,
-            this.chatSeq,
-            true
-          );
-
-          if (signedMessage) {
+          if (!this.isByPass) {
+            const signedMessage = EncryptUtils.signMessage(
+              this.chatId,
+              questionStr,
+              this.chatSeq,
+              true
+            );
+  
+            if (signedMessage) {
+              ws.send(
+                JSON.stringify({
+                  chat_seq: this.chatSeq,
+                  query: questionStr,
+                  signature_query: signedMessage,
+                })
+              );
+            } else {
+              readableStream.push({
+                code: 201,
+                message:
+                  "No signature found or the signature has expired, please sign again",
+              });
+              this.isChatting = false;
+              readableStream.push(null);
+            }
+          } else {
             ws.send(
               JSON.stringify({
                 chat_seq: this.chatSeq,
                 query: questionStr,
-                signature_query: signedMessage,
               })
             );
-          } else {
-            readableStream.push({
-              code: 201,
-              message:
-                "No signature found or the signature has expired, please sign again",
-            });
-            this.isChatting = false;
-            readableStream.push(null);
           }
         }
       });
@@ -370,41 +397,44 @@ class ChatClient {
             });
             messageTimes += 1;
           }
-          const totalSignedPayment = this.computePaymentAmount({
-            inputTokens: messageJson?.input_tokens,
-            outputTokens: messageJson?.output_tokens,
-          },this.tokenPrice!);
-          const signedMessage = this.checkSinglePaymentAmount(totalSignedPayment);
-          const total_payment = {
-            amount: this.totalSignedPayment,
-            denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
-          };
-          readableStream.push({
-            code: 200,
-            message: messageJson?.content,
-            session_id: messageJson?.session_id || "",
-            total_payment,
-          });
-          if (messageJson?.session_id) {
-            this.minerSessionId = messageJson?.session_id;
-          }
-          this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
-          if (
-            new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
-          ) {
+
+          if (!this.isByPass) {
+            const totalSignedPayment = this.computePaymentAmount({
+              inputTokens: messageJson?.input_tokens,
+              outputTokens: messageJson?.output_tokens,
+            },this.tokenPrice!);
+            const signedMessage = this.checkSinglePaymentAmount(totalSignedPayment);
+            const total_payment = {
+              amount: this.totalSignedPayment,
+              denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
+            };
             readableStream.push({
-              code: 205,
-              message: '{"code":1015,"msg":"balance insufficient"}',
-            });
-            // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
-            ws.close();
-          } else if (signedMessage) {
-            const data = JSON.stringify({
-              chat_seq: this.chatSeq,
+              code: 200,
+              message: messageJson?.content,
+              session_id: messageJson?.session_id || "",
               total_payment,
-              signature_payment: signedMessage,
             });
-            ws.send(data);
+            if (messageJson?.session_id) {
+              this.minerSessionId = messageJson?.session_id;
+            }
+            this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
+            if (
+              new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
+            ) {
+              readableStream.push({
+                code: 205,
+                message: '{"code":1015,"msg":"balance insufficient"}',
+              });
+              // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
+              ws.close();
+            } else if (signedMessage) {
+              const data = JSON.stringify({
+                chat_seq: this.chatSeq,
+                total_payment,
+                signature_payment: signedMessage,
+              });
+              ws.send(data);
+            }
           }
         }
       };
@@ -483,40 +513,12 @@ class ChatClient {
         .then((agentInfo) => {
           if (agentInfo && agentInfo?.inferenceAgent) {
             const selectAgent = agentInfo?.inferenceAgent;
-
-            const { agentWsUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent,this.chatId);
-            let firstInitHeartbeat = true;
-
-            this.chatProgressReadable?.push({
-              code: 303,
-              message: "Connecting to the validator",
-            });
-            socket.init({
-              recordId: this.chatId,
-              modelName: this.modelName,
-              ws_url: agentHeartbeatUrl,
-              onopen: () => {
-                if (firstInitHeartbeat) {
-                  this.agentUrl = agentWsUrl;
-                  this.isRegisteringSession = false;
-
-                  this.chatProgressReadable?.push({
-                    code: 304,
-                    message: "Waiting for query",
-                  });
-                  readableStream?.push(null);
-                  firstInitHeartbeat = false;
-                  resolve(result);
-                }
-              },
-              onerror: (e: Event | Error) => {
-                readableStream?.push({
-                  code: 319,
-                  message: "Agent connection error: " + selectAgent.url,
-                });
-                readableStream?.push(null);
-                reject(new Error("Agent heartbeat packet connection failed, " + (e as Error)?.message));
-              },
+            this.connectAgent(selectAgent, readableStream)
+              .then(() => {
+                resolve(result);
+              })
+              .catch((err: any) => {
+                reject(err);
             });
           } else {
             this.isRegisteringSession = false;
@@ -590,32 +592,52 @@ class ChatClient {
   }
 
   async requestSession() {
-    if (!getIsChainInfoValid(this.chainInfo)) {
-      throw new Error(
-        "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
-      );
-    }
 
     if (!this.modelName) {
       throw new Error("ModelName is null");
     }
 
-    if (this.isRegisteringSession) {
-      throw new Error("Registering session, please wait");
-    }
+    if (!this.isByPass) {
+      if (!getIsChainInfoValid(this.chainInfo)) {
+        throw new Error(
+          "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
+        );
+      }
 
-    if (
-      !this.lockAmount ||
-      new BigNumber(this.lockAmount).isNaN()
-    ) {
-      throw new Error(
+      if (this.isRegisteringSession) {
+        throw new Error("Registering session, please wait");
+      }
+
+      if (
+        !this.lockAmount ||
+        new BigNumber(this.lockAmount).isNaN()
+      ) {
+        throw new Error(
         "LockAmount invalid value"
       );
+      }
     }
-
+    
     this.isEverRequestSession = true;
     const readableStream = new Readable({ objectMode: true });
     readableStream._read = () => {};
+    if (this.isByPass) {
+      this.agentSessionId = uuidv4();
+      readableStream.push({
+        code: 200,
+        message: this.agentSessionId,
+      });
+
+      const selectAgent = {
+        url: this.agentUrl,
+      } as InferenceAgent;
+
+      this.connectAgent(selectAgent).catch((err: any) => {
+        throw new Error("Agent connection error: " + err);
+      });
+
+      return readableStream;
+    }
 
     try {
       await this.initWallet();
@@ -722,33 +744,34 @@ class ChatClient {
       throw new Error("Model is required");
     }
 
-    if (this.isRegisteringSession) {
-      throw new Error("Registering session, please wait");
-    }
-
-    if (!this.isEverRequestSession) {
-      throw new Error(
-        "Please call requestSession first to complete Session registration"
-      );
-    }
-
-    if(!this.tokenPrice) {
-      throw new Error("Please wait for the session registration to complete before requesting chat");
-    }
-
-    if (!this.agentUrl) {
-      const result = await this.checkSignBroadcastResult();
-      console.log("checkSignBroadcastResult-result: ", result);
-      const readableStream = new Readable({ objectMode: true });
-      readableStream._read = () => {};
-
-      if (this.isChatting) {
-        this.chatQueue.push({ readableStream, question });
-      } else {
-        this.requestChatQueue(readableStream, question);
+    if (!this.isByPass) {
+      if (this.isRegisteringSession) {
+        throw new Error("Registering session, please wait");
       }
 
-      return readableStream;
+      if (!this.isEverRequestSession) {
+        throw new Error(
+          "Please call requestSession first to complete Session registration"
+        );
+      }
+
+      if(!this.tokenPrice) {
+        throw new Error("Please wait for the session registration to complete before requesting chat");
+      }
+
+      if (!this.agentChatUrl) {
+        const result = await this.checkSignBroadcastResult();
+        console.log("checkSignBroadcastResult-result: ", result);
+      }
+    }
+
+    else if (!this.agentChatUrl) {
+      const selectAgent = {
+        url: this.agentUrl,
+      } as InferenceAgent;
+      this.connectAgent(selectAgent).catch((err: any) => {
+        throw new Error("Agent connection error: " + err);
+      });
     }
 
     const readableStream = new Readable({ objectMode: true });
@@ -761,6 +784,46 @@ class ChatClient {
     }
 
     return readableStream;
+  }
+
+  async connectAgent(selectAgent: InferenceAgent, readableStream?: any) {
+    return new Promise((resolve, reject) => {
+      let firstInitHeartbeat = true;
+      const { agentChatUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent, this.chatId, this.agentSessionId);
+      this.chatProgressReadable?.push({
+        code: 303,
+        message: "Connecting to the validator",
+      });
+      socket.init({
+        recordId: this.chatId,
+        modelName: this.modelName,
+        wsUrl: agentHeartbeatUrl,
+        isBypass: this.isByPass,
+        authToken: this.authToken,
+        onopen: () => {
+          if (firstInitHeartbeat) {
+            this.agentChatUrl = agentChatUrl;
+            this.isRegisteringSession = false;
+
+            this.chatProgressReadable?.push({
+              code: 304,
+              message: "Waiting for query",
+            });
+            readableStream?.push(null);
+            firstInitHeartbeat = false;
+            resolve(null);
+          }
+        },
+        onerror: (e: Event | Error) => {
+          readableStream?.push({
+            code: 319,
+            message: "Agent connection error: " + selectAgent.url,
+          });
+          readableStream?.push(null);
+          reject(new Error("Agent heartbeat packet connection failed, " + (e as Error)?.message));
+        },
+      });
+    });
   }
 }
 

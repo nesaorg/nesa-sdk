@@ -1,11 +1,11 @@
 import type { InferenceAgent } from "../codec/agent/v1/agent";
 
-export const getAgentUrls = (selectAgent: InferenceAgent,chatId:string) => {
+export const getAgentUrls = (selectAgent: InferenceAgent, chatId: string, agentSessionId: string) => {
   const baseUrl = `${selectAgent.url}${
     selectAgent.url?.endsWith("/") ? "" : "/"
   }`;
   return {
-    agentWsUrl: `${baseUrl}chat?chat-id=${chatId}`,
-    agentHeartbeatUrl: `${baseUrl}heartbeat?chat-id=${chatId}`,
+    agentChatUrl: `${baseUrl}chat?chat-id=${chatId}&session-id=${agentSessionId}`,
+    agentHeartbeatUrl: `${baseUrl}heartbeat?chat-id=${chatId}&session-id=${agentSessionId}`,
   };
 };
