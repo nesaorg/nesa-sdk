@@ -16,12 +16,12 @@ import {
   DirectSecp256k1HdWallet,
   DirectSecp256k1Wallet,
 } from "@cosmjs/proto-signing";
-import { stringToPath } from "@cosmjs/crypto";
+import { stringToPath, Random } from "@cosmjs/crypto";
 import { NesaClient } from "./client";
 import { getAgentUrls } from "./helpers/getAgentUrls";
 import { getIsChainInfoValid } from "./helpers/getIsChainInfoValid";
 import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
-import { v4 as uuidv4 } from 'uuid';
+
 interface TokenNumber {
   inputTokens: number;
   outputTokens: number;
@@ -629,7 +629,7 @@ class ChatClient {
     const readableStream = new Readable({ objectMode: true });
     readableStream._read = () => {};
     if (this.isByPass) {
-      this.agentSessionId = uuidv4();
+      this.agentSessionId = Buffer.from(Random.getBytes(16)).toString("hex");
       readableStream.push({
         code: 200,
         message: this.agentSessionId,
