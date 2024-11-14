@@ -414,9 +414,6 @@ class ChatClient {
               session_id: messageJson?.session_id || "",
               total_payment,
             });
-            if (messageJson?.session_id) {
-              this.minerSessionId = messageJson?.session_id;
-            }
             this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
             if (
               new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
@@ -435,6 +432,16 @@ class ChatClient {
               });
               ws.send(data);
             }
+          } else {
+            readableStream.push({
+              code: 200,
+              message: messageJson?.content,
+              session_id: messageJson?.session_id || "",
+            });
+          }
+
+          if (messageJson?.session_id) {
+            this.minerSessionId = messageJson?.session_id;
           }
         }
       };
