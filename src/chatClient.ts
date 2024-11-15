@@ -87,7 +87,7 @@ class ChatClient {
   private minerSessionId: string;
   private agentSessionId = "";
   private isByPass: boolean;
-  private authToken: string;
+  private authToken: string | undefined;
 
   constructor(options: ConfigOptions) {
     this.modelName = options?.modelName?.toLowerCase();
@@ -107,7 +107,7 @@ class ChatClient {
     this.minerSessionId = "";
     this.isByPass = options.isByPass || false;
     this.agentUrl = options.isByPass ? (options.agentUrl || "") : "";
-    this.authToken = options.authToken || "";
+    this.authToken = options.authToken;
     // console.log("client options", options, this.chatId);
     if (!this.isByPass) {
       this.initWallet();
@@ -290,7 +290,7 @@ class ChatClient {
 
     try {
       let ws: WebSocket;
-      const protocols = [this.authToken || ""];
+      const protocols = this.isByPass ? this.authToken : undefined;
       if (this.isBrowser) {
         ws = new WebSocket(this.agentChatUrl, protocols);
       } else {

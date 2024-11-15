@@ -37,12 +37,11 @@ export const socket: ISocket = {
   init(handle) {
     socket.wsUrl = handle.wsUrl;
     let webSocket;
+    const protocols = handle.isBypass ? handle.authToken : undefined;
     if (typeof window === "undefined") {
       const WebSocket = require("ws");
-      const protocols = [handle.authToken || ""];
       webSocket = new WebSocket(socket.wsUrl, protocols);
     } else {
-      const protocols = [handle.authToken || ""];
       webSocket = new WebSocket(socket.wsUrl, protocols);
     }
     socket.webSocket = webSocket;
