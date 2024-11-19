@@ -1,5 +1,7 @@
-import Long from "long";
-import _m0 from "protobufjs/minimal";
+/// <reference types="long" />
+import { Long } from "../../helpers";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../json-safe";
 export declare const protobufPackage = "google.protobuf";
 /**
  * A Duration represents a signed, fixed-length span of time represented
@@ -79,10 +81,11 @@ export interface Duration {
     nanos: number;
 }
 export declare const Duration: {
+    typeUrl: string;
     encode(message: Duration, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): Duration;
     fromJSON(object: any): Duration;
-    toJSON(message: Duration): unknown;
+    toJSON(message: Duration): JsonSafe<Duration>;
     fromPartial<I extends {
         seconds?: string | number | Long.Long | undefined;
         nanos?: number | undefined;
@@ -144,18 +147,7 @@ export declare const Duration: {
             toString: (radix?: number | undefined) => string;
             toUnsigned: () => Long.Long;
             xor: (other: string | number | Long.Long) => Long.Long;
-        } & { [K in Exclude<keyof I["seconds"], keyof Long.Long>]: never; }) | undefined;
+        } & Record<Exclude<keyof I["seconds"], keyof Long.Long>, never>) | undefined;
         nanos?: number | undefined;
-    } & { [K_1 in Exclude<keyof I, keyof Duration>]: never; }>(object: I): Duration;
+    } & Record<Exclude<keyof I, keyof Duration>, never>>(object: I): Duration;
 };
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
-export type DeepPartial<T> = T extends Builtin ? T : T extends Long ? string | number | Long : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {
-    [K in keyof T]?: DeepPartial<T[K]>;
-} : Partial<T>;
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P : P & {
-    [K in keyof P]: Exact<P[K], I[K]>;
-} & {
-    [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-};
-export {};

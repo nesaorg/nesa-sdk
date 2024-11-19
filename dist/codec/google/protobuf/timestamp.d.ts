@@ -1,5 +1,7 @@
-import Long from "long";
-import _m0 from "protobufjs/minimal";
+/// <reference types="long" />
+import { Long } from "../../helpers";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../json-safe";
 export declare const protobufPackage = "google.protobuf";
 /**
  * A Timestamp represents a point in time independent of any time zone or local
@@ -53,16 +55,7 @@ export declare const protobufPackage = "google.protobuf";
  *         .setNanos((int) ((millis % 1000) * 1000000)).build();
  *
  *
- * Example 5: Compute Timestamp from Java `Instant.now()`.
- *
- *     Instant now = Instant.now();
- *
- *     Timestamp timestamp =
- *         Timestamp.newBuilder().setSeconds(now.getEpochSecond())
- *             .setNanos(now.getNano()).build();
- *
- *
- * Example 6: Compute Timestamp from current time in Python.
+ * Example 5: Compute Timestamp from current time in Python.
  *
  *     timestamp = Timestamp()
  *     timestamp.GetCurrentTime()
@@ -110,10 +103,11 @@ export interface Timestamp {
     nanos: number;
 }
 export declare const Timestamp: {
+    typeUrl: string;
     encode(message: Timestamp, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): Timestamp;
     fromJSON(object: any): Timestamp;
-    toJSON(message: Timestamp): unknown;
+    toJSON(message: Timestamp): JsonSafe<Timestamp>;
     fromPartial<I extends {
         seconds?: string | number | Long.Long | undefined;
         nanos?: number | undefined;
@@ -175,18 +169,7 @@ export declare const Timestamp: {
             toString: (radix?: number | undefined) => string;
             toUnsigned: () => Long.Long;
             xor: (other: string | number | Long.Long) => Long.Long;
-        } & { [K in Exclude<keyof I["seconds"], keyof Long.Long>]: never; }) | undefined;
+        } & Record<Exclude<keyof I["seconds"], keyof Long.Long>, never>) | undefined;
         nanos?: number | undefined;
-    } & { [K_1 in Exclude<keyof I, keyof Timestamp>]: never; }>(object: I): Timestamp;
+    } & Record<Exclude<keyof I, keyof Timestamp>, never>>(object: I): Timestamp;
 };
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
-export type DeepPartial<T> = T extends Builtin ? T : T extends Long ? string | number | Long : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {
-    [K in keyof T]?: DeepPartial<T[K]>;
-} : Partial<T>;
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P : P & {
-    [K in keyof P]: Exact<P[K], I[K]>;
-} & {
-    [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-};
-export {};
