@@ -2,9 +2,8 @@ const { exit } = require("process");
 const { ChatClient } = require("nesa.js");
 const readline = require("node:readline");
 
-const address = "nesa143gwwdtxaxspv5rqesyxnza8sxd9gjkyvapc7f";
-const privateKey =
-  "c2769207c112c66a980dc50b74775e7a3cdb5e37a79884ebed2ae50417a7e237";
+const address = "";
+const privateKey = "";
 const requestSessionModel = "meta-llama/Meta-Llama-3-70B";
 const requestChatModel = "meta-llama/Meta-Llama-3-70B";
 
