@@ -17,7 +17,7 @@ npm link
 npm link nesa-sdk
 ```
 
-### Compile Protocol Buffer 
+### Compile Protocol Buffer
 
 ```sh
 npm run codegen # proto ==> ts, Generate .ts files into ./src/codec
@@ -38,71 +38,70 @@ const ChatUtils = new ChatClient({
 
 // chainInfo parameter description:
 const chainInfo = {
-    chainId: 'nesa-testnet-3',
-    chainName: 'Nesa Testnet',
-    rest: 'https://lcd.test.nesa.ai',
-    rpc: 'https://rpc.test.nesa.ai',
-    feeCurrencies: [
-        {
-            coinDenom: "NES",
-            coinMinimalDenom: "unes",
-            coinDecimals: 6,
-            coinGeckoId: "nesa",
-            coinImageUrl:
-                "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
-            gasPriceStep: {
-                low: 0.01,
-                average: 0.02,
-                high: 0.1,
-            },
-        },
-    ],
-    chainSymbolImageUrl:
-        "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/chain.png",
-    nodeProvider: {
-        name: "Nesa",
-        email: "dev@nesa.ai",
-        website: "https://nesa.ai/",
+  bech32Config: {
+    bech32PrefixAccAddr: "nesa",
+    bech32PrefixAccPub: "nesapub",
+    bech32PrefixConsAddr: "nesavalcons",
+    bech32PrefixConsPub: "nesavalconspub",
+    bech32PrefixValAddr: "nesavaloper",
+    bech32PrefixValPub: "nesavaloperpub",
+  },
+  beta: true,
+  bip44: {
+    coinType: 118,
+  },
+  chainId: "nesa",
+  chainName: "Nesa Devnet ",
+  chainSymbolImageUrl:
+    "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/chain.png",
+  currencies: [
+    {
+      coinDecimals: 6,
+      coinDenom: "NES",
+      coinGeckoId: "nesa",
+      coinImageUrl:
+        "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
+      coinMinimalDenom: "unes",
     },
-    bip44: {
-        coinType: 118,
+  ],
+  feeCurrencies: [
+    {
+      coinDecimals: 6,
+      coinDenom: "NES",
+      coinGeckoId: "nesa",
+      coinImageUrl:
+        "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
+      coinMinimalDenom: "unes",
+      gasPriceStep: {
+        average: 0.02,
+        high: 0.1,
+        low: 0.01,
+      },
     },
-    bech32Config: {
-        bech32PrefixAccAddr: "nesa",
-        bech32PrefixAccPub: "nesa" + "pub",
-        bech32PrefixValAddr: "nesa" + "valoper",
-        bech32PrefixValPub: "nesa" + "valoperpub",
-        bech32PrefixConsAddr: "nesa" + "valcons",
-        bech32PrefixConsPub: "nesa" + "valconspub",
-    },
-    currencies: [
-        {
-            coinDenom: "NES",
-            coinMinimalDenom: "unes",
-            coinDecimals: 6,
-            coinGeckoId: "nesa",
-            coinImageUrl:
-                "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
-        },
-    ],
-    stakeCurrency: {
-        coinDenom: "NES",
-        coinMinimalDenom: "unes",
-        coinDecimals: 6,
-        coinGeckoId: "nesa",
-        coinImageUrl:
-            "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
-        gasPriceStep: {},
-        features: ["cosmwasm"],
-    },
-};
+  ],
+  nodeProvider: {
+    email: "dev@nesa.ai",
+    name: "Nesa",
+    website: "https://nesa.ai/",
+  },
+  rest: "https://lcd.dev.nesa.ai",
+  rpc: "https://rpc.dev.nesa.ai",
+  stakeCurrency: {
+    coinDecimals: 6,
+    coinDenom: "NES",
+    coinGeckoId: "nesa",
+    coinImageUrl:
+      "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
+    coinMinimalDenom: "unes",
+  },
+}
 
 // If you need to set up a custom access point, you need to refer to the above format and modify the corresponding configuration based on the custom access point. (In particular, please pay attention to the first 5 items of the configuration)
 {
-    chainId: 'nesa-testnet-3',        //  ChainId for custom access point
-    chainName: 'Nesa Testnet',        //  ChainName of custom access point
-    rest: 'https://lcd.test.nesa.ai', //  Rest address of custom access point
-    rpc: 'https://rpc.test.nesa.ai',  //  Rpc address of custom access point
+    chainId: 'nesa',        //  ChainId for custom access point
+    chainName: 'Nesa Devnet',        //  ChainName of custom access point
+    rest: 'https://lcd.dev.nesa.ai', //  Rest address of custom access point
+    rpc: 'https://rpc.dev.nesa.ai',  //  Rpc address of custom access point
     feeCurrencies: [                  //  Please configure the feeCurrencies for custom access points to set up transaction fees based on the actual token information of the custom access point.
         {
             coinDenom: "NES",         //  Coin Name
@@ -223,16 +222,15 @@ Explanation of the heartbeat connection between the SDK and agent:
 
 3. If a conversation is initiated after the SDK is initialized successfully and the session is successfully registered using the requestSession method, but not all of the locked tokens are consumed, the chain will return the unused tokens to the original account when the agent service terminates the conversation.
 
-
 ### Please note:
 
 1. Setting up the Keplr wallet plugin:
 
 ```
 Path: Settings -> Advanced -> Modify connection point
-Choose: Nesa Testnet, set
-RPC: https://rpc.test.nesa.ai
-LCD: https://lcd.test.nesa.ai
+Choose: Nesa Devnet, set
+RPC: https://rpc.dev.nesa.ai
+LCD: https://lcd.dev.nesa.ai
 ```
 
 2. Parameter settings when initiating a conversation
