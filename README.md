@@ -7,14 +7,7 @@ The SDK is designed to be integrated into frontend projects, allowing seamless i
 ### Install & Usage
 
 ```
-npm install
-npm run build
-npm link
-```
-
-```
-// in your project
-npm link nesa-sdk
+npm install nesa-sdk@https://github.com/nesaorg/nesa-sdk
 ```
 
 ### Compile Protocol Buffer
