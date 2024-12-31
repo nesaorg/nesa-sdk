@@ -46,11 +46,15 @@ interface QuestionParams {
   messages: any;
   model: string;
   stream?: boolean;
+  session_id?: string;
+  model_params?: Map<string, any>;
+  additional_params?: Map<string, any>;
+
+  // TODO: deprecated
   frequency_penalty?: any;
   presence_penalty?: any;
   temperature?: any;
   top_p?: any;
-  session_id?: string;
 }
 
 class ChatClient {
@@ -303,7 +307,9 @@ class ChatClient {
             stream: true,
             ...question,
             model: question?.model?.toLowerCase(),
-            miner_session_id: this.minerSessionId
+            miner_session_id: this.minerSessionId,
+            model_params: question.model_params,
+            additional_params: question.additional_params,
           });
 
           if (question.messages && this.assistantRoleName) {

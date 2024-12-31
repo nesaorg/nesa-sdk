@@ -23,11 +23,13 @@ interface QuestionParams {
     messages: any;
     model: string;
     stream?: boolean;
+    session_id?: string;
+    model_params?: Map<string, any>;
+    additional_params?: Map<string, any>;
     frequency_penalty?: any;
     presence_penalty?: any;
     temperature?: any;
     top_p?: any;
-    session_id?: string;
 }
 declare class ChatClient {
     modelName: string;
