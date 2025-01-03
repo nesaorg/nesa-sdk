@@ -5,7 +5,7 @@ import { ChainInfo } from "@keplr-wallet/types";
 import {
   defaultChainInfo,
   defaultLockAmount,
-  defaultSinglePaymentAmount,
+  defaultPriceUnit,
   defaultLowBalance,
   sdkVersion,
 } from "./default.config";
@@ -16,39 +16,52 @@ import {
   DirectSecp256k1HdWallet,
   DirectSecp256k1Wallet,
 } from "@cosmjs/proto-signing";
-import { stringToPath } from "@cosmjs/crypto";
+import { stringToPath, Random } from "@cosmjs/crypto";
 import { NesaClient } from "./client";
 import { getAgentUrls } from "./helpers/getAgentUrls";
 import { getIsChainInfoValid } from "./helpers/getIsChainInfoValid";
+import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
+
+interface TokenNumber {
+  inputTokens: number;
+  outputTokens: number;
+}
 
 interface ConfigOptions {
   modelName: string;
   lockAmount?: string;
   chainInfo?: ChainInfo;
   walletName?: string;
-  singlePaymentAmount?: string;
+  priceUnit?: string;
   lowBalance?: string;
   privateKey?: string;
   mnemonic?: string;
   chatId?: string;
+  isByPass?: boolean;
+  agentUrl?: string;
+  authToken?: string;
 }
 
 interface QuestionParams {
   messages: any;
   model: string;
   stream?: boolean;
+  session_id?: string;
+  model_params?: Map<string, any>;
+  additional_params?: Map<string, any>;
+
+  // TODO: deprecated
   frequency_penalty?: any;
   presence_penalty?: any;
   temperature?: any;
   top_p?: any;
-  session_id?: string;
 }
 
 class ChatClient {
   public modelName: string;
   public chainInfo: ChainInfo;
   public lockAmount: string;
-  public singlePaymentAmount: string;
+  public priceUnit: string;
   public lowBalance: string;
   public lockAmountDenom: string;
   public chatId: string;
@@ -60,6 +73,7 @@ class ChatClient {
   private isChatting = false;
   private isRegisteringSession = false;
   private agentUrl = "";
+  private agentChatUrl = "";
   private assistantRoleName = "";
   private lastNesaClientPromise: Promise<NesaClient> | undefined;
   private lastUserMinimumLockPromise: any;
@@ -73,15 +87,18 @@ class ChatClient {
   private privateKey: string;
   private mnemonic: string;
   private isEverRequestSession: boolean;
-  private tokenPrice: number;
+  private tokenPrice: TokenPrice | undefined;
+  private minerSessionId: string;
+  private agentSessionId = "";
+  private isByPass: boolean;
+  private authToken: string | undefined;
 
   constructor(options: ConfigOptions) {
     this.modelName = options?.modelName?.toLowerCase();
     this.chainInfo = options.chainInfo || defaultChainInfo;
     this.lockAmount = options.lockAmount || defaultLockAmount;
     this.signaturePayment = {};
-    this.singlePaymentAmount =
-      options.singlePaymentAmount || defaultSinglePaymentAmount;
+    this.priceUnit = options.priceUnit || defaultPriceUnit;
     this.lowBalance = options.lowBalance || defaultLowBalance;
     this.lockAmountDenom = "";
     this.walletName = options.walletName || "";
@@ -90,11 +107,22 @@ class ChatClient {
     this.isEverRequestSession = false;
     this.isBrowser = typeof window !== "undefined";
     this.isBrowser && (window.nesaSdkVersion = sdkVersion);
-    this.tokenPrice = 0;
     this.chatId = options.chatId || Date.now().toString();
-
-    console.log("client options", options, this.chatId);
-    this.initWallet();
+    this.minerSessionId = "";
+    this.isByPass = options.isByPass || false;
+    this.agentUrl = options.isByPass ? (options.agentUrl || "") : "";
+    this.authToken = options.authToken;
+    // console.log("client options", options, this.chatId);
+    if (!this.isByPass) {
+      this.initWallet();
+    } else {
+      if (!this.agentUrl || this.agentUrl === "") {
+        throw new Error("Agent url is required in byPass mode");
+      }
+      if (!this.authToken || this.authToken === "") {
+        throw new Error("Auth token is required in byPass mode");
+      }
+    }
   }
 
   initWallet() {
@@ -147,7 +175,7 @@ class ChatClient {
                 Buffer.from(this.privateKey, "hex"),
                 "nesa"
               );
-              console.log("private key wallet", wallet);
+              // console.log("private key wallet", wallet);
               this.offlineSigner = wallet;
               resolve(this.offlineSigner);
               this.getNesaClient();
@@ -160,7 +188,7 @@ class ChatClient {
                 this.mnemonic,
                 { prefix: "nesa", hdPaths: [stringToPath("m/44'/118'/0'/0/0")] }
               );
-              console.log("private key wallet", wallet);
+              // console.log("private key wallet", wallet);
               this.offlineSigner = wallet;
               resolve(this.offlineSigner);
               this.getNesaClient();
@@ -242,46 +270,21 @@ class ChatClient {
     return signaturePayment;
   }
 
-  checkSinglePaymentAmount() {
+  checkSinglePaymentAmount(totalSignedPayment: string) {
     if (
-      new BigNumber(this.totalSignedPayment).isLessThanOrEqualTo(
-        this.lowBalance
-      )
+      new BigNumber(totalSignedPayment).isLessThanOrEqualTo(this.lockAmount)
     ) {
-      this.totalSignedPayment = Number(
-        new BigNumber(this.totalSignedPayment)
-          .plus(this.singlePaymentAmount)
-          .toFixed(0, 1)
-      );
-      return this.getSignaturePayment();
-    }
-    if (
-      new BigNumber(this.totalSignedPayment)
-        .minus(this.totalUsedPayment)
-        .isLessThanOrEqualTo(this.lowBalance)
-    ) {
-      if (
-        new BigNumber(this.totalSignedPayment).isLessThan(this.totalUsedPayment)
-      ) {
-        this.totalSignedPayment = Number(this.totalUsedPayment);
-        return this.getSignaturePayment();
-      }
-      if (
-        new BigNumber(this.totalSignedPayment)
-          .plus(this.singlePaymentAmount)
-          .isLessThanOrEqualTo(this.lockAmount)
-      ) {
-        this.totalSignedPayment = Number(
-          new BigNumber(this.totalSignedPayment)
-            .plus(this.singlePaymentAmount)
-            .toFixed(0, 1)
-        );
-      } else {
-        this.totalSignedPayment = Number(this.lockAmount);
-      }
-      return this.getSignaturePayment();
+      this.totalSignedPayment = Number(totalSignedPayment);
+    } else {
+      this.totalSignedPayment = Number(this.lockAmount);
     }
     return this.getSignaturePayment();
+  }
+
+  computePaymentAmount(tokenNumber: TokenNumber,tokenPrice: TokenPrice) {
+    const inputAmount = new BigNumber(tokenNumber.inputTokens).multipliedBy(tokenPrice.inputPrice.amount);
+    const outputAmount = new BigNumber(tokenNumber.outputTokens).multipliedBy(tokenPrice.outputPrice.amount);
+    return inputAmount.plus(outputAmount).dividedBy(this.priceUnit).toFixed(0, 1);
   }
 
   requestChatQueue(readableStream: any, question: QuestionParams) {
@@ -291,12 +294,12 @@ class ChatClient {
 
     try {
       let ws: WebSocket;
-
+      const protocols = this.isByPass ? this.authToken : undefined;
       if (this.isBrowser) {
-        ws = new WebSocket(this.agentUrl);
+        ws = new WebSocket(this.agentChatUrl, protocols);
       } else {
         const WebSocket = require("ws");
-        ws = new WebSocket(this.agentUrl);
+        ws = new WebSocket(this.agentChatUrl, protocols);
       }
       ws.addEventListener("open", () => {
         if (ws.readyState === 1) {
@@ -304,6 +307,9 @@ class ChatClient {
             stream: true,
             ...question,
             model: question?.model?.toLowerCase(),
+            miner_session_id: this.minerSessionId,
+            model_params: question.model_params,
+            additional_params: question.additional_params,
           });
 
           if (question.messages && this.assistantRoleName) {
@@ -315,29 +321,38 @@ class ChatClient {
             });
           }
 
-          const signedMessage = EncryptUtils.signMessage(
-            this.chatId,
-            questionStr,
-            this.chatSeq,
-            true
-          );
-
-          if (signedMessage) {
+          if (!this.isByPass) {
+            const signedMessage = EncryptUtils.signMessage(
+              this.chatId,
+              questionStr,
+              this.chatSeq,
+              true
+            );
+  
+            if (signedMessage) {
+              ws.send(
+                JSON.stringify({
+                  chat_seq: this.chatSeq,
+                  query: questionStr,
+                  signature_query: signedMessage,
+                })
+              );
+            } else {
+              readableStream.push({
+                code: 201,
+                message:
+                  "No signature found or the signature has expired, please sign again",
+              });
+              this.isChatting = false;
+              readableStream.push(null);
+            }
+          } else {
             ws.send(
               JSON.stringify({
                 chat_seq: this.chatSeq,
                 query: questionStr,
-                signature_query: signedMessage,
               })
             );
-          } else {
-            readableStream.push({
-              code: 201,
-              message:
-                "No signature found or the signature has expired, please sign again",
-            });
-            this.isChatting = false;
-            readableStream.push(null);
           }
         }
       });
@@ -388,34 +403,51 @@ class ChatClient {
             });
             messageTimes += 1;
           }
-          const signedMessage = this.checkSinglePaymentAmount();
-          const total_payment = {
-            amount: this.totalSignedPayment,
-            denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
-          };
-          readableStream.push({
-            code: 200,
-            message: messageJson?.content,
-            session_id: messageJson?.session_id || "",
-            total_payment,
-          });
-          this.totalUsedPayment += this.tokenPrice;
 
-          if (
-            new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
-          ) {
+          if (!this.isByPass) {
+            const totalSignedPayment = this.computePaymentAmount({
+              inputTokens: messageJson?.input_tokens,
+              outputTokens: messageJson?.output_tokens,
+            },this.tokenPrice!);
+            const signedMessage = this.checkSinglePaymentAmount(totalSignedPayment);
+            const total_payment = {
+              amount: this.totalSignedPayment,
+              denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
+            };
             readableStream.push({
-              code: 205,
-              message: '{"code":1015,"msg":"balance insufficient"}',
-            });
-            ws.close();
-          } else if (signedMessage) {
-            const data = JSON.stringify({
-              chat_seq: this.chatSeq,
+              code: 200,
+              message: messageJson?.content,
+              session_id: messageJson?.session_id || "",
               total_payment,
-              signature_payment: signedMessage,
             });
-            ws.send(data);
+            this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
+            if (
+              new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
+            ) {
+              readableStream.push({
+                code: 205,
+                message: '{"code":1015,"msg":"balance insufficient"}',
+              });
+              // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
+              ws.close();
+            } else if (signedMessage) {
+              const data = JSON.stringify({
+                chat_seq: this.chatSeq,
+                total_payment,
+                signature_payment: signedMessage,
+              });
+              ws.send(data);
+            }
+          } else {
+            readableStream.push({
+              code: 200,
+              message: messageJson?.content,
+              session_id: messageJson?.session_id || "",
+            });
+          }
+
+          if (messageJson?.session_id) {
+            this.minerSessionId = messageJson?.session_id;
           }
         }
       };
@@ -494,41 +526,12 @@ class ChatClient {
         .then((agentInfo) => {
           if (agentInfo && agentInfo?.inferenceAgent) {
             const selectAgent = agentInfo?.inferenceAgent;
-
-            const { agentWsUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent);
-
-            let firstInitHeartbeat = true;
-
-            this.chatProgressReadable?.push({
-              code: 303,
-              message: "Connecting to the validator",
-            });
-            socket.init({
-              recordId: this.chatId,
-              modelName: this.modelName,
-              ws_url: agentHeartbeatUrl,
-              onopen: () => {
-                if (firstInitHeartbeat) {
-                  this.agentUrl = agentWsUrl;
-                  this.isRegisteringSession = false;
-
-                  this.chatProgressReadable?.push({
-                    code: 304,
-                    message: "Waiting for query",
-                  });
-                  readableStream?.push(null);
-                  firstInitHeartbeat = false;
-                  resolve(result);
-                }
-              },
-              onerror: () => {
-                readableStream?.push({
-                  code: 319,
-                  message: "Agent connection error: " + selectAgent.url,
-                });
-                readableStream?.push(null);
-                reject(new Error("Agent heartbeat packet connection failed"));
-              },
+            this.connectAgent(selectAgent, readableStream)
+              .then(() => {
+                resolve(result);
+              })
+              .catch((err: any) => {
+                reject(err);
             });
           } else {
             this.isRegisteringSession = false;
@@ -553,6 +556,8 @@ class ChatClient {
           reject(error);
         });
     });
+
+    return this.lastGetAgentInfoPromise;
   }
 
   checkSignBroadcastResult(readableStream?: any) {
@@ -562,15 +567,18 @@ class ChatClient {
           new Error("Please wait for the requestSession registration result")
         );
       } else {
-        console.log(
-          "checkSignBroadcastResult this.modelName",
-          this.modelName,
-          this.nesaClient.broadcastRegisterSession()
-        );
+        // console.log(
+        //   "checkSignBroadcastResult this.modelName",
+        //   this.modelName,
+        //   this.nesaClient.broadcastRegisterSession()
+        // );
         this.nesaClient
           .broadcastRegisterSession()
-          .then((result: any) => {
-            resolve(this.requestAgentInfo(result, readableStream));
+          .then(async (result: any) => {
+            await this.requestAgentInfo(result, readableStream).catch((err: any) => {
+              reject(err);
+            });
+            resolve(result);
           })
           .catch((error: any) => {
             console.log("checkSignBroadcastResultError: ", error);
@@ -597,33 +605,52 @@ class ChatClient {
   }
 
   async requestSession() {
-    if (!getIsChainInfoValid(this.chainInfo)) {
-      throw new Error(
-        "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
-      );
-    }
 
     if (!this.modelName) {
       throw new Error("ModelName is null");
     }
 
-    if (this.isRegisteringSession) {
-      throw new Error("Registering session, please wait");
-    }
+    if (!this.isByPass) {
+      if (!getIsChainInfoValid(this.chainInfo)) {
+        throw new Error(
+          "Invalid chainInfo, you must provide rpc, rest, feeCurrencies, feeCurrencies"
+        );
+      }
 
-    if (
-      !this.lockAmount ||
-      new BigNumber(this.lockAmount).isNaN() ||
-      new BigNumber(this.lockAmount).isLessThan(this.singlePaymentAmount)
-    ) {
-      throw new Error(
-        "LockAmount invalid value or less than singlePaymentAmount"
+      if (this.isRegisteringSession) {
+        throw new Error("Registering session, please wait");
+      }
+
+      if (
+        !this.lockAmount ||
+        new BigNumber(this.lockAmount).isNaN()
+      ) {
+        throw new Error(
+        "LockAmount invalid value"
       );
+      }
     }
-
+    
     this.isEverRequestSession = true;
     const readableStream = new Readable({ objectMode: true });
     readableStream._read = () => {};
+    if (this.isByPass) {
+      this.agentSessionId = Buffer.from(Random.getBytes(16)).toString("hex");
+      readableStream.push({
+        code: 200,
+        message: this.agentSessionId,
+      });
+
+      const selectAgent = {
+        url: this.agentUrl,
+      } as InferenceAgent;
+
+      this.connectAgent(selectAgent).catch((err: any) => {
+        throw new Error("Agent connection error: " + err);
+      });
+
+      return readableStream;
+    }
 
     try {
       await this.initWallet();
@@ -644,7 +671,6 @@ class ChatClient {
             return readableStream;
           }
 
-          this.tokenPrice = params?.params?.tokenPrice?.low;
           if (
             new BigNumber(this.lockAmount).isLessThan(
               params?.params?.userMinimumLock?.amount
@@ -670,7 +696,7 @@ class ChatClient {
               this.chainInfo,
               this.offlineSigner
             );
-
+            
             console.log("registerSession-result: ", result);
             if (result?.transactionHash) {
               this.chatProgressReadable?.push({
@@ -681,7 +707,10 @@ class ChatClient {
                 code: 200,
                 message: result?.transactionHash,
               });
-              this.checkSignBroadcastResult(readableStream).catch(() => {});
+              this.tokenPrice = result?.tokenPrice;
+              this.checkSignBroadcastResult(readableStream).catch((err: any) => {
+                console.error("checkSignBroadcastResult error", err);
+              });
 
               return readableStream;
             }
@@ -728,29 +757,34 @@ class ChatClient {
       throw new Error("Model is required");
     }
 
-    if (this.isRegisteringSession) {
-      throw new Error("Registering session, please wait");
-    }
-
-    if (!this.isEverRequestSession) {
-      throw new Error(
-        "Please call requestSession first to complete Session registration"
-      );
-    }
-
-    if (!this.agentUrl) {
-      const result = await this.checkSignBroadcastResult();
-      console.log("checkSignBroadcastResult-result: ", result);
-      const readableStream = new Readable({ objectMode: true });
-      readableStream._read = () => {};
-
-      if (this.isChatting) {
-        this.chatQueue.push({ readableStream, question });
-      } else {
-        this.requestChatQueue(readableStream, question);
+    if (!this.isByPass) {
+      if (this.isRegisteringSession) {
+        throw new Error("Registering session, please wait");
       }
 
-      return readableStream;
+      if (!this.isEverRequestSession) {
+        throw new Error(
+          "Please call requestSession first to complete Session registration"
+        );
+      }
+
+      if(!this.tokenPrice) {
+        throw new Error("Please wait for the session registration to complete before requesting chat");
+      }
+
+      if (!this.agentChatUrl) {
+        const result = await this.checkSignBroadcastResult();
+        console.log("checkSignBroadcastResult-result: ", result);
+      }
+    }
+
+    else if (!this.agentChatUrl) {
+      const selectAgent = {
+        url: this.agentUrl,
+      } as InferenceAgent;
+      this.connectAgent(selectAgent).catch((err: any) => {
+        throw new Error("Agent connection error: " + err);
+      });
     }
 
     const readableStream = new Readable({ objectMode: true });
@@ -763,6 +797,46 @@ class ChatClient {
     }
 
     return readableStream;
+  }
+
+  async connectAgent(selectAgent: InferenceAgent, readableStream?: any) {
+    return new Promise((resolve, reject) => {
+      let firstInitHeartbeat = true;
+      const { agentChatUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent, this.chatId, this.agentSessionId);
+      this.chatProgressReadable?.push({
+        code: 303,
+        message: "Connecting to the validator",
+      });
+      socket.init({
+        recordId: this.chatId,
+        modelName: this.modelName,
+        wsUrl: agentHeartbeatUrl,
+        isBypass: this.isByPass,
+        authToken: this.authToken,
+        onopen: () => {
+          if (firstInitHeartbeat) {
+            this.agentChatUrl = agentChatUrl;
+            this.isRegisteringSession = false;
+
+            this.chatProgressReadable?.push({
+              code: 304,
+              message: "Waiting for query",
+            });
+            readableStream?.push(null);
+            firstInitHeartbeat = false;
+            resolve(null);
+          }
+        },
+        onerror: (e: Event | Error) => {
+          readableStream?.push({
+            code: 319,
+            message: "Agent connection error: " + selectAgent.url,
+          });
+          readableStream?.push(null);
+          reject(new Error("Agent heartbeat packet connection failed, " + (e as Error)?.message));
+        },
+      });
+    });
   }
 }
 

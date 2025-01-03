@@ -1,1 +1,1 @@
-export declare const protobufPackage = "amino";
+export {};

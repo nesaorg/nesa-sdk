@@ -1,5 +1,5 @@
-import Long from "long";
-import _m0 from "protobufjs/minimal";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../../json-safe";
 export declare const protobufPackage = "cosmos.app.v1alpha1";
 /** ModuleDescriptor describes an app module. */
 export interface ModuleDescriptor {
@@ -82,10 +82,11 @@ export interface MigrateFromInfo {
     module: string;
 }
 export declare const ModuleDescriptor: {
+    typeUrl: string;
     encode(message: ModuleDescriptor, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): ModuleDescriptor;
     fromJSON(object: any): ModuleDescriptor;
-    toJSON(message: ModuleDescriptor): unknown;
+    toJSON(message: ModuleDescriptor): JsonSafe<ModuleDescriptor>;
     fromPartial<I extends {
         goImport?: string | undefined;
         usePackage?: {
@@ -106,53 +107,44 @@ export declare const ModuleDescriptor: {
         } & {
             name?: string | undefined;
             revision?: number | undefined;
-        } & { [K in Exclude<keyof I["usePackage"][number], keyof PackageReference>]: never; })[] & { [K_1 in Exclude<keyof I["usePackage"], keyof {
+        } & Record<Exclude<keyof I["usePackage"][number], keyof PackageReference>, never>)[] & Record<Exclude<keyof I["usePackage"], keyof {
             name?: string | undefined;
             revision?: number | undefined;
-        }[]>]: never; }) | undefined;
+        }[]>, never>) | undefined;
         canMigrateFrom?: ({
             module?: string | undefined;
         }[] & ({
             module?: string | undefined;
         } & {
             module?: string | undefined;
-        } & { [K_2 in Exclude<keyof I["canMigrateFrom"][number], "module">]: never; })[] & { [K_3 in Exclude<keyof I["canMigrateFrom"], keyof {
+        } & Record<Exclude<keyof I["canMigrateFrom"][number], "module">, never>)[] & Record<Exclude<keyof I["canMigrateFrom"], keyof {
             module?: string | undefined;
-        }[]>]: never; }) | undefined;
-    } & { [K_4 in Exclude<keyof I, keyof ModuleDescriptor>]: never; }>(object: I): ModuleDescriptor;
+        }[]>, never>) | undefined;
+    } & Record<Exclude<keyof I, keyof ModuleDescriptor>, never>>(object: I): ModuleDescriptor;
 };
 export declare const PackageReference: {
+    typeUrl: string;
     encode(message: PackageReference, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): PackageReference;
     fromJSON(object: any): PackageReference;
-    toJSON(message: PackageReference): unknown;
+    toJSON(message: PackageReference): JsonSafe<PackageReference>;
     fromPartial<I extends {
         name?: string | undefined;
         revision?: number | undefined;
     } & {
         name?: string | undefined;
         revision?: number | undefined;
-    } & { [K in Exclude<keyof I, keyof PackageReference>]: never; }>(object: I): PackageReference;
+    } & Record<Exclude<keyof I, keyof PackageReference>, never>>(object: I): PackageReference;
 };
 export declare const MigrateFromInfo: {
+    typeUrl: string;
     encode(message: MigrateFromInfo, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): MigrateFromInfo;
     fromJSON(object: any): MigrateFromInfo;
-    toJSON(message: MigrateFromInfo): unknown;
+    toJSON(message: MigrateFromInfo): JsonSafe<MigrateFromInfo>;
     fromPartial<I extends {
         module?: string | undefined;
     } & {
         module?: string | undefined;
-    } & { [K in Exclude<keyof I, "module">]: never; }>(object: I): MigrateFromInfo;
+    } & Record<Exclude<keyof I, "module">, never>>(object: I): MigrateFromInfo;
 };
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
-export type DeepPartial<T> = T extends Builtin ? T : T extends Long ? string | number | Long : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {
-    [K in keyof T]?: DeepPartial<T[K]>;
-} : Partial<T>;
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P : P & {
-    [K in keyof P]: Exact<P[K], I[K]>;
-} & {
-    [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-};
-export {};

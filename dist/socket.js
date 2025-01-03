@@ -6,73 +6,81 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.socket = void 0;
 const encryptUtils_1 = __importDefault(require("./encryptUtils"));
 exports.socket = {
-    web_socket: null,
-    ever_succeeded: false,
-    ws_url: "",
-    socket_open: false,
-    heartbeat_timer: undefined,
-    heartbeat_interval: 5000,
+    webSocket: null,
+    everSucceeded: false,
+    wsUrl: "",
+    socketOpen: false,
+    heartbeatTimer: undefined,
+    heartbeatInterval: 5000,
     signatureData: "",
     forceClose: false,
     init(handle) {
-        exports.socket.ws_url = handle.ws_url;
-        let web_socket;
+        exports.socket.wsUrl = handle.wsUrl;
+        let webSocket;
+        const protocols = handle.isBypass ? handle.authToken : undefined;
         if (typeof window === "undefined") {
             const WebSocket = require("ws");
-            web_socket = new WebSocket(exports.socket.ws_url);
+            webSocket = new WebSocket(exports.socket.wsUrl, protocols);
         }
         else {
-            web_socket = new WebSocket(exports.socket.ws_url);
+            webSocket = new WebSocket(exports.socket.wsUrl, protocols);
         }
-        exports.socket.web_socket = web_socket;
-        exports.socket.web_socket.onopen = () => {
-            exports.socket.socket_open = true;
-            exports.socket.ever_succeeded = true;
+        exports.socket.webSocket = webSocket;
+        exports.socket.webSocket.onopen = () => {
+            exports.socket.socketOpen = true;
+            exports.socket.everSucceeded = true;
             this.signatureData = encryptUtils_1.default.signHeartbeat(handle.recordId, "hello");
-            if (this.signatureData === "") {
+            if (!handle.isBypass && this.signatureData === "") {
                 handle?.onerror?.(new Error("SignatureData is null"));
             }
             else {
-                exports.socket.heartbeat();
-                handle?.onopen?.();
+                exports.socket.send({
+                    message: "hello",
+                    signature_message: this.signatureData,
+                }, () => {
+                    console.log("websocket opened");
+                    exports.socket.heartbeat();
+                    handle?.onopen?.();
+                });
             }
         };
-        exports.socket.web_socket.onclose = (e) => {
-            if (exports.socket.ever_succeeded && !exports.socket.forceClose) {
-                clearInterval(exports.socket.heartbeat_timer);
+        exports.socket.webSocket.onclose = (e) => {
+            if (exports.socket.everSucceeded && !exports.socket.forceClose) {
+                console.log("websocket closed, reconnecting");
+                clearInterval(exports.socket.heartbeatTimer);
                 setTimeout(() => {
                     exports.socket.init(handle);
-                }, exports.socket.heartbeat_interval);
-                exports.socket.socket_open = false;
+                }, exports.socket.heartbeatInterval);
+                exports.socket.socketOpen = false;
                 handle?.onclose?.(e);
             }
         };
-        exports.socket.web_socket.onerror = (e) => {
+        exports.socket.webSocket.onerror = (e) => {
             handle?.onerror?.(e);
         };
         return undefined;
     },
     heartbeat() {
-        if (exports.socket.heartbeat_timer) {
-            clearInterval(exports.socket.heartbeat_timer);
+        if (exports.socket.heartbeatTimer) {
+            clearInterval(exports.socket.heartbeatTimer);
         }
-        exports.socket.heartbeat_timer = setInterval(() => {
+        exports.socket.heartbeatTimer = setInterval(() => {
             exports.socket.send({
                 message: "hello",
                 signature_message: this.signatureData,
             });
-        }, exports.socket.heartbeat_interval);
+        }, exports.socket.heartbeatInterval);
     },
     send(data, callback) {
-        if (exports.socket.web_socket &&
-            !!exports.socket.web_socket?.readyState === exports.socket.socket_open) {
-            exports.socket.web_socket.send(JSON.stringify(data));
+        if (exports.socket.webSocket &&
+            !!exports.socket.webSocket?.readyState === exports.socket.socketOpen) {
+            exports.socket.webSocket.send(JSON.stringify(data));
             callback && callback();
         }
     },
     close() {
-        clearInterval(exports.socket.heartbeat_timer);
-        exports.socket.web_socket?.close();
+        clearInterval(exports.socket.heartbeatTimer);
+        exports.socket.webSocket?.close();
     },
 };
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic29ja2V0LmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vc3JjL3NvY2tldC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7QUFBQSxrRUFBMEM7QUF3QjdCLFFBQUEsTUFBTSxHQUFZO0lBQzdCLFVBQVUsRUFBRSxJQUFJO0lBQ2hCLGNBQWMsRUFBRSxLQUFLO0lBQ3JCLE1BQU0sRUFBRSxFQUFFO0lBQ1YsV0FBVyxFQUFFLEtBQUs7SUFDbEIsZUFBZSxFQUFFLFNBQVM7SUFDMUIsa0JBQWtCLEVBQUUsSUFBSTtJQUN4QixhQUFhLEVBQUUsRUFBRTtJQUNqQixVQUFVLEVBQUUsS0FBSztJQUVqQixJQUFJLENBQUMsTUFBTTtRQUNULGNBQU0sQ0FBQyxNQUFNLEdBQUcsTUFBTSxDQUFDLE1BQU0sQ0FBQztRQUM5QixJQUFJLFVBQVUsQ0FBQztRQUNmLElBQUksT0FBTyxNQUFNLEtBQUssV0FBVyxFQUFFLENBQUM7WUFDbEMsTUFBTSxTQUFTLEdBQUcsT0FBTyxDQUFDLElBQUksQ0FBQyxDQUFDO1lBQ2hDLFVBQVUsR0FBRyxJQUFJLFNBQVMsQ0FBQyxjQUFNLENBQUMsTUFBTSxDQUFDLENBQUM7UUFDNUMsQ0FBQzthQUFNLENBQUM7WUFDTixVQUFVLEdBQUcsSUFBSSxTQUFTLENBQUMsY0FBTSxDQUFDLE1BQU0sQ0FBQyxDQUFDO1FBQzVDLENBQUM7UUFDRCxjQUFNLENBQUMsVUFBVSxHQUFHLFVBQVUsQ0FBQztRQUMvQixjQUFNLENBQUMsVUFBVyxDQUFDLE1BQU0sR0FBRyxHQUFHLEVBQUU7WUFDL0IsY0FBTSxDQUFDLFdBQVcsR0FBRyxJQUFJLENBQUM7WUFDMUIsY0FBTSxDQUFDLGNBQWMsR0FBRyxJQUFJLENBQUM7WUFDN0IsSUFBSSxDQUFDLGFBQWEsR0FBRyxzQkFBWSxDQUFDLGFBQWEsQ0FBQyxNQUFNLENBQUMsUUFBUSxFQUFFLE9BQU8sQ0FBQyxDQUFDO1lBQzFFLElBQUksSUFBSSxDQUFDLGFBQWEsS0FBSyxFQUFFLEVBQUUsQ0FBQztnQkFDOUIsTUFBTSxFQUFFLE9BQU8sRUFBRSxDQUFDLElBQUksS0FBSyxDQUFDLHVCQUF1QixDQUFDLENBQUMsQ0FBQztZQUN4RCxDQUFDO2lCQUFNLENBQUM7Z0JBQ04sY0FBTSxDQUFDLFNBQVMsRUFBRSxDQUFDO2dCQUNuQixNQUFNLEVBQUUsTUFBTSxFQUFFLEVBQUUsQ0FBQztZQUNyQixDQUFDO1FBQ0gsQ0FBQyxDQUFDO1FBQ0YsY0FBTSxDQUFDLFVBQVcsQ0FBQyxPQUFPLEdBQUcsQ0FBQyxDQUFDLEVBQUUsRUFBRTtZQUNqQyxJQUFJLGNBQU0sQ0FBQyxjQUFjLElBQUksQ0FBQyxjQUFNLENBQUMsVUFBVSxFQUFFLENBQUM7Z0JBQ2hELGFBQWEsQ0FBQyxjQUFNLENBQUMsZUFBZSxDQUFDLENBQUM7Z0JBQ3RDLFVBQVUsQ0FBQyxHQUFHLEVBQUU7b0JBQ2QsY0FBTSxDQUFDLElBQUksQ0FBQyxNQUFNLENBQUMsQ0FBQztnQkFDdEIsQ0FBQyxFQUFFLGNBQU0sQ0FBQyxrQkFBa0IsQ0FBQyxDQUFDO2dCQUM5QixjQUFNLENBQUMsV0FBVyxHQUFHLEtBQUssQ0FBQztnQkFDM0IsTUFBTSxFQUFFLE9BQU8sRUFBRSxDQUFDLENBQUMsQ0FBQyxDQUFDO1lBQ3ZCLENBQUM7UUFDSCxDQUFDLENBQUM7UUFDRixjQUFNLENBQUMsVUFBVyxDQUFDLE9BQU8sR0FBRyxDQUFDLENBQUMsRUFBRSxFQUFFO1lBQ2pDLE1BQU0sRUFBRSxPQUFPLEVBQUUsQ0FBQyxDQUFDLENBQUMsQ0FBQztRQUN2QixDQUFDLENBQUM7UUFDRixPQUFPLFNBQVMsQ0FBQztJQUNuQixDQUFDO0lBRUQsU0FBUztRQUNQLElBQUksY0FBTSxDQUFDLGVBQWUsRUFBRSxDQUFDO1lBQzNCLGFBQWEsQ0FBQyxjQUFNLENBQUMsZUFBZSxDQUFDLENBQUM7UUFDeEMsQ0FBQztRQUNELGNBQU0sQ0FBQyxlQUFlLEdBQUcsV0FBVyxDQUFDLEdBQUcsRUFBRTtZQUN4QyxjQUFNLENBQUMsSUFBSSxDQUFDO2dCQUNWLE9BQU8sRUFBRSxPQUFPO2dCQUNoQixpQkFBaUIsRUFBRSxJQUFJLENBQUMsYUFBYTthQUN0QyxDQUFDLENBQUM7UUFDTCxDQUFDLEVBQUUsY0FBTSxDQUFDLGtCQUFrQixDQUFDLENBQUM7SUFDaEMsQ0FBQztJQUVELElBQUksQ0FBQyxJQUFTLEVBQUUsUUFBbUI7UUFDakMsSUFDRSxjQUFNLENBQUMsVUFBVTtZQUNqQixDQUFDLENBQUMsY0FBTSxDQUFDLFVBQVUsRUFBRSxVQUFVLEtBQUssY0FBTSxDQUFDLFdBQVcsRUFDdEQsQ0FBQztZQUNELGNBQU0sQ0FBQyxVQUFVLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxTQUFTLENBQUMsSUFBSSxDQUFDLENBQUMsQ0FBQztZQUM3QyxRQUFRLElBQUksUUFBUSxFQUFFLENBQUM7UUFDekIsQ0FBQztJQUNILENBQUM7SUFFRCxLQUFLO1FBQ0gsYUFBYSxDQUFDLGNBQU0sQ0FBQyxlQUFlLENBQUMsQ0FBQztRQUN0QyxjQUFNLENBQUMsVUFBVSxFQUFFLEtBQUssRUFBRSxDQUFDO0lBQzdCLENBQUM7Q0FDRixDQUFDIn0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic29ja2V0LmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vc3JjL3NvY2tldC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7QUFBQSxrRUFBMEM7QUEwQjdCLFFBQUEsTUFBTSxHQUFZO0lBQzdCLFNBQVMsRUFBRSxJQUFJO0lBQ2YsYUFBYSxFQUFFLEtBQUs7SUFDcEIsS0FBSyxFQUFFLEVBQUU7SUFDVCxVQUFVLEVBQUUsS0FBSztJQUNqQixjQUFjLEVBQUUsU0FBUztJQUN6QixpQkFBaUIsRUFBRSxJQUFJO0lBQ3ZCLGFBQWEsRUFBRSxFQUFFO0lBQ2pCLFVBQVUsRUFBRSxLQUFLO0lBRWpCLElBQUksQ0FBQyxNQUFNO1FBQ1QsY0FBTSxDQUFDLEtBQUssR0FBRyxNQUFNLENBQUMsS0FBSyxDQUFDO1FBQzVCLElBQUksU0FBUyxDQUFDO1FBQ2QsTUFBTSxTQUFTLEdBQUcsTUFBTSxDQUFDLFFBQVEsQ0FBQyxDQUFDLENBQUMsTUFBTSxDQUFDLFNBQVMsQ0FBQyxDQUFDLENBQUMsU0FBUyxDQUFDO1FBQ2pFLElBQUksT0FBTyxNQUFNLEtBQUssV0FBVyxFQUFFLENBQUM7WUFDbEMsTUFBTSxTQUFTLEdBQUcsT0FBTyxDQUFDLElBQUksQ0FBQyxDQUFDO1lBQ2hDLFNBQVMsR0FBRyxJQUFJLFNBQVMsQ0FBQyxjQUFNLENBQUMsS0FBSyxFQUFFLFNBQVMsQ0FBQyxDQUFDO1FBQ3JELENBQUM7YUFBTSxDQUFDO1lBQ04sU0FBUyxHQUFHLElBQUksU0FBUyxDQUFDLGNBQU0sQ0FBQyxLQUFLLEVBQUUsU0FBUyxDQUFDLENBQUM7UUFDckQsQ0FBQztRQUNELGNBQU0sQ0FBQyxTQUFTLEdBQUcsU0FBUyxDQUFDO1FBQzdCLGNBQU0sQ0FBQyxTQUFVLENBQUMsTUFBTSxHQUFHLEdBQUcsRUFBRTtZQUM5QixjQUFNLENBQUMsVUFBVSxHQUFHLElBQUksQ0FBQztZQUN6QixjQUFNLENBQUMsYUFBYSxHQUFHLElBQUksQ0FBQztZQUM1QixJQUFJ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

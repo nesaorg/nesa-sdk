@@ -19,13 +19,16 @@ import {
   MsgSubmitPayment,
   VRF,
 } from "./codec/agent/v1/tx";
-import { Payment, Params, SessionStatus } from "./codec/agent/v1/agent";
+import { Payment, Params, SessionStatus,TokenPrice, AgentModelStatus } from "./codec/agent/v1/agent";
 import { Coin } from "./codec/cosmos/base/v1beta1/coin";
-import { AgentExtension, setupAgentExtension } from "./queries";
+import { setupAgentExtension,setupDHTExtension } from "./queries";
 import { StdFee } from "@cosmjs/amino";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { sha256 } from "@cosmjs/crypto";
 import { toHex } from "@cosmjs/encoding";
+import { MsgRegisterModel, MsgUpdateModel } from "./codec/dht/v1/tx";
+import { PageRequest } from "./codec/cosmos/base/query/v1beta1/pagination";
+import { Availability, InferenceType } from "./codec/dht/v1/orchestrator";
 
 export type NesaClientOptions = SigningStargateClientOptions & {
   logger?: Logger;
@@ -43,6 +46,8 @@ function nesaRegistry(): Registry {
     ["/agent.v1.MsgRegisterSession", MsgRegisterSession],
     ["/agent.v1.MsgSubmitPayment", MsgSubmitPayment],
     ["/agent.v1.VRF", VRF],
+    ["/dht.v1.MsgRegisterModel", MsgRegisterModel],
+    ["/dht.v1.MsgUpdateModel", MsgUpdateModel],
   ]);
 }
 
@@ -64,9 +69,9 @@ export class NesaClient {
   public readonly sign: SigningStargateClient;
   public readonly signByModel: { [modelName: string]: SigningStargateClient } =
     {};
-  public readonly query: QueryClient & AgentExtension;
+  public readonly query: QueryClient & ReturnType<typeof setupAgentExtension> & ReturnType<typeof setupDHTExtension>;
   public readonly queryByModel: {
-    [modelName: string]: QueryClient & AgentExtension;
+    [modelName: string]: QueryClient & ReturnType<typeof setupAgentExtension> & ReturnType<typeof setupDHTExtension>;
   } = {};
   public readonly tm: CometClient;
   public readonly tmByModel: { [modelName: string]: CometClient } = {};
@@ -123,7 +128,11 @@ export class NesaClient {
 
     this.tm = tmClient;
 
-    this.query = QueryClient.withExtensions(tmClient, setupAgentExtension);
+    this.query = QueryClient.withExtensions(
+      tmClient,
+      setupAgentExtension,
+      setupDHTExtension
+    );
 
     this.senderAddress = senderAddress;
 
@@ -228,8 +237,9 @@ export class NesaClient {
     sessionId: string,
     modelName: string,
     fee: StdFee,
-    lockBalance?: Coin,
-    vrf?: VRF
+    lockBalance: Coin,
+    vrf: VRF,
+    tokenPrice: TokenPrice
   ) {
     this.logger.verbose(`Register Session`);
     const senderAddress = this.senderAddress;
@@ -241,6 +251,7 @@ export class NesaClient {
         modelName,
         lockBalance,
         vrf,
+        tokenPrice
       }),
     };
     const signResult = await this.sign.sign(
@@ -259,6 +270,7 @@ export class NesaClient {
 
     return {
       sessionId,
+      tokenPrice,
       transactionHash: toHex(sha256(Buffer.from(hex, "hex"))).toUpperCase(),
     };
   }
@@ -266,8 +278,9 @@ export class NesaClient {
   public async registerSession(
     sessionId: string,
     modelName: string,
-    lockBalance?: Coin,
-    vrf?: VRF
+    lockBalance: Coin,
+    vrf: VRF,
+    tokenPrice: TokenPrice
   ): Promise<RegisterSessionResult> {
     this.logger.verbose(`Register Session`);
     const senderAddress = this.senderAddress;
@@ -279,6 +292,7 @@ export class NesaClient {
         modelName,
         lockBalance,
         vrf,
+        tokenPrice
       }),
     };
     this.logger.debug("Register Session Message: ", registerSessionMsg);
@@ -333,6 +347,75 @@ export class NesaClient {
     };
   }
 
+  public async registerModel(
+    creator: string,
+    modelName: string,
+    blockCids: string[],
+    allowList: string[],
+    tokenPrice?: TokenPrice
+  ): Promise<MsgResult> {
+    this.logger.verbose(`Register Model`);
+    const senderAddress = this.senderAddress;
+    const registerModelMsg = {
+      typeUrl: '/dht.v1.MsgRegisterModel',
+      value: MsgRegisterModel.fromPartial({
+        creator,
+        modelName,
+        blockCids,
+        allowList,
+        tokenPrice
+      }),
+    };
+    this.logger.debug('Register Model Message: ', registerModelMsg);
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [registerModelMsg],
+      "auto"
+    );
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
+    }
+
+    return {
+      events: result.events,
+      transactionHash: result.transactionHash,
+      height: result.height,
+    };
+  }
+
+  public async updateModel(
+    modelName: string,
+    allowList: string[],
+    tokenPrice: TokenPrice
+  ): Promise<MsgResult> {
+    this.logger.verbose(`Update Model`);
+    const senderAddress = this.senderAddress;
+    const updateModelMsg = {
+      typeUrl: '/dht.v1.MsgUpdateModel',
+      value: MsgUpdateModel.fromPartial({
+        account: senderAddress,
+        modelName,
+        allowList,
+        tokenPrice
+      }),
+    };
+    this.logger.debug('Update Model Message: ', updateModelMsg);
+    const result = await this.sign.signAndBroadcast(
+      senderAddress,
+      [updateModelMsg],
+      "auto"
+    );
+    if (isDeliverTxFailure(result)) {
+      throw new Error(createDeliverTxFailureMessage(result));
+    }
+
+    return {
+      events: result.events,
+      transactionHash: result.transactionHash,
+      height: result.height,
+    };
+  }
+
   public async getParams() {
     const result = await this.query.agent.params();
     return result;
@@ -353,6 +436,17 @@ export class NesaClient {
     return result;
   }
 
+  public async getAgentByModel(
+    modelName: string,
+    status: AgentModelStatus
+  ) {
+    const result = await this.query.agent.agentByModelRequest(
+      modelName,
+      status
+    );
+    return result;
+  }
+
   public async getSession(sessionId: string) {
     const result = await this.query.agent.sessionRequest(sessionId);
     return result;
@@ -360,25 +454,98 @@ export class NesaClient {
 
   public async getSessionByAgent(
     account: string,
-    status: SessionStatus,
+    status: SessionStatus | undefined,
+    expireTime: Date,
     limit: Long,
     orderDesc: boolean,
-    key: Uint8Array,
-    expireTime?: Date
+    key: Uint8Array
   ) {
     const result = await this.query.agent.sessionByAgentRequest(
       account,
       status,
+      expireTime,
       limit,
       orderDesc,
-      key,
-      expireTime
+      key
+    );
+    return result;
+  }
+
+  public async getSessionByChallenge(
+    account: string,
+    limit: Long,
+    key: Uint8Array
+  ) {
+    const result = await this.query.agent.sessionByChallengeRequest(
+      account,
+      limit,
+      key
     );
     return result;
   }
 
   public async getVRFSeed(account: string) {
     const result = await this.query.agent.VRFSeedRequest(account);
+    return result;
+  }
+
+  public async getDhtParams() {
+    const result = await this.query.dht.params();
+    return result;
+  }
+
+  public async getModel(modelName: string) {
+    const result = await this.query.dht.getModel(modelName);
+    return result;
+  }
+
+  public async getModelBlocks(modelName: string, pagination?: PageRequest) {
+    const result = await this.query.dht.getModelBlocks(modelName,pagination);
+    return result;
+  }
+
+  public async getNode(nodeId: string) {
+    const result = await this.query.dht.getNode(nodeId);
+    return result;
+  }
+
+  public async getMiner(nodeId: string) {
+    const result = await this.query.dht.getMiner(nodeId);
+    return result;
+  }
+  
+  public async getOrchestrator(nodeId: string) {
+    const result = await this.query.dht.getOrchestrator(nodeId);
+    return result;
+  }
+
+  public async getAllOrchestrator(pagination?: PageRequest) {
+    const result = await this.query.dht.getAllOrchestrator(pagination);
+    return result;
+  }
+
+  public async getOrchestratorsByParams(
+    inferenceType: InferenceType,
+    availability: Availability,
+    limit: number,
+    key: Uint8Array
+  ) {
+    const result = await this.query.dht.getOrchestratorsByParams(
+      inferenceType,
+      availability,
+      limit,
+      key
+    );
+    return result;
+  }
+  
+  public async getOrchestratorHeartbeat(nodeId: string) {
+    const result = await this.query.dht.getOrchestratorHeartbeat(nodeId);
+    return result;
+  }
+
+  public async getMinerHeartbeat(nodeId: string) {
+    const result = await this.query.dht.getMinerHeartbeat(nodeId);
     return result;
   }
 }

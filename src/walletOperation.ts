@@ -5,6 +5,7 @@ import { ChainInfo } from "@keplr-wallet/types";
 import EncryptUtils from "./encryptUtils";
 import Long from "long";
 import type { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
+import { QueryGetModelResponse } from "./codec/dht/v1/query";
 
 class WalletOperation {
   static async getNesaClient(
@@ -45,27 +46,30 @@ class WalletOperation {
     offlineSigner: CosmjsOfflineSigner
   ) {
     EncryptUtils.generateKey(recordId);
-
-    const res = await EncryptUtils.requestVrf(recordId, client, offlineSigner);
-
+    const [resVrf, resModel] = await Promise.all([
+      EncryptUtils.requestVrf(recordId, client, offlineSigner),
+      this.requestModel(client, modelName)
+    ])
+    if (!resVrf?.vrf) {
+      throw new Error("Vrf is null");
+    }
+    if (!resVrf?.sessionId) {
+      throw new Error("SessionId is null");
+    }
+    if (!resModel?.model) {
+      throw new Error('Model is null');
+    }
+    if (!resModel?.model?.tokenPrice) {
+      throw new Error('Model token price is null');
+    }
     const fee = {
       amount: [
         { denom: chainInfo.feeCurrencies[0].coinMinimalDenom, amount: "6" },
       ],
       gas: "200000",
     };
-
-    if (res?.vrf && res?.sessionId) {
-      return client.signRegisterSession(
-        res.sessionId,
-        modelName,
-        fee,
-        { denom: denom, amount: lockAmount },
-        res.vrf
-      );
-    }
-
-    throw new Error("Vrf seed is null");
+    const lockBalance = { denom: denom, amount: lockAmount };
+    return client.signRegisterSession(resVrf.sessionId, modelName, fee, lockBalance, resVrf.vrf, resModel.model.tokenPrice);
   }
 
   static requestAgentInfo(
@@ -73,7 +77,7 @@ class WalletOperation {
     agentName: string,
     modelName: string
   ) {
-    console.log("modelName: ", modelName);
+    // console.log("modelName: ", modelName);
 
     if (!client) {
       throw "Client init failed";
@@ -101,6 +105,10 @@ class WalletOperation {
   ) {
     const account: AccountData = (await offlineSigner.getAccounts())[0];
     return client.getVRFSeed(account.address);
+  }
+
+  static requestModel(client: NesaClient, modelName: string): Promise<QueryGetModelResponse> {
+    return client.getModel(modelName);
   }
 }
 

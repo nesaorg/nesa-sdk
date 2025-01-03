@@ -1,6 +1,9 @@
-import { Params, InferenceAgent, AgentModelStatus, Session, SessionStatus, AgentModel } from "./agent";
-import Long from "long";
-import _m0 from "protobufjs/minimal";
+/// <reference types="long" />
+import { AgentModelStatus, SessionStatus, Params, InferenceAgent, AgentModel, Session } from "./agent";
+import { Timestamp } from "../../google/protobuf/timestamp";
+import { Long, Rpc } from "../../helpers";
+import * as _m0 from "protobufjs/minimal";
+import { JsonSafe } from "../../json-safe";
 export declare const protobufPackage = "agent.v1";
 export interface QueryParamsRequest {
 }
@@ -38,14 +41,27 @@ export interface QuerySessionResponse {
 }
 export interface QuerySessionByAgentRequest {
     account: string;
-    status: SessionStatus;
-    expireTime?: Date;
+    status?: SessionStatus;
+    expireTime: Timestamp;
     limit: Long;
     orderDesc: boolean;
     key: Uint8Array;
 }
 export interface QuerySessionByAgentResponse {
     sessions: Session[];
+    nextKey: Uint8Array;
+}
+export interface QuerySessionByChallengeRequest {
+    account: string;
+    limit: Long;
+    key: Uint8Array;
+}
+export interface SessionIdStatus {
+    sessionId: string;
+    status: SessionStatus;
+}
+export interface QuerySessionByChallengeResponse {
+    sesssionIdStatus: SessionIdStatus[];
     nextKey: Uint8Array;
 }
 export interface QueryVRFSeedRequest {
@@ -55,17 +71,19 @@ export interface QueryVRFSeedResponse {
     seed: Uint8Array;
 }
 export declare const QueryParamsRequest: {
+    typeUrl: string;
     encode(_: QueryParamsRequest, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryParamsRequest;
     fromJSON(_: any): QueryParamsRequest;
-    toJSON(_: QueryParamsRequest): unknown;
-    fromPartial<I extends {} & {} & { [K in Exclude<keyof I, never>]: never; }>(_: I): QueryParamsRequest;
+    toJSON(_: QueryParamsRequest): JsonSafe<QueryParamsRequest>;
+    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): QueryParamsRequest;
 };
 export declare const QueryParamsResponse: {
+    typeUrl: string;
     encode(message: QueryParamsResponse, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryParamsResponse;
     fromJSON(object: any): QueryParamsResponse;
-    toJSON(message: QueryParamsResponse): unknown;
+    toJSON(message: QueryParamsResponse): JsonSafe<QueryParamsResponse>;
     fromPartial<I extends {
         params?: {
             agentMinimumLock?: {
@@ -110,7 +128,6 @@ export declare const QueryParamsResponse: {
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
         } | undefined;
     } & {
         params?: ({
@@ -156,7 +173,6 @@ export declare const QueryParamsResponse: {
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
         } & {
             agentMinimumLock?: ({
                 denom?: string | undefined;
@@ -164,14 +180,14 @@ export declare const QueryParamsResponse: {
             } & {
                 denom?: string | undefined;
                 amount?: string | undefined;
-            } & { [K in Exclude<keyof I["params"]["agentMinimumLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["agentMinimumLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
             userMinimumLock?: ({
                 denom?: string | undefined;
                 amount?: string | undefined;
             } & {
                 denom?: string | undefined;
                 amount?: string | undefined;
-            } & { [K_1 in Exclude<keyof I["params"]["userMinimumLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["userMinimumLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
             sessionTime?: ({
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
@@ -233,9 +249,9 @@ export declare const QueryParamsResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_2 in Exclude<keyof I["params"]["sessionTime"]["seconds"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["params"]["sessionTime"]["seconds"], keyof Long.Long>, never>) | undefined;
                 nanos?: number | undefined;
-            } & { [K_3 in Exclude<keyof I["params"]["sessionTime"], keyof import("../../google/protobuf/duration").Duration>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["sessionTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
             challengeTime?: ({
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
@@ -297,9 +313,9 @@ export declare const QueryParamsResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_4 in Exclude<keyof I["params"]["challengeTime"]["seconds"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["params"]["challengeTime"]["seconds"], keyof Long.Long>, never>) | undefined;
                 nanos?: number | undefined;
-            } & { [K_5 in Exclude<keyof I["params"]["challengeTime"], keyof import("../../google/protobuf/duration").Duration>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["challengeTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
             globalSeed?: Uint8Array | undefined;
             lowestAgentVersion?: string | number | (Long.Long & {
                 high: number;
@@ -358,7 +374,7 @@ export declare const QueryParamsResponse: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_6 in Exclude<keyof I["params"]["lowestAgentVersion"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["lowestAgentVersion"], keyof Long.Long>, never>) | undefined;
             highestAgentVersion?: string | number | (Long.Long & {
                 high: number;
                 low: number;
@@ -416,7 +432,7 @@ export declare const QueryParamsResponse: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_7 in Exclude<keyof I["params"]["highestAgentVersion"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["highestAgentVersion"], keyof Long.Long>, never>) | undefined;
             challengeRate?: string | number | (Long.Long & {
                 high: number;
                 low: number;
@@ -474,7 +490,7 @@ export declare const QueryParamsResponse: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_8 in Exclude<keyof I["params"]["challengeRate"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["challengeRate"], keyof Long.Long>, never>) | undefined;
             validatorCount?: string | number | (Long.Long & {
                 high: number;
                 low: number;
@@ -532,7 +548,7 @@ export declare const QueryParamsResponse: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_9 in Exclude<keyof I["params"]["validatorCount"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["validatorCount"], keyof Long.Long>, never>) | undefined;
             challengeRound?: string | number | (Long.Long & {
                 high: number;
                 low: number;
@@ -590,7 +606,7 @@ export declare const QueryParamsResponse: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_10 in Exclude<keyof I["params"]["challengeRound"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["challengeRound"], keyof Long.Long>, never>) | undefined;
             challengeCidTime?: ({
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
@@ -652,9 +668,9 @@ export declare const QueryParamsResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_11 in Exclude<keyof I["params"]["challengeCidTime"]["seconds"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["params"]["challengeCidTime"]["seconds"], keyof Long.Long>, never>) | undefined;
                 nanos?: number | undefined;
-            } & { [K_12 in Exclude<keyof I["params"]["challengeCidTime"], keyof import("../../google/protobuf/duration").Duration>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["challengeCidTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
             challengeReplyTime?: ({
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
@@ -716,9 +732,9 @@ export declare const QueryParamsResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_13 in Exclude<keyof I["params"]["challengeReplyTime"]["seconds"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["params"]["challengeReplyTime"]["seconds"], keyof Long.Long>, never>) | undefined;
                 nanos?: number | undefined;
-            } & { [K_14 in Exclude<keyof I["params"]["challengeReplyTime"], keyof import("../../google/protobuf/duration").Duration>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["challengeReplyTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
             challengeMerkleTime?: ({
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
@@ -780,9 +796,9 @@ export declare const QueryParamsResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_15 in Exclude<keyof I["params"]["challengeMerkleTime"]["seconds"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["params"]["challengeMerkleTime"]["seconds"], keyof Long.Long>, never>) | undefined;
                 nanos?: number | undefined;
-            } & { [K_16 in Exclude<keyof I["params"]["challengeMerkleTime"], keyof import("../../google/protobuf/duration").Duration>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["challengeMerkleTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
             challengeOriginTime?: ({
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
@@ -844,9 +860,9 @@ export declare const QueryParamsResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_17 in Exclude<keyof I["params"]["challengeOriginTime"]["seconds"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["params"]["challengeOriginTime"]["seconds"], keyof Long.Long>, never>) | undefined;
                 nanos?: number | undefined;
-            } & { [K_18 in Exclude<keyof I["params"]["challengeOriginTime"], keyof import("../../google/protobuf/duration").Duration>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["params"]["challengeOriginTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
             agentValidTime?: ({
                 seconds?: string | number | Long.Long | undefined;
                 nanos?: number | undefined;
@@ -908,75 +924,18 @@ export declare const QueryParamsResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_19 in Exclude<keyof I["params"]["agentValidTime"]["seconds"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["params"]["agentValidTime"]["seconds"], keyof Long.Long>, never>) | undefined;
                 nanos?: number | undefined;
-            } & { [K_20 in Exclude<keyof I["params"]["agentValidTime"], keyof import("../../google/protobuf/duration").Duration>]: never; }) | undefined;
-            tokenPrice?: string | number | (Long.Long & {
-                high: number;
-                low: number;
-                unsigned: boolean;
-                add: (addend: string | number | Long.Long) => Long.Long;
-                and: (other: string | number | Long.Long) => Long.Long;
-                compare: (other: string | number | Long.Long) => number;
-                comp: (other: string | number | Long.Long) => number;
-                divide: (divisor: string | number | Long.Long) => Long.Long;
-                div: (divisor: string | number | Long.Long) => Long.Long;
-                equals: (other: string | number | Long.Long) => boolean;
-                eq: (other: string | number | Long.Long) => boolean;
-                getHighBits: () => number;
-                getHighBitsUnsigned: () => number;
-                getLowBits: () => number;
-                getLowBitsUnsigned: () => number;
-                getNumBitsAbs: () => number;
-                greaterThan: (other: string | number | Long.Long) => boolean;
-                gt: (other: string | number | Long.Long) => boolean;
-                greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                gte: (other: string | number | Long.Long) => boolean;
-                isEven: () => boolean;
-                isNegative: () => boolean;
-                isOdd: () => boolean;
-                isPositive: () => boolean;
-                isZero: () => boolean;
-                lessThan: (other: string | number | Long.Long) => boolean;
-                lt: (other: string | number | Long.Long) => boolean;
-                lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                lte: (other: string | number | Long.Long) => boolean;
-                modulo: (other: string | number | Long.Long) => Long.Long;
-                mod: (other: string | number | Long.Long) => Long.Long;
-                multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                mul: (multiplier: string | number | Long.Long) => Long.Long;
-                negate: () => Long.Long;
-                neg: () => Long.Long;
-                not: () => Long.Long;
-                notEquals: (other: string | number | Long.Long) => boolean;
-                neq: (other: string | number | Long.Long) => boolean;
-                or: (other: string | number | Long.Long) => Long.Long;
-                shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                shl: (numBits: number | Long.Long) => Long.Long;
-                shiftRight: (numBits: number | Long.Long) => Long.Long;
-                shr: (numBits: number | Long.Long) => Long.Long;
-                shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                shru: (numBits: number | Long.Long) => Long.Long;
-                subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                toInt: () => number;
-                toNumber: () => number;
-                toBytes: (le?: boolean | undefined) => number[];
-                toBytesLE: () => number[];
-                toBytesBE: () => number[];
-                toSigned: () => Long.Long;
-                toString: (radix?: number | undefined) => string;
-                toUnsigned: () => Long.Long;
-                xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_21 in Exclude<keyof I["params"]["tokenPrice"], keyof Long.Long>]: never; }) | undefined;
-        } & { [K_22 in Exclude<keyof I["params"], keyof Params>]: never; }) | undefined;
-    } & { [K_23 in Exclude<keyof I, "params">]: never; }>(object: I): QueryParamsResponse;
+            } & Record<Exclude<keyof I["params"]["agentValidTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
+        } & Record<Exclude<keyof I["params"], keyof Params>, never>) | undefined;
+    } & Record<Exclude<keyof I, "params">, never>>(object: I): QueryParamsResponse;
 };
 export declare const QueryInferenceAgentRequest: {
+    typeUrl: string;
     encode(message: QueryInferenceAgentRequest, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryInferenceAgentRequest;
     fromJSON(object: any): QueryInferenceAgentRequest;
-    toJSON(message: QueryInferenceAgentRequest): unknown;
+    toJSON(message: QueryInferenceAgentRequest): JsonSafe<QueryInferenceAgentRequest>;
     fromPartial<I extends {
         account?: string | undefined;
         modelName?: string | undefined;
@@ -1042,15 +1001,16 @@ export declare const QueryInferenceAgentRequest: {
             toString: (radix?: number | undefined) => string;
             toUnsigned: () => Long.Long;
             xor: (other: string | number | Long.Long) => Long.Long;
-        } & { [K in Exclude<keyof I["limit"], keyof Long.Long>]: never; }) | undefined;
+        } & Record<Exclude<keyof I["limit"], keyof Long.Long>, never>) | undefined;
         key?: Uint8Array | undefined;
-    } & { [K_1 in Exclude<keyof I, keyof QueryInferenceAgentRequest>]: never; }>(object: I): QueryInferenceAgentRequest;
+    } & Record<Exclude<keyof I, keyof QueryInferenceAgentRequest>, never>>(object: I): QueryInferenceAgentRequest;
 };
 export declare const QueryInferenceAgentResponse: {
+    typeUrl: string;
     encode(message: QueryInferenceAgentResponse, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryInferenceAgentResponse;
     fromJSON(object: any): QueryInferenceAgentResponse;
-    toJSON(message: QueryInferenceAgentResponse): unknown;
+    toJSON(message: QueryInferenceAgentResponse): JsonSafe<QueryInferenceAgentResponse>;
     fromPartial<I extends {
         inferenceAgent?: {
             account?: string | undefined;
@@ -1061,7 +1021,10 @@ export declare const QueryInferenceAgentResponse: {
                 total?: string | number | Long.Long | undefined;
             } | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
+            validUntil?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
         } | undefined;
         agentModels?: {
             account?: string | undefined;
@@ -1080,7 +1043,10 @@ export declare const QueryInferenceAgentResponse: {
                 total?: string | number | Long.Long | undefined;
             } | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
+            validUntil?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
         } & {
             account?: string | undefined;
             url?: string | undefined;
@@ -1141,7 +1107,7 @@ export declare const QueryInferenceAgentResponse: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K in Exclude<keyof I["inferenceAgent"]["version"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["inferenceAgent"]["version"], keyof Long.Long>, never>) | undefined;
             prestige?: ({
                 count?: string | number | Long.Long | undefined;
                 total?: string | number | Long.Long | undefined;
@@ -1203,7 +1169,7 @@ export declare const QueryInferenceAgentResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_1 in Exclude<keyof I["inferenceAgent"]["prestige"]["count"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["inferenceAgent"]["prestige"]["count"], keyof Long.Long>, never>) | undefined;
                 total?: string | number | (Long.Long & {
                     high: number;
                     low: number;
@@ -1261,11 +1227,74 @@ export declare const QueryInferenceAgentResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_2 in Exclude<keyof I["inferenceAgent"]["prestige"]["total"], keyof Long.Long>]: never; }) | undefined;
-            } & { [K_3 in Exclude<keyof I["inferenceAgent"]["prestige"], keyof import("./agent").Prestige>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["inferenceAgent"]["prestige"]["total"], keyof Long.Long>, never>) | undefined;
+            } & Record<Exclude<keyof I["inferenceAgent"]["prestige"], keyof import("./agent").Prestige>, never>) | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
-        } & { [K_4 in Exclude<keyof I["inferenceAgent"], keyof InferenceAgent>]: never; }) | undefined;
+            validUntil?: ({
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } & {
+                seconds?: string | number | (Long.Long & {
+                    high: number;
+                    low: number;
+                    unsigned: boolean;
+                    add: (addend: string | number | Long.Long) => Long.Long;
+                    and: (other: string | number | Long.Long) => Long.Long;
+                    compare: (other: string | number | Long.Long) => number;
+                    comp: (other: string | number | Long.Long) => number;
+                    divide: (divisor: string | number | Long.Long) => Long.Long;
+                    div: (divisor: string | number | Long.Long) => Long.Long;
+                    equals: (other: string | number | Long.Long) => boolean;
+                    eq: (other: string | number | Long.Long) => boolean;
+                    getHighBits: () => number;
+                    getHighBitsUnsigned: () => number;
+                    getLowBits: () => number;
+                    getLowBitsUnsigned: () => number;
+                    getNumBitsAbs: () => number;
+                    greaterThan: (other: string | number | Long.Long) => boolean;
+                    gt: (other: string | number | Long.Long) => boolean;
+                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    gte: (other: string | number | Long.Long) => boolean;
+                    isEven: () => boolean;
+                    isNegative: () => boolean;
+                    isOdd: () => boolean;
+                    isPositive: () => boolean;
+                    isZero: () => boolean;
+                    lessThan: (other: string | number | Long.Long) => boolean;
+                    lt: (other: string | number | Long.Long) => boolean;
+                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    lte: (other: string | number | Long.Long) => boolean;
+                    modulo: (other: string | number | Long.Long) => Long.Long;
+                    mod: (other: string | number | Long.Long) => Long.Long;
+                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                    mul: (multiplier: string | number | Long.Long) => Long.Long;
+                    negate: () => Long.Long;
+                    neg: () => Long.Long;
+                    not: () => Long.Long;
+                    notEquals: (other: string | number | Long.Long) => boolean;
+                    neq: (other: string | number | Long.Long) => boolean;
+                    or: (other: string | number | Long.Long) => Long.Long;
+                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                    shl: (numBits: number | Long.Long) => Long.Long;
+                    shiftRight: (numBits: number | Long.Long) => Long.Long;
+                    shr: (numBits: number | Long.Long) => Long.Long;
+                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                    shru: (numBits: number | Long.Long) => Long.Long;
+                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                    toInt: () => number;
+                    toNumber: () => number;
+                    toBytes: (le?: boolean | undefined) => number[];
+                    toBytesLE: () => number[];
+                    toBytesBE: () => number[];
+                    toSigned: () => Long.Long;
+                    toString: (radix?: number | undefined) => string;
+                    toUnsigned: () => Long.Long;
+                    xor: (other: string | number | Long.Long) => Long.Long;
+                } & Record<Exclude<keyof I["inferenceAgent"]["validUntil"]["seconds"], keyof Long.Long>, never>) | undefined;
+                nanos?: number | undefined;
+            } & Record<Exclude<keyof I["inferenceAgent"]["validUntil"], keyof Timestamp>, never>) | undefined;
+        } & Record<Exclude<keyof I["inferenceAgent"], keyof InferenceAgent>, never>) | undefined;
         agentModels?: ({
             account?: string | undefined;
             modelName?: string | undefined;
@@ -1336,35 +1365,37 @@ export declare const QueryInferenceAgentResponse: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_5 in Exclude<keyof I["agentModels"][number]["lock"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["agentModels"][number]["lock"], keyof Long.Long>, never>) | undefined;
             status?: AgentModelStatus | undefined;
-        } & { [K_6 in Exclude<keyof I["agentModels"][number], keyof AgentModel>]: never; })[] & { [K_7 in Exclude<keyof I["agentModels"], keyof {
+        } & Record<Exclude<keyof I["agentModels"][number], keyof AgentModel>, never>)[] & Record<Exclude<keyof I["agentModels"], keyof {
             account?: string | undefined;
             modelName?: string | undefined;
             lock?: string | number | Long.Long | undefined;
             status?: AgentModelStatus | undefined;
-        }[]>]: never; }) | undefined;
+        }[]>, never>) | undefined;
         nextKey?: Uint8Array | undefined;
-    } & { [K_8 in Exclude<keyof I, keyof QueryInferenceAgentResponse>]: never; }>(object: I): QueryInferenceAgentResponse;
+    } & Record<Exclude<keyof I, keyof QueryInferenceAgentResponse>, never>>(object: I): QueryInferenceAgentResponse;
 };
 export declare const QueryAgentByModelRequest: {
+    typeUrl: string;
     encode(message: QueryAgentByModelRequest, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryAgentByModelRequest;
     fromJSON(object: any): QueryAgentByModelRequest;
-    toJSON(message: QueryAgentByModelRequest): unknown;
+    toJSON(message: QueryAgentByModelRequest): JsonSafe<QueryAgentByModelRequest>;
     fromPartial<I extends {
         modelName?: string | undefined;
         status?: AgentModelStatus | undefined;
     } & {
         modelName?: string | undefined;
         status?: AgentModelStatus | undefined;
-    } & { [K in Exclude<keyof I, keyof QueryAgentByModelRequest>]: never; }>(object: I): QueryAgentByModelRequest;
+    } & Record<Exclude<keyof I, keyof QueryAgentByModelRequest>, never>>(object: I): QueryAgentByModelRequest;
 };
 export declare const ModelAgents: {
+    typeUrl: string;
     encode(message: ModelAgents, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): ModelAgents;
     fromJSON(object: any): ModelAgents;
-    toJSON(message: ModelAgents): unknown;
+    toJSON(message: ModelAgents): JsonSafe<ModelAgents>;
     fromPartial<I extends {
         modelName?: string | undefined;
         inferenceAgents?: {
@@ -1376,7 +1407,10 @@ export declare const ModelAgents: {
                 total?: string | number | Long.Long | undefined;
             } | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
+            validUntil?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
         }[] | undefined;
     } & {
         modelName?: string | undefined;
@@ -1389,7 +1423,10 @@ export declare const ModelAgents: {
                 total?: string | number | Long.Long | undefined;
             } | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
+            validUntil?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
         }[] & ({
             account?: string | undefined;
             url?: string | undefined;
@@ -1399,7 +1436,10 @@ export declare const ModelAgents: {
                 total?: string | number | Long.Long | undefined;
             } | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
+            validUntil?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
         } & {
             account?: string | undefined;
             url?: string | undefined;
@@ -1460,7 +1500,7 @@ export declare const ModelAgents: {
                 toString: (radix?: number | undefined) => string;
                 toUnsigned: () => Long.Long;
                 xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K in Exclude<keyof I["inferenceAgents"][number]["version"], keyof Long.Long>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["inferenceAgents"][number]["version"], keyof Long.Long>, never>) | undefined;
             prestige?: ({
                 count?: string | number | Long.Long | undefined;
                 total?: string | number | Long.Long | undefined;
@@ -1522,7 +1562,7 @@ export declare const ModelAgents: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_1 in Exclude<keyof I["inferenceAgents"][number]["prestige"]["count"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["inferenceAgents"][number]["prestige"]["count"], keyof Long.Long>, never>) | undefined;
                 total?: string | number | (Long.Long & {
                     high: number;
                     low: number;
@@ -1580,11 +1620,74 @@ export declare const ModelAgents: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_2 in Exclude<keyof I["inferenceAgents"][number]["prestige"]["total"], keyof Long.Long>]: never; }) | undefined;
-            } & { [K_3 in Exclude<keyof I["inferenceAgents"][number]["prestige"], keyof import("./agent").Prestige>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["inferenceAgents"][number]["prestige"]["total"], keyof Long.Long>, never>) | undefined;
+            } & Record<Exclude<keyof I["inferenceAgents"][number]["prestige"], keyof import("./agent").Prestige>, never>) | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
-        } & { [K_4 in Exclude<keyof I["inferenceAgents"][number], keyof InferenceAgent>]: never; })[] & { [K_5 in Exclude<keyof I["inferenceAgents"], keyof {
+            validUntil?: ({
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } & {
+                seconds?: string | number | (Long.Long & {
+                    high: number;
+                    low: number;
+                    unsigned: boolean;
+                    add: (addend: string | number | Long.Long) => Long.Long;
+                    and: (other: string | number | Long.Long) => Long.Long;
+                    compare: (other: string | number | Long.Long) => number;
+                    comp: (other: string | number | Long.Long) => number;
+                    divide: (divisor: string | number | Long.Long) => Long.Long;
+                    div: (divisor: string | number | Long.Long) => Long.Long;
+                    equals: (other: string | number | Long.Long) => boolean;
+                    eq: (other: string | number | Long.Long) => boolean;
+                    getHighBits: () => number;
+                    getHighBitsUnsigned: () => number;
+                    getLowBits: () => number;
+                    getLowBitsUnsigned: () => number;
+                    getNumBitsAbs: () => number;
+                    greaterThan: (other: string | number | Long.Long) => boolean;
+                    gt: (other: string | number | Long.Long) => boolean;
+                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    gte: (other: string | number | Long.Long) => boolean;
+                    isEven: () => boolean;
+                    isNegative: () => boolean;
+                    isOdd: () => boolean;
+                    isPositive: () => boolean;
+                    isZero: () => boolean;
+                    lessThan: (other: string | number | Long.Long) => boolean;
+                    lt: (other: string | number | Long.Long) => boolean;
+                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    lte: (other: string | number | Long.Long) => boolean;
+                    modulo: (other: string | number | Long.Long) => Long.Long;
+                    mod: (other: string | number | Long.Long) => Long.Long;
+                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                    mul: (multiplier: string | number | Long.Long) => Long.Long;
+                    negate: () => Long.Long;
+                    neg: () => Long.Long;
+                    not: () => Long.Long;
+                    notEquals: (other: string | number | Long.Long) => boolean;
+                    neq: (other: string | number | Long.Long) => boolean;
+                    or: (other: string | number | Long.Long) => Long.Long;
+                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                    shl: (numBits: number | Long.Long) => Long.Long;
+                    shiftRight: (numBits: number | Long.Long) => Long.Long;
+                    shr: (numBits: number | Long.Long) => Long.Long;
+                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                    shru: (numBits: number | Long.Long) => Long.Long;
+                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                    toInt: () => number;
+                    toNumber: () => number;
+                    toBytes: (le?: boolean | undefined) => number[];
+                    toBytesLE: () => number[];
+                    toBytesBE: () => number[];
+                    toSigned: () => Long.Long;
+                    toString: (radix?: number | undefined) => string;
+                    toUnsigned: () => Long.Long;
+                    xor: (other: string | number | Long.Long) => Long.Long;
+                } & Record<Exclude<keyof I["inferenceAgents"][number]["validUntil"]["seconds"], keyof Long.Long>, never>) | undefined;
+                nanos?: number | undefined;
+            } & Record<Exclude<keyof I["inferenceAgents"][number]["validUntil"], keyof Timestamp>, never>) | undefined;
+        } & Record<Exclude<keyof I["inferenceAgents"][number], keyof InferenceAgent>, never>)[] & Record<Exclude<keyof I["inferenceAgents"], keyof {
             account?: string | undefined;
             url?: string | undefined;
             version?: string | number | Long.Long | undefined;
@@ -1593,15 +1696,19 @@ export declare const ModelAgents: {
                 total?: string | number | Long.Long | undefined;
             } | undefined;
             status?: import("./agent").AgentStatus | undefined;
-            validUntil?: Date | undefined;
-        }[]>]: never; }) | undefined;
-    } & { [K_6 in Exclude<keyof I, keyof ModelAgents>]: never; }>(object: I): ModelAgents;
+            validUntil?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
+        }[]>, never>) | undefined;
+    } & Record<Exclude<keyof I, keyof ModelAgents>, never>>(object: I): ModelAgents;
 };
 export declare const QueryAgentByModelResponse: {
+    typeUrl: string;
     encode(message: QueryAgentByModelResponse, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryAgentByModelResponse;
     fromJSON(object: any): QueryAgentByModelResponse;
-    toJSON(message: QueryAgentByModelResponse): unknown;
+    toJSON(message: QueryAgentByModelResponse): JsonSafe<QueryAgentByModelResponse>;
     fromPartial<I extends {
         modelAgents?: {
             modelName?: string | undefined;
@@ -1614,7 +1721,10 @@ export declare const QueryAgentByModelResponse: {
                     total?: string | number | Long.Long | undefined;
                 } | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
+                validUntil?: {
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } | undefined;
             }[] | undefined;
         }[] | undefined;
     } & {
@@ -1629,7 +1739,10 @@ export declare const QueryAgentByModelResponse: {
                     total?: string | number | Long.Long | undefined;
                 } | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
+                validUntil?: {
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } | undefined;
             }[] | undefined;
         }[] & ({
             modelName?: string | undefined;
@@ -1642,7 +1755,10 @@ export declare const QueryAgentByModelResponse: {
                     total?: string | number | Long.Long | undefined;
                 } | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
+                validUntil?: {
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } | undefined;
             }[] | undefined;
         } & {
             modelName?: string | undefined;
@@ -1655,7 +1771,10 @@ export declare const QueryAgentByModelResponse: {
                     total?: string | number | Long.Long | undefined;
                 } | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
+                validUntil?: {
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } | undefined;
             }[] & ({
                 account?: string | undefined;
                 url?: string | undefined;
@@ -1665,7 +1784,10 @@ export declare const QueryAgentByModelResponse: {
                     total?: string | number | Long.Long | undefined;
                 } | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
+                validUntil?: {
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } | undefined;
             } & {
                 account?: string | undefined;
                 url?: string | undefined;
@@ -1726,7 +1848,7 @@ export declare const QueryAgentByModelResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K in Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["version"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["version"], keyof Long.Long>, never>) | undefined;
                 prestige?: ({
                     count?: string | number | Long.Long | undefined;
                     total?: string | number | Long.Long | undefined;
@@ -1788,7 +1910,7 @@ export declare const QueryAgentByModelResponse: {
                         toString: (radix?: number | undefined) => string;
                         toUnsigned: () => Long.Long;
                         xor: (other: string | number | Long.Long) => Long.Long;
-                    } & { [K_1 in Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["prestige"]["count"], keyof Long.Long>]: never; }) | undefined;
+                    } & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["prestige"]["count"], keyof Long.Long>, never>) | undefined;
                     total?: string | number | (Long.Long & {
                         high: number;
                         low: number;
@@ -1846,11 +1968,74 @@ export declare const QueryAgentByModelResponse: {
                         toString: (radix?: number | undefined) => string;
                         toUnsigned: () => Long.Long;
                         xor: (other: string | number | Long.Long) => Long.Long;
-                    } & { [K_2 in Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["prestige"]["total"], keyof Long.Long>]: never; }) | undefined;
-                } & { [K_3 in Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["prestige"], keyof import("./agent").Prestige>]: never; }) | undefined;
+                    } & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["prestige"]["total"], keyof Long.Long>, never>) | undefined;
+                } & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["prestige"], keyof import("./agent").Prestige>, never>) | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
-            } & { [K_4 in Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number], keyof InferenceAgent>]: never; })[] & { [K_5 in Exclude<keyof I["modelAgents"][number]["inferenceAgents"], keyof {
+                validUntil?: ({
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } & {
+                    seconds?: string | number | (Long.Long & {
+                        high: number;
+                        low: number;
+                        unsigned: boolean;
+                        add: (addend: string | number | Long.Long) => Long.Long;
+                        and: (other: string | number | Long.Long) => Long.Long;
+                        compare: (other: string | number | Long.Long) => number;
+                        comp: (other: string | number | Long.Long) => number;
+                        divide: (divisor: string | number | Long.Long) => Long.Long;
+                        div: (divisor: string | number | Long.Long) => Long.Long;
+                        equals: (other: string | number | Long.Long) => boolean;
+                        eq: (other: string | number | Long.Long) => boolean;
+                        getHighBits: () => number;
+                        getHighBitsUnsigned: () => number;
+                        getLowBits: () => number;
+                        getLowBitsUnsigned: () => number;
+                        getNumBitsAbs: () => number;
+                        greaterThan: (other: string | number | Long.Long) => boolean;
+                        gt: (other: string | number | Long.Long) => boolean;
+                        greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                        gte: (other: string | number | Long.Long) => boolean;
+                        isEven: () => boolean;
+                        isNegative: () => boolean;
+                        isOdd: () => boolean;
+                        isPositive: () => boolean;
+                        isZero: () => boolean;
+                        lessThan: (other: string | number | Long.Long) => boolean;
+                        lt: (other: string | number | Long.Long) => boolean;
+                        lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                        lte: (other: string | number | Long.Long) => boolean;
+                        modulo: (other: string | number | Long.Long) => Long.Long;
+                        mod: (other: string | number | Long.Long) => Long.Long;
+                        multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                        mul: (multiplier: string | number | Long.Long) => Long.Long;
+                        negate: () => Long.Long;
+                        neg: () => Long.Long;
+                        not: () => Long.Long;
+                        notEquals: (other: string | number | Long.Long) => boolean;
+                        neq: (other: string | number | Long.Long) => boolean;
+                        or: (other: string | number | Long.Long) => Long.Long;
+                        shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                        shl: (numBits: number | Long.Long) => Long.Long;
+                        shiftRight: (numBits: number | Long.Long) => Long.Long;
+                        shr: (numBits: number | Long.Long) => Long.Long;
+                        shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                        shru: (numBits: number | Long.Long) => Long.Long;
+                        subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                        sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                        toInt: () => number;
+                        toNumber: () => number;
+                        toBytes: (le?: boolean | undefined) => number[];
+                        toBytesLE: () => number[];
+                        toBytesBE: () => number[];
+                        toSigned: () => Long.Long;
+                        toString: (radix?: number | undefined) => string;
+                        toUnsigned: () => Long.Long;
+                        xor: (other: string | number | Long.Long) => Long.Long;
+                    } & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["validUntil"]["seconds"], keyof Long.Long>, never>) | undefined;
+                    nanos?: number | undefined;
+                } & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number]["validUntil"], keyof Timestamp>, never>) | undefined;
+            } & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"][number], keyof InferenceAgent>, never>)[] & Record<Exclude<keyof I["modelAgents"][number]["inferenceAgents"], keyof {
                 account?: string | undefined;
                 url?: string | undefined;
                 version?: string | number | Long.Long | undefined;
@@ -1859,9 +2044,12 @@ export declare const QueryAgentByModelResponse: {
                     total?: string | number | Long.Long | undefined;
                 } | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
-            }[]>]: never; }) | undefined;
-        } & { [K_6 in Exclude<keyof I["modelAgents"][number], keyof ModelAgents>]: never; })[] & { [K_7 in Exclude<keyof I["modelAgents"], keyof {
+                validUntil?: {
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } | undefined;
+            }[]>, never>) | undefined;
+        } & Record<Exclude<keyof I["modelAgents"][number], keyof ModelAgents>, never>)[] & Record<Exclude<keyof I["modelAgents"], keyof {
             modelName?: string | undefined;
             inferenceAgents?: {
                 account?: string | undefined;
@@ -1872,27 +2060,32 @@ export declare const QueryAgentByModelResponse: {
                     total?: string | number | Long.Long | undefined;
                 } | undefined;
                 status?: import("./agent").AgentStatus | undefined;
-                validUntil?: Date | undefined;
+                validUntil?: {
+                    seconds?: string | number | Long.Long | undefined;
+                    nanos?: number | undefined;
+                } | undefined;
             }[] | undefined;
-        }[]>]: never; }) | undefined;
-    } & { [K_8 in Exclude<keyof I, "modelAgents">]: never; }>(object: I): QueryAgentByModelResponse;
+        }[]>, never>) | undefined;
+    } & Record<Exclude<keyof I, "modelAgents">, never>>(object: I): QueryAgentByModelResponse;
 };
 export declare const QuerySessionRequest: {
+    typeUrl: string;
     encode(message: QuerySessionRequest, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionRequest;
     fromJSON(object: any): QuerySessionRequest;
-    toJSON(message: QuerySessionRequest): unknown;
+    toJSON(message: QuerySessionRequest): JsonSafe<QuerySessionRequest>;
     fromPartial<I extends {
         id?: string | undefined;
     } & {
         id?: string | undefined;
-    } & { [K in Exclude<keyof I, "id">]: never; }>(object: I): QuerySessionRequest;
+    } & Record<Exclude<keyof I, "id">, never>>(object: I): QuerySessionRequest;
 };
 export declare const QuerySessionResponse: {
+    typeUrl: string;
     encode(message: QuerySessionResponse, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionResponse;
     fromJSON(object: any): QuerySessionResponse;
-    toJSON(message: QuerySessionResponse): unknown;
+    toJSON(message: QuerySessionResponse): JsonSafe<QuerySessionResponse>;
     fromPartial<I extends {
         session?: {
             sessionId?: string | undefined;
@@ -1907,14 +2100,23 @@ export declare const QuerySessionResponse: {
                 denom?: string | undefined;
                 amount?: string | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
-            expirationAt?: Date | undefined;
-            payment?: {
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            tokenPrice?: {
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
+            } | undefined;
+            expirationAt?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
+            payment?: {
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: {
                     account?: string | undefined;
@@ -1954,14 +2156,23 @@ export declare const QuerySessionResponse: {
                 denom?: string | undefined;
                 amount?: string | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
-            expirationAt?: Date | undefined;
-            payment?: {
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            tokenPrice?: {
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
+            } | undefined;
+            expirationAt?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
+            payment?: {
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: {
                     account?: string | undefined;
@@ -1997,90 +2208,44 @@ export declare const QuerySessionResponse: {
             } & {
                 denom?: string | undefined;
                 amount?: string | undefined;
-            } & { [K in Exclude<keyof I["session"]["userLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["session"]["userLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
             minerLock?: ({
                 denom?: string | undefined;
                 amount?: string | undefined;
             } & {
                 denom?: string | undefined;
                 amount?: string | undefined;
-            } & { [K_1 in Exclude<keyof I["session"]["minerLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
-            tokenPrice?: string | number | (Long.Long & {
-                high: number;
-                low: number;
-                unsigned: boolean;
-                add: (addend: string | number | Long.Long) => Long.Long;
-                and: (other: string | number | Long.Long) => Long.Long;
-                compare: (other: string | number | Long.Long) => number;
-                comp: (other: string | number | Long.Long) => number;
-                divide: (divisor: string | number | Long.Long) => Long.Long;
-                div: (divisor: string | number | Long.Long) => Long.Long;
-                equals: (other: string | number | Long.Long) => boolean;
-                eq: (other: string | number | Long.Long) => boolean;
-                getHighBits: () => number;
-                getHighBitsUnsigned: () => number;
-                getLowBits: () => number;
-                getLowBitsUnsigned: () => number;
-                getNumBitsAbs: () => number;
-                greaterThan: (other: string | number | Long.Long) => boolean;
-                gt: (other: string | number | Long.Long) => boolean;
-                greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                gte: (other: string | number | Long.Long) => boolean;
-                isEven: () => boolean;
-                isNegative: () => boolean;
-                isOdd: () => boolean;
-                isPositive: () => boolean;
-                isZero: () => boolean;
-                lessThan: (other: string | number | Long.Long) => boolean;
-                lt: (other: string | number | Long.Long) => boolean;
-                lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                lte: (other: string | number | Long.Long) => boolean;
-                modulo: (other: string | number | Long.Long) => Long.Long;
-                mod: (other: string | number | Long.Long) => Long.Long;
-                multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                mul: (multiplier: string | number | Long.Long) => Long.Long;
-                negate: () => Long.Long;
-                neg: () => Long.Long;
-                not: () => Long.Long;
-                notEquals: (other: string | number | Long.Long) => boolean;
-                neq: (other: string | number | Long.Long) => boolean;
-                or: (other: string | number | Long.Long) => Long.Long;
-                shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                shl: (numBits: number | Long.Long) => Long.Long;
-                shiftRight: (numBits: number | Long.Long) => Long.Long;
-                shr: (numBits: number | Long.Long) => Long.Long;
-                shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                shru: (numBits: number | Long.Long) => Long.Long;
-                subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                toInt: () => number;
-                toNumber: () => number;
-                toBytes: (le?: boolean | undefined) => number[];
-                toBytesLE: () => number[];
-                toBytesBE: () => number[];
-                toSigned: () => Long.Long;
-                toString: (radix?: number | undefined) => string;
-                toUnsigned: () => Long.Long;
-                xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_2 in Exclude<keyof I["session"]["tokenPrice"], keyof Long.Long>]: never; }) | undefined;
-            expirationAt?: Date | undefined;
-            payment?: ({
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            } & Record<Exclude<keyof I["session"]["minerLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+            tokenPrice?: ({
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
-                merkleRoot?: Uint8Array | undefined;
-                contributions?: {
-                    account?: string | undefined;
-                    rate?: string | number | Long.Long | undefined;
-                    amount?: {
-                        denom?: string | undefined;
-                        amount?: string | undefined;
-                    } | undefined;
-                }[] | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
             } & {
-                tokens?: ((string | number | Long.Long)[] & (string | number | (Long.Long & {
+                inputPrice?: ({
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & Record<Exclude<keyof I["session"]["tokenPrice"]["inputPrice"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+                outputPrice?: ({
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & Record<Exclude<keyof I["session"]["tokenPrice"]["outputPrice"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+            } & Record<Exclude<keyof I["session"]["tokenPrice"], keyof import("./agent").TokenPrice>, never>) | undefined;
+            expirationAt?: ({
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } & {
+                seconds?: string | number | (Long.Long & {
                     high: number;
                     low: number;
                     unsigned: boolean;
@@ -2137,14 +2302,138 @@ export declare const QuerySessionResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_3 in Exclude<keyof I["session"]["payment"]["tokens"][number], keyof Long.Long>]: never; }))[] & { [K_4 in Exclude<keyof I["session"]["payment"]["tokens"], keyof (string | number | Long.Long)[]>]: never; }) | undefined;
-                totalPayment?: ({
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & { [K_5 in Exclude<keyof I["session"]["payment"]["totalPayment"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["session"]["expirationAt"]["seconds"], keyof Long.Long>, never>) | undefined;
+                nanos?: number | undefined;
+            } & Record<Exclude<keyof I["session"]["expirationAt"], keyof Timestamp>, never>) | undefined;
+            payment?: ({
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
+                merkleRoot?: Uint8Array | undefined;
+                contributions?: {
+                    account?: string | undefined;
+                    rate?: string | number | Long.Long | undefined;
+                    amount?: {
+                        denom?: string | undefined;
+                        amount?: string | undefined;
+                    } | undefined;
+                }[] | undefined;
+            } & {
+                inputTokens?: ((string | number | Long.Long)[] & (string | number | (Long.Long & {
+                    high: number;
+                    low: number;
+                    unsigned: boolean;
+                    add: (addend: string | number | Long.Long) => Long.Long;
+                    and: (other: string | number | Long.Long) => Long.Long;
+                    compare: (other: string | number | Long.Long) => number;
+                    comp: (other: string | number | Long.Long) => number;
+                    divide: (divisor: string | number | Long.Long) => Long.Long;
+                    div: (divisor: string | number | Long.Long) => Long.Long;
+                    equals: (other: string | number | Long.Long) => boolean;
+                    eq: (other: string | number | Long.Long) => boolean;
+                    getHighBits: () => number;
+                    getHighBitsUnsigned: () => number;
+                    getLowBits: () => number;
+                    getLowBitsUnsigned: () => number;
+                    getNumBitsAbs: () => number;
+                    greaterThan: (other: string | number | Long.Long) => boolean;
+                    gt: (other: string | number | Long.Long) => boolean;
+                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    gte: (other: string | number | Long.Long) => boolean;
+                    isEven: () => boolean;
+                    isNegative: () => boolean;
+                    isOdd: () => boolean;
+                    isPositive: () => boolean;
+                    isZero: () => boolean;
+                    lessThan: (other: string | number | Long.Long) => boolean;
+                    lt: (other: string | number | Long.Long) => boolean;
+                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    lte: (other: string | number | Long.Long) => boolean;
+                    modulo: (other: string | number | Long.Long) => Long.Long;
+                    mod: (other: string | number | Long.Long) => Long.Long;
+                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                    mul: (multiplier: string | number | Long.Long) => Long.Long;
+                    negate: () => Long.Long;
+                    neg: () => Long.Long;
+                    not: () => Long.Long;
+                    notEquals: (other: string | number | Long.Long) => boolean;
+                    neq: (other: string | number | Long.Long) => boolean;
+                    or: (other: string | number | Long.Long) => Long.Long;
+                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                    shl: (numBits: number | Long.Long) => Long.Long;
+                    shiftRight: (numBits: number | Long.Long) => Long.Long;
+                    shr: (numBits: number | Long.Long) => Long.Long;
+                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                    shru: (numBits: number | Long.Long) => Long.Long;
+                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                    toInt: () => number;
+                    toNumber: () => number;
+                    toBytes: (le?: boolean | undefined) => number[];
+                    toBytesLE: () => number[];
+                    toBytesBE: () => number[];
+                    toSigned: () => Long.Long;
+                    toString: (radix?: number | undefined) => string;
+                    toUnsigned: () => Long.Long;
+                    xor: (other: string | number | Long.Long) => Long.Long;
+                } & Record<Exclude<keyof I["session"]["payment"]["inputTokens"][number], keyof Long.Long>, never>))[] & Record<Exclude<keyof I["session"]["payment"]["inputTokens"], keyof (string | number | Long.Long)[]>, never>) | undefined;
+                outputTokens?: ((string | number | Long.Long)[] & (string | number | (Long.Long & {
+                    high: number;
+                    low: number;
+                    unsigned: boolean;
+                    add: (addend: string | number | Long.Long) => Long.Long;
+                    and: (other: string | number | Long.Long) => Long.Long;
+                    compare: (other: string | number | Long.Long) => number;
+                    comp: (other: string | number | Long.Long) => number;
+                    divide: (divisor: string | number | Long.Long) => Long.Long;
+                    div: (divisor: string | number | Long.Long) => Long.Long;
+                    equals: (other: string | number | Long.Long) => boolean;
+                    eq: (other: string | number | Long.Long) => boolean;
+                    getHighBits: () => number;
+                    getHighBitsUnsigned: () => number;
+                    getLowBits: () => number;
+                    getLowBitsUnsigned: () => number;
+                    getNumBitsAbs: () => number;
+                    greaterThan: (other: string | number | Long.Long) => boolean;
+                    gt: (other: string | number | Long.Long) => boolean;
+                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    gte: (other: string | number | Long.Long) => boolean;
+                    isEven: () => boolean;
+                    isNegative: () => boolean;
+                    isOdd: () => boolean;
+                    isPositive: () => boolean;
+                    isZero: () => boolean;
+                    lessThan: (other: string | number | Long.Long) => boolean;
+                    lt: (other: string | number | Long.Long) => boolean;
+                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    lte: (other: string | number | Long.Long) => boolean;
+                    modulo: (other: string | number | Long.Long) => Long.Long;
+                    mod: (other: string | number | Long.Long) => Long.Long;
+                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                    mul: (multiplier: string | number | Long.Long) => Long.Long;
+                    negate: () => Long.Long;
+                    neg: () => Long.Long;
+                    not: () => Long.Long;
+                    notEquals: (other: string | number | Long.Long) => boolean;
+                    neq: (other: string | number | Long.Long) => boolean;
+                    or: (other: string | number | Long.Long) => Long.Long;
+                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                    shl: (numBits: number | Long.Long) => Long.Long;
+                    shiftRight: (numBits: number | Long.Long) => Long.Long;
+                    shr: (numBits: number | Long.Long) => Long.Long;
+                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                    shru: (numBits: number | Long.Long) => Long.Long;
+                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                    toInt: () => number;
+                    toNumber: () => number;
+                    toBytes: (le?: boolean | undefined) => number[];
+                    toBytesLE: () => number[];
+                    toBytesBE: () => number[];
+                    toSigned: () => Long.Long;
+                    toString: (radix?: number | undefined) => string;
+                    toUnsigned: () => Long.Long;
+                    xor: (other: string | number | Long.Long) => Long.Long;
+                } & Record<Exclude<keyof I["session"]["payment"]["outputTokens"][number], keyof Long.Long>, never>))[] & Record<Exclude<keyof I["session"]["payment"]["outputTokens"], keyof (string | number | Long.Long)[]>, never>) | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: ({
                     account?: string | undefined;
@@ -2219,23 +2508,23 @@ export declare const QuerySessionResponse: {
                         toString: (radix?: number | undefined) => string;
                         toUnsigned: () => Long.Long;
                         xor: (other: string | number | Long.Long) => Long.Long;
-                    } & { [K_6 in Exclude<keyof I["session"]["payment"]["contributions"][number]["rate"], keyof Long.Long>]: never; }) | undefined;
+                    } & Record<Exclude<keyof I["session"]["payment"]["contributions"][number]["rate"], keyof Long.Long>, never>) | undefined;
                     amount?: ({
                         denom?: string | undefined;
                         amount?: string | undefined;
                     } & {
                         denom?: string | undefined;
                         amount?: string | undefined;
-                    } & { [K_7 in Exclude<keyof I["session"]["payment"]["contributions"][number]["amount"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
-                } & { [K_8 in Exclude<keyof I["session"]["payment"]["contributions"][number], keyof import("./agent").PaymentContribution>]: never; })[] & { [K_9 in Exclude<keyof I["session"]["payment"]["contributions"], keyof {
+                    } & Record<Exclude<keyof I["session"]["payment"]["contributions"][number]["amount"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+                } & Record<Exclude<keyof I["session"]["payment"]["contributions"][number], keyof import("./agent").PaymentContribution>, never>)[] & Record<Exclude<keyof I["session"]["payment"]["contributions"], keyof {
                     account?: string | undefined;
                     rate?: string | number | Long.Long | undefined;
                     amount?: {
                         denom?: string | undefined;
                         amount?: string | undefined;
                     } | undefined;
-                }[]>]: never; }) | undefined;
-            } & { [K_10 in Exclude<keyof I["session"]["payment"], keyof import("./agent").Payment>]: never; }) | undefined;
+                }[]>, never>) | undefined;
+            } & Record<Exclude<keyof I["session"]["payment"], keyof import("./agent").Payment>, never>) | undefined;
             status?: SessionStatus | undefined;
             challengeInfo?: ({
                 questionId?: string | number | Long.Long | undefined;
@@ -2319,10 +2608,10 @@ export declare const QuerySessionResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_11 in Exclude<keyof I["session"]["challengeInfo"][number]["questionId"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["session"]["challengeInfo"][number]["questionId"], keyof Long.Long>, never>) | undefined;
                 cid?: string | undefined;
                 answerHash?: Uint8Array | undefined;
-                cutMerkle?: (Uint8Array[] & Uint8Array[] & { [K_12 in Exclude<keyof I["session"]["challengeInfo"][number]["cutMerkle"], keyof Uint8Array[]>]: never; }) | undefined;
+                cutMerkle?: (Uint8Array[] & Uint8Array[] & Record<Exclude<keyof I["session"]["challengeInfo"][number]["cutMerkle"], keyof Uint8Array[]>, never>) | undefined;
                 validators?: ({
                     account?: string | undefined;
                     hash?: Uint8Array | undefined;
@@ -2338,12 +2627,12 @@ export declare const QuerySessionResponse: {
                     hash?: Uint8Array | undefined;
                     originHash?: Uint8Array | undefined;
                     status?: import("./agent").ValidatorStatus | undefined;
-                } & { [K_13 in Exclude<keyof I["session"]["challengeInfo"][number]["validators"][number], keyof import("./agent").ChallengeValidator>]: never; })[] & { [K_14 in Exclude<keyof I["session"]["challengeInfo"][number]["validators"], keyof {
+                } & Record<Exclude<keyof I["session"]["challengeInfo"][number]["validators"][number], keyof import("./agent").ChallengeValidator>, never>)[] & Record<Exclude<keyof I["session"]["challengeInfo"][number]["validators"], keyof {
                     account?: string | undefined;
                     hash?: Uint8Array | undefined;
                     originHash?: Uint8Array | undefined;
                     status?: import("./agent").ValidatorStatus | undefined;
-                }[]>]: never; }) | undefined;
+                }[]>, never>) | undefined;
                 hashCount?: string | number | (Long.Long & {
                     high: number;
                     low: number;
@@ -2401,8 +2690,8 @@ export declare const QuerySessionResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_15 in Exclude<keyof I["session"]["challengeInfo"][number]["hashCount"], keyof Long.Long>]: never; }) | undefined;
-            } & { [K_16 in Exclude<keyof I["session"]["challengeInfo"][number], keyof import("./agent").ChallengeInfo>]: never; })[] & { [K_17 in Exclude<keyof I["session"]["challengeInfo"], keyof {
+                } & Record<Exclude<keyof I["session"]["challengeInfo"][number]["hashCount"], keyof Long.Long>, never>) | undefined;
+            } & Record<Exclude<keyof I["session"]["challengeInfo"][number], keyof import("./agent").ChallengeInfo>, never>)[] & Record<Exclude<keyof I["session"]["challengeInfo"], keyof {
                 questionId?: string | number | Long.Long | undefined;
                 cid?: string | undefined;
                 answerHash?: Uint8Array | undefined;
@@ -2414,26 +2703,93 @@ export declare const QuerySessionResponse: {
                     status?: import("./agent").ValidatorStatus | undefined;
                 }[] | undefined;
                 hashCount?: string | number | Long.Long | undefined;
-            }[]>]: never; }) | undefined;
-        } & { [K_18 in Exclude<keyof I["session"], keyof Session>]: never; }) | undefined;
-    } & { [K_19 in Exclude<keyof I, "session">]: never; }>(object: I): QuerySessionResponse;
+            }[]>, never>) | undefined;
+        } & Record<Exclude<keyof I["session"], keyof Session>, never>) | undefined;
+    } & Record<Exclude<keyof I, "session">, never>>(object: I): QuerySessionResponse;
 };
 export declare const QuerySessionByAgentRequest: {
+    typeUrl: string;
     encode(message: QuerySessionByAgentRequest, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByAgentRequest;
     fromJSON(object: any): QuerySessionByAgentRequest;
-    toJSON(message: QuerySessionByAgentRequest): unknown;
+    toJSON(message: QuerySessionByAgentRequest): JsonSafe<QuerySessionByAgentRequest>;
     fromPartial<I extends {
         account?: string | undefined;
         status?: SessionStatus | undefined;
-        expireTime?: Date | undefined;
+        expireTime?: {
+            seconds?: string | number | Long.Long | undefined;
+            nanos?: number | undefined;
+        } | undefined;
         limit?: string | number | Long.Long | undefined;
         orderDesc?: boolean | undefined;
         key?: Uint8Array | undefined;
     } & {
         account?: string | undefined;
         status?: SessionStatus | undefined;
-        expireTime?: Date | undefined;
+        expireTime?: ({
+            seconds?: string | number | Long.Long | undefined;
+            nanos?: number | undefined;
+        } & {
+            seconds?: string | number | (Long.Long & {
+                high: number;
+                low: number;
+                unsigned: boolean;
+                add: (addend: string | number | Long.Long) => Long.Long;
+                and: (other: string | number | Long.Long) => Long.Long;
+                compare: (other: string | number | Long.Long) => number;
+                comp: (other: string | number | Long.Long) => number;
+                divide: (divisor: string | number | Long.Long) => Long.Long;
+                div: (divisor: string | number | Long.Long) => Long.Long;
+                equals: (other: string | number | Long.Long) => boolean;
+                eq: (other: string | number | Long.Long) => boolean;
+                getHighBits: () => number;
+                getHighBitsUnsigned: () => number;
+                getLowBits: () => number;
+                getLowBitsUnsigned: () => number;
+                getNumBitsAbs: () => number;
+                greaterThan: (other: string | number | Long.Long) => boolean;
+                gt: (other: string | number | Long.Long) => boolean;
+                greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                gte: (other: string | number | Long.Long) => boolean;
+                isEven: () => boolean;
+                isNegative: () => boolean;
+                isOdd: () => boolean;
+                isPositive: () => boolean;
+                isZero: () => boolean;
+                lessThan: (other: string | number | Long.Long) => boolean;
+                lt: (other: string | number | Long.Long) => boolean;
+                lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                lte: (other: string | number | Long.Long) => boolean;
+                modulo: (other: string | number | Long.Long) => Long.Long;
+                mod: (other: string | number | Long.Long) => Long.Long;
+                multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                mul: (multiplier: string | number | Long.Long) => Long.Long;
+                negate: () => Long.Long;
+                neg: () => Long.Long;
+                not: () => Long.Long;
+                notEquals: (other: string | number | Long.Long) => boolean;
+                neq: (other: string | number | Long.Long) => boolean;
+                or: (other: string | number | Long.Long) => Long.Long;
+                shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                shl: (numBits: number | Long.Long) => Long.Long;
+                shiftRight: (numBits: number | Long.Long) => Long.Long;
+                shr: (numBits: number | Long.Long) => Long.Long;
+                shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                shru: (numBits: number | Long.Long) => Long.Long;
+                subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                toInt: () => number;
+                toNumber: () => number;
+                toBytes: (le?: boolean | undefined) => number[];
+                toBytesLE: () => number[];
+                toBytesBE: () => number[];
+                toSigned: () => Long.Long;
+                toString: (radix?: number | undefined) => string;
+                toUnsigned: () => Long.Long;
+                xor: (other: string | number | Long.Long) => Long.Long;
+            } & Record<Exclude<keyof I["expireTime"]["seconds"], keyof Long.Long>, never>) | undefined;
+            nanos?: number | undefined;
+        } & Record<Exclude<keyof I["expireTime"], keyof Timestamp>, never>) | undefined;
         limit?: string | number | (Long.Long & {
             high: number;
             low: number;
@@ -2491,16 +2847,17 @@ export declare const QuerySessionByAgentRequest: {
             toString: (radix?: number | undefined) => string;
             toUnsigned: () => Long.Long;
             xor: (other: string | number | Long.Long) => Long.Long;
-        } & { [K in Exclude<keyof I["limit"], keyof Long.Long>]: never; }) | undefined;
+        } & Record<Exclude<keyof I["limit"], keyof Long.Long>, never>) | undefined;
         orderDesc?: boolean | undefined;
         key?: Uint8Array | undefined;
-    } & { [K_1 in Exclude<keyof I, keyof QuerySessionByAgentRequest>]: never; }>(object: I): QuerySessionByAgentRequest;
+    } & Record<Exclude<keyof I, keyof QuerySessionByAgentRequest>, never>>(object: I): QuerySessionByAgentRequest;
 };
 export declare const QuerySessionByAgentResponse: {
+    typeUrl: string;
     encode(message: QuerySessionByAgentResponse, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByAgentResponse;
     fromJSON(object: any): QuerySessionByAgentResponse;
-    toJSON(message: QuerySessionByAgentResponse): unknown;
+    toJSON(message: QuerySessionByAgentResponse): JsonSafe<QuerySessionByAgentResponse>;
     fromPartial<I extends {
         sessions?: {
             sessionId?: string | undefined;
@@ -2515,14 +2872,23 @@ export declare const QuerySessionByAgentResponse: {
                 denom?: string | undefined;
                 amount?: string | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
-            expirationAt?: Date | undefined;
-            payment?: {
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            tokenPrice?: {
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
+            } | undefined;
+            expirationAt?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
+            payment?: {
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: {
                     account?: string | undefined;
@@ -2563,14 +2929,23 @@ export declare const QuerySessionByAgentResponse: {
                 denom?: string | undefined;
                 amount?: string | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
-            expirationAt?: Date | undefined;
-            payment?: {
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            tokenPrice?: {
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
+            } | undefined;
+            expirationAt?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
+            payment?: {
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: {
                     account?: string | undefined;
@@ -2608,14 +2983,23 @@ export declare const QuerySessionByAgentResponse: {
                 denom?: string | undefined;
                 amount?: string | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
-            expirationAt?: Date | undefined;
-            payment?: {
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            tokenPrice?: {
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
+            } | undefined;
+            expirationAt?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
+            payment?: {
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: {
                     account?: string | undefined;
@@ -2651,90 +3035,44 @@ export declare const QuerySessionByAgentResponse: {
             } & {
                 denom?: string | undefined;
                 amount?: string | undefined;
-            } & { [K in Exclude<keyof I["sessions"][number]["userLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
+            } & Record<Exclude<keyof I["sessions"][number]["userLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
             minerLock?: ({
                 denom?: string | undefined;
                 amount?: string | undefined;
             } & {
                 denom?: string | undefined;
                 amount?: string | undefined;
-            } & { [K_1 in Exclude<keyof I["sessions"][number]["minerLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
-            tokenPrice?: string | number | (Long.Long & {
-                high: number;
-                low: number;
-                unsigned: boolean;
-                add: (addend: string | number | Long.Long) => Long.Long;
-                and: (other: string | number | Long.Long) => Long.Long;
-                compare: (other: string | number | Long.Long) => number;
-                comp: (other: string | number | Long.Long) => number;
-                divide: (divisor: string | number | Long.Long) => Long.Long;
-                div: (divisor: string | number | Long.Long) => Long.Long;
-                equals: (other: string | number | Long.Long) => boolean;
-                eq: (other: string | number | Long.Long) => boolean;
-                getHighBits: () => number;
-                getHighBitsUnsigned: () => number;
-                getLowBits: () => number;
-                getLowBitsUnsigned: () => number;
-                getNumBitsAbs: () => number;
-                greaterThan: (other: string | number | Long.Long) => boolean;
-                gt: (other: string | number | Long.Long) => boolean;
-                greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                gte: (other: string | number | Long.Long) => boolean;
-                isEven: () => boolean;
-                isNegative: () => boolean;
-                isOdd: () => boolean;
-                isPositive: () => boolean;
-                isZero: () => boolean;
-                lessThan: (other: string | number | Long.Long) => boolean;
-                lt: (other: string | number | Long.Long) => boolean;
-                lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                lte: (other: string | number | Long.Long) => boolean;
-                modulo: (other: string | number | Long.Long) => Long.Long;
-                mod: (other: string | number | Long.Long) => Long.Long;
-                multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                mul: (multiplier: string | number | Long.Long) => Long.Long;
-                negate: () => Long.Long;
-                neg: () => Long.Long;
-                not: () => Long.Long;
-                notEquals: (other: string | number | Long.Long) => boolean;
-                neq: (other: string | number | Long.Long) => boolean;
-                or: (other: string | number | Long.Long) => Long.Long;
-                shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                shl: (numBits: number | Long.Long) => Long.Long;
-                shiftRight: (numBits: number | Long.Long) => Long.Long;
-                shr: (numBits: number | Long.Long) => Long.Long;
-                shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                shru: (numBits: number | Long.Long) => Long.Long;
-                subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                toInt: () => number;
-                toNumber: () => number;
-                toBytes: (le?: boolean | undefined) => number[];
-                toBytesLE: () => number[];
-                toBytesBE: () => number[];
-                toSigned: () => Long.Long;
-                toString: (radix?: number | undefined) => string;
-                toUnsigned: () => Long.Long;
-                xor: (other: string | number | Long.Long) => Long.Long;
-            } & { [K_2 in Exclude<keyof I["sessions"][number]["tokenPrice"], keyof Long.Long>]: never; }) | undefined;
-            expirationAt?: Date | undefined;
-            payment?: ({
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            } & Record<Exclude<keyof I["sessions"][number]["minerLock"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+            tokenPrice?: ({
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
-                merkleRoot?: Uint8Array | undefined;
-                contributions?: {
-                    account?: string | undefined;
-                    rate?: string | number | Long.Long | undefined;
-                    amount?: {
-                        denom?: string | undefined;
-                        amount?: string | undefined;
-                    } | undefined;
-                }[] | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
             } & {
-                tokens?: ((string | number | Long.Long)[] & (string | number | (Long.Long & {
+                inputPrice?: ({
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & Record<Exclude<keyof I["sessions"][number]["tokenPrice"]["inputPrice"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+                outputPrice?: ({
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } & Record<Exclude<keyof I["sessions"][number]["tokenPrice"]["outputPrice"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+            } & Record<Exclude<keyof I["sessions"][number]["tokenPrice"], keyof import("./agent").TokenPrice>, never>) | undefined;
+            expirationAt?: ({
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } & {
+                seconds?: string | number | (Long.Long & {
                     high: number;
                     low: number;
                     unsigned: boolean;
@@ -2791,14 +3129,138 @@ export declare const QuerySessionByAgentResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_3 in Exclude<keyof I["sessions"][number]["payment"]["tokens"][number], keyof Long.Long>]: never; }))[] & { [K_4 in Exclude<keyof I["sessions"][number]["payment"]["tokens"], keyof (string | number | Long.Long)[]>]: never; }) | undefined;
-                totalPayment?: ({
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & { [K_5 in Exclude<keyof I["sessions"][number]["payment"]["totalPayment"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["sessions"][number]["expirationAt"]["seconds"], keyof Long.Long>, never>) | undefined;
+                nanos?: number | undefined;
+            } & Record<Exclude<keyof I["sessions"][number]["expirationAt"], keyof Timestamp>, never>) | undefined;
+            payment?: ({
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
+                merkleRoot?: Uint8Array | undefined;
+                contributions?: {
+                    account?: string | undefined;
+                    rate?: string | number | Long.Long | undefined;
+                    amount?: {
+                        denom?: string | undefined;
+                        amount?: string | undefined;
+                    } | undefined;
+                }[] | undefined;
+            } & {
+                inputTokens?: ((string | number | Long.Long)[] & (string | number | (Long.Long & {
+                    high: number;
+                    low: number;
+                    unsigned: boolean;
+                    add: (addend: string | number | Long.Long) => Long.Long;
+                    and: (other: string | number | Long.Long) => Long.Long;
+                    compare: (other: string | number | Long.Long) => number;
+                    comp: (other: string | number | Long.Long) => number;
+                    divide: (divisor: string | number | Long.Long) => Long.Long;
+                    div: (divisor: string | number | Long.Long) => Long.Long;
+                    equals: (other: string | number | Long.Long) => boolean;
+                    eq: (other: string | number | Long.Long) => boolean;
+                    getHighBits: () => number;
+                    getHighBitsUnsigned: () => number;
+                    getLowBits: () => number;
+                    getLowBitsUnsigned: () => number;
+                    getNumBitsAbs: () => number;
+                    greaterThan: (other: string | number | Long.Long) => boolean;
+                    gt: (other: string | number | Long.Long) => boolean;
+                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    gte: (other: string | number | Long.Long) => boolean;
+                    isEven: () => boolean;
+                    isNegative: () => boolean;
+                    isOdd: () => boolean;
+                    isPositive: () => boolean;
+                    isZero: () => boolean;
+                    lessThan: (other: string | number | Long.Long) => boolean;
+                    lt: (other: string | number | Long.Long) => boolean;
+                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    lte: (other: string | number | Long.Long) => boolean;
+                    modulo: (other: string | number | Long.Long) => Long.Long;
+                    mod: (other: string | number | Long.Long) => Long.Long;
+                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                    mul: (multiplier: string | number | Long.Long) => Long.Long;
+                    negate: () => Long.Long;
+                    neg: () => Long.Long;
+                    not: () => Long.Long;
+                    notEquals: (other: string | number | Long.Long) => boolean;
+                    neq: (other: string | number | Long.Long) => boolean;
+                    or: (other: string | number | Long.Long) => Long.Long;
+                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                    shl: (numBits: number | Long.Long) => Long.Long;
+                    shiftRight: (numBits: number | Long.Long) => Long.Long;
+                    shr: (numBits: number | Long.Long) => Long.Long;
+                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                    shru: (numBits: number | Long.Long) => Long.Long;
+                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                    toInt: () => number;
+                    toNumber: () => number;
+                    toBytes: (le?: boolean | undefined) => number[];
+                    toBytesLE: () => number[];
+                    toBytesBE: () => number[];
+                    toSigned: () => Long.Long;
+                    toString: (radix?: number | undefined) => string;
+                    toUnsigned: () => Long.Long;
+                    xor: (other: string | number | Long.Long) => Long.Long;
+                } & Record<Exclude<keyof I["sessions"][number]["payment"]["inputTokens"][number], keyof Long.Long>, never>))[] & Record<Exclude<keyof I["sessions"][number]["payment"]["inputTokens"], keyof (string | number | Long.Long)[]>, never>) | undefined;
+                outputTokens?: ((string | number | Long.Long)[] & (string | number | (Long.Long & {
+                    high: number;
+                    low: number;
+                    unsigned: boolean;
+                    add: (addend: string | number | Long.Long) => Long.Long;
+                    and: (other: string | number | Long.Long) => Long.Long;
+                    compare: (other: string | number | Long.Long) => number;
+                    comp: (other: string | number | Long.Long) => number;
+                    divide: (divisor: string | number | Long.Long) => Long.Long;
+                    div: (divisor: string | number | Long.Long) => Long.Long;
+                    equals: (other: string | number | Long.Long) => boolean;
+                    eq: (other: string | number | Long.Long) => boolean;
+                    getHighBits: () => number;
+                    getHighBitsUnsigned: () => number;
+                    getLowBits: () => number;
+                    getLowBitsUnsigned: () => number;
+                    getNumBitsAbs: () => number;
+                    greaterThan: (other: string | number | Long.Long) => boolean;
+                    gt: (other: string | number | Long.Long) => boolean;
+                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    gte: (other: string | number | Long.Long) => boolean;
+                    isEven: () => boolean;
+                    isNegative: () => boolean;
+                    isOdd: () => boolean;
+                    isPositive: () => boolean;
+                    isZero: () => boolean;
+                    lessThan: (other: string | number | Long.Long) => boolean;
+                    lt: (other: string | number | Long.Long) => boolean;
+                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+                    lte: (other: string | number | Long.Long) => boolean;
+                    modulo: (other: string | number | Long.Long) => Long.Long;
+                    mod: (other: string | number | Long.Long) => Long.Long;
+                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
+                    mul: (multiplier: string | number | Long.Long) => Long.Long;
+                    negate: () => Long.Long;
+                    neg: () => Long.Long;
+                    not: () => Long.Long;
+                    notEquals: (other: string | number | Long.Long) => boolean;
+                    neq: (other: string | number | Long.Long) => boolean;
+                    or: (other: string | number | Long.Long) => Long.Long;
+                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
+                    shl: (numBits: number | Long.Long) => Long.Long;
+                    shiftRight: (numBits: number | Long.Long) => Long.Long;
+                    shr: (numBits: number | Long.Long) => Long.Long;
+                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+                    shru: (numBits: number | Long.Long) => Long.Long;
+                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
+                    toInt: () => number;
+                    toNumber: () => number;
+                    toBytes: (le?: boolean | undefined) => number[];
+                    toBytesLE: () => number[];
+                    toBytesBE: () => number[];
+                    toSigned: () => Long.Long;
+                    toString: (radix?: number | undefined) => string;
+                    toUnsigned: () => Long.Long;
+                    xor: (other: string | number | Long.Long) => Long.Long;
+                } & Record<Exclude<keyof I["sessions"][number]["payment"]["outputTokens"][number], keyof Long.Long>, never>))[] & Record<Exclude<keyof I["sessions"][number]["payment"]["outputTokens"], keyof (string | number | Long.Long)[]>, never>) | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: ({
                     account?: string | undefined;
@@ -2873,23 +3335,23 @@ export declare const QuerySessionByAgentResponse: {
                         toString: (radix?: number | undefined) => string;
                         toUnsigned: () => Long.Long;
                         xor: (other: string | number | Long.Long) => Long.Long;
-                    } & { [K_6 in Exclude<keyof I["sessions"][number]["payment"]["contributions"][number]["rate"], keyof Long.Long>]: never; }) | undefined;
+                    } & Record<Exclude<keyof I["sessions"][number]["payment"]["contributions"][number]["rate"], keyof Long.Long>, never>) | undefined;
                     amount?: ({
                         denom?: string | undefined;
                         amount?: string | undefined;
                     } & {
                         denom?: string | undefined;
                         amount?: string | undefined;
-                    } & { [K_7 in Exclude<keyof I["sessions"][number]["payment"]["contributions"][number]["amount"], keyof import("../../cosmos/base/v1beta1/coin").Coin>]: never; }) | undefined;
-                } & { [K_8 in Exclude<keyof I["sessions"][number]["payment"]["contributions"][number], keyof import("./agent").PaymentContribution>]: never; })[] & { [K_9 in Exclude<keyof I["sessions"][number]["payment"]["contributions"], keyof {
+                    } & Record<Exclude<keyof I["sessions"][number]["payment"]["contributions"][number]["amount"], keyof import("../../cosmos/base/v1beta1/coin").Coin>, never>) | undefined;
+                } & Record<Exclude<keyof I["sessions"][number]["payment"]["contributions"][number], keyof import("./agent").PaymentContribution>, never>)[] & Record<Exclude<keyof I["sessions"][number]["payment"]["contributions"], keyof {
                     account?: string | undefined;
                     rate?: string | number | Long.Long | undefined;
                     amount?: {
                         denom?: string | undefined;
                         amount?: string | undefined;
                     } | undefined;
-                }[]>]: never; }) | undefined;
-            } & { [K_10 in Exclude<keyof I["sessions"][number]["payment"], keyof import("./agent").Payment>]: never; }) | undefined;
+                }[]>, never>) | undefined;
+            } & Record<Exclude<keyof I["sessions"][number]["payment"], keyof import("./agent").Payment>, never>) | undefined;
             status?: SessionStatus | undefined;
             challengeInfo?: ({
                 questionId?: string | number | Long.Long | undefined;
@@ -2973,10 +3435,10 @@ export declare const QuerySessionByAgentResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_11 in Exclude<keyof I["sessions"][number]["challengeInfo"][number]["questionId"], keyof Long.Long>]: never; }) | undefined;
+                } & Record<Exclude<keyof I["sessions"][number]["challengeInfo"][number]["questionId"], keyof Long.Long>, never>) | undefined;
                 cid?: string | undefined;
                 answerHash?: Uint8Array | undefined;
-                cutMerkle?: (Uint8Array[] & Uint8Array[] & { [K_12 in Exclude<keyof I["sessions"][number]["challengeInfo"][number]["cutMerkle"], keyof Uint8Array[]>]: never; }) | undefined;
+                cutMerkle?: (Uint8Array[] & Uint8Array[] & Record<Exclude<keyof I["sessions"][number]["challengeInfo"][number]["cutMerkle"], keyof Uint8Array[]>, never>) | undefined;
                 validators?: ({
                     account?: string | undefined;
                     hash?: Uint8Array | undefined;
@@ -2992,12 +3454,12 @@ export declare const QuerySessionByAgentResponse: {
                     hash?: Uint8Array | undefined;
                     originHash?: Uint8Array | undefined;
                     status?: import("./agent").ValidatorStatus | undefined;
-                } & { [K_13 in Exclude<keyof I["sessions"][number]["challengeInfo"][number]["validators"][number], keyof import("./agent").ChallengeValidator>]: never; })[] & { [K_14 in Exclude<keyof I["sessions"][number]["challengeInfo"][number]["validators"], keyof {
+                } & Record<Exclude<keyof I["sessions"][number]["challengeInfo"][number]["validators"][number], keyof import("./agent").ChallengeValidator>, never>)[] & Record<Exclude<keyof I["sessions"][number]["challengeInfo"][number]["validators"], keyof {
                     account?: string | undefined;
                     hash?: Uint8Array | undefined;
                     originHash?: Uint8Array | undefined;
                     status?: import("./agent").ValidatorStatus | undefined;
-                }[]>]: never; }) | undefined;
+                }[]>, never>) | undefined;
                 hashCount?: string | number | (Long.Long & {
                     high: number;
                     low: number;
@@ -3055,8 +3517,8 @@ export declare const QuerySessionByAgentResponse: {
                     toString: (radix?: number | undefined) => string;
                     toUnsigned: () => Long.Long;
                     xor: (other: string | number | Long.Long) => Long.Long;
-                } & { [K_15 in Exclude<keyof I["sessions"][number]["challengeInfo"][number]["hashCount"], keyof Long.Long>]: never; }) | undefined;
-            } & { [K_16 in Exclude<keyof I["sessions"][number]["challengeInfo"][number], keyof import("./agent").ChallengeInfo>]: never; })[] & { [K_17 in Exclude<keyof I["sessions"][number]["challengeInfo"], keyof {
+                } & Record<Exclude<keyof I["sessions"][number]["challengeInfo"][number]["hashCount"], keyof Long.Long>, never>) | undefined;
+            } & Record<Exclude<keyof I["sessions"][number]["challengeInfo"][number], keyof import("./agent").ChallengeInfo>, never>)[] & Record<Exclude<keyof I["sessions"][number]["challengeInfo"], keyof {
                 questionId?: string | number | Long.Long | undefined;
                 cid?: string | undefined;
                 answerHash?: Uint8Array | undefined;
@@ -3068,8 +3530,8 @@ export declare const QuerySessionByAgentResponse: {
                     status?: import("./agent").ValidatorStatus | undefined;
                 }[] | undefined;
                 hashCount?: string | number | Long.Long | undefined;
-            }[]>]: never; }) | undefined;
-        } & { [K_18 in Exclude<keyof I["sessions"][number], keyof Session>]: never; })[] & { [K_19 in Exclude<keyof I["sessions"], keyof {
+            }[]>, never>) | undefined;
+        } & Record<Exclude<keyof I["sessions"][number], keyof Session>, never>)[] & Record<Exclude<keyof I["sessions"], keyof {
             sessionId?: string | undefined;
             account?: string | undefined;
             modelName?: string | undefined;
@@ -3082,14 +3544,23 @@ export declare const QuerySessionByAgentResponse: {
                 denom?: string | undefined;
                 amount?: string | undefined;
             } | undefined;
-            tokenPrice?: string | number | Long.Long | undefined;
-            expirationAt?: Date | undefined;
-            payment?: {
-                tokens?: (string | number | Long.Long)[] | undefined;
-                totalPayment?: {
+            tokenPrice?: {
+                inputPrice?: {
                     denom?: string | undefined;
                     amount?: string | undefined;
                 } | undefined;
+                outputPrice?: {
+                    denom?: string | undefined;
+                    amount?: string | undefined;
+                } | undefined;
+            } | undefined;
+            expirationAt?: {
+                seconds?: string | number | Long.Long | undefined;
+                nanos?: number | undefined;
+            } | undefined;
+            payment?: {
+                inputTokens?: (string | number | Long.Long)[] | undefined;
+                outputTokens?: (string | number | Long.Long)[] | undefined;
                 merkleRoot?: Uint8Array | undefined;
                 contributions?: {
                     account?: string | undefined;
@@ -3114,61 +3585,167 @@ export declare const QuerySessionByAgentResponse: {
                 }[] | undefined;
                 hashCount?: string | number | Long.Long | undefined;
             }[] | undefined;
-        }[]>]: never; }) | undefined;
+        }[]>, never>) | undefined;
         nextKey?: Uint8Array | undefined;
-    } & { [K_20 in Exclude<keyof I, keyof QuerySessionByAgentResponse>]: never; }>(object: I): QuerySessionByAgentResponse;
+    } & Record<Exclude<keyof I, keyof QuerySessionByAgentResponse>, never>>(object: I): QuerySessionByAgentResponse;
+};
+export declare const QuerySessionByChallengeRequest: {
+    typeUrl: string;
+    encode(message: QuerySessionByChallengeRequest, writer?: _m0.Writer): _m0.Writer;
+    decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByChallengeRequest;
+    fromJSON(object: any): QuerySessionByChallengeRequest;
+    toJSON(message: QuerySessionByChallengeRequest): JsonSafe<QuerySessionByChallengeRequest>;
+    fromPartial<I extends {
+        account?: string | undefined;
+        limit?: string | number | Long.Long | undefined;
+        key?: Uint8Array | undefined;
+    } & {
+        account?: string | undefined;
+        limit?: string | number | (Long.Long & {
+            high: number;
+            low: number;
+            unsigned: boolean;
+            add: (addend: string | number | Long.Long) => Long.Long;
+            and: (other: string | number | Long.Long) => Long.Long;
+            compare: (other: string | number | Long.Long) => number;
+            comp: (other: string | number | Long.Long) => number;
+            divide: (divisor: string | number | Long.Long) => Long.Long;
+            div: (divisor: string | number | Long.Long) => Long.Long;
+            equals: (other: string | number | Long.Long) => boolean;
+            eq: (other: string | number | Long.Long) => boolean;
+            getHighBits: () => number;
+            getHighBitsUnsigned: () => number;
+            getLowBits: () => number;
+            getLowBitsUnsigned: () => number;
+            getNumBitsAbs: () => number;
+            greaterThan: (other: string | number | Long.Long) => boolean;
+            gt: (other: string | number | Long.Long) => boolean;
+            greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
+            gte: (other: string | number | Long.Long) => boolean;
+            isEven: () => boolean;
+            isNegative: () => boolean;
+            isOdd: () => boolean;
+            isPositive: () => boolean;
+            isZero: () => boolean;
+            lessThan: (other: string | number | Long.Long) => boolean;
+            lt: (other: string | number | Long.Long) => boolean;
+            lessThanOrEqual: (other: string | number | Long.Long) => boolean;
+            lte: (other: string | number | Long.Long) => boolean;
+            modulo: (other: string | number | Long.Long) => Long.Long;
+            mod: (other: string | number | Long.Long) => Long.Long;
+            multiply: (multiplier: string | number | Long.Long) => Long.Long;
+            mul: (multiplier: string | number | Long.Long) => Long.Long;
+            negate: () => Long.Long;
+            neg: () => Long.Long;
+            not: () => Long.Long;
+            notEquals: (other: string | number | Long.Long) => boolean;
+            neq: (other: string | number | Long.Long) => boolean;
+            or: (other: string | number | Long.Long) => Long.Long;
+            shiftLeft: (numBits: number | Long.Long) => Long.Long;
+            shl: (numBits: number | Long.Long) => Long.Long;
+            shiftRight: (numBits: number | Long.Long) => Long.Long;
+            shr: (numBits: number | Long.Long) => Long.Long;
+            shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
+            shru: (numBits: number | Long.Long) => Long.Long;
+            subtract: (subtrahend: string | number | Long.Long) => Long.Long;
+            sub: (subtrahend: string | number | Long.Long) => Long.Long;
+            toInt: () => number;
+            toNumber: () => number;
+            toBytes: (le?: boolean | undefined) => number[];
+            toBytesLE: () => number[];
+            toBytesBE: () => number[];
+            toSigned: () => Long.Long;
+            toString: (radix?: number | undefined) => string;
+            toUnsigned: () => Long.Long;
+            xor: (other: string | number | Long.Long) => Long.Long;
+        } & Record<Exclude<keyof I["limit"], keyof Long.Long>, never>) | undefined;
+        key?: Uint8Array | undefined;
+    } & Record<Exclude<keyof I, keyof QuerySessionByChallengeRequest>, never>>(object: I): QuerySessionByChallengeRequest;
+};
+export declare const SessionIdStatus: {
+    typeUrl: string;
+    encode(message: SessionIdStatus, writer?: _m0.Writer): _m0.Writer;
+    decode(input: _m0.Reader | Uint8Array, length?: number): SessionIdStatus;
+    fromJSON(object: any): SessionIdStatus;
+    toJSON(message: SessionIdStatus): JsonSafe<SessionIdStatus>;
+    fromPartial<I extends {
+        sessionId?: string | undefined;
+        status?: SessionStatus | undefined;
+    } & {
+        sessionId?: string | undefined;
+        status?: SessionStatus | undefined;
+    } & Record<Exclude<keyof I, keyof SessionIdStatus>, never>>(object: I): SessionIdStatus;
+};
+export declare const QuerySessionByChallengeResponse: {
+    typeUrl: string;
+    encode(message: QuerySessionByChallengeResponse, writer?: _m0.Writer): _m0.Writer;
+    decode(input: _m0.Reader | Uint8Array, length?: number): QuerySessionByChallengeResponse;
+    fromJSON(object: any): QuerySessionByChallengeResponse;
+    toJSON(message: QuerySessionByChallengeResponse): JsonSafe<QuerySessionByChallengeResponse>;
+    fromPartial<I extends {
+        sesssionIdStatus?: {
+            sessionId?: string | undefined;
+            status?: SessionStatus | undefined;
+        }[] | undefined;
+        nextKey?: Uint8Array | undefined;
+    } & {
+        sesssionIdStatus?: ({
+            sessionId?: string | undefined;
+            status?: SessionStatus | undefined;
+        }[] & ({
+            sessionId?: string | undefined;
+            status?: SessionStatus | undefined;
+        } & {
+            sessionId?: string | undefined;
+            status?: SessionStatus | undefined;
+        } & Record<Exclude<keyof I["sesssionIdStatus"][number], keyof SessionIdStatus>, never>)[] & Record<Exclude<keyof I["sesssionIdStatus"], keyof {
+            sessionId?: string | undefined;
+            status?: SessionStatus | undefined;
+        }[]>, never>) | undefined;
+        nextKey?: Uint8Array | undefined;
+    } & Record<Exclude<keyof I, keyof QuerySessionByChallengeResponse>, never>>(object: I): QuerySessionByChallengeResponse;
 };
 export declare const QueryVRFSeedRequest: {
+    typeUrl: string;
     encode(message: QueryVRFSeedRequest, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryVRFSeedRequest;
     fromJSON(object: any): QueryVRFSeedRequest;
-    toJSON(message: QueryVRFSeedRequest): unknown;
+    toJSON(message: QueryVRFSeedRequest): JsonSafe<QueryVRFSeedRequest>;
     fromPartial<I extends {
         account?: string | undefined;
     } & {
         account?: string | undefined;
-    } & { [K in Exclude<keyof I, "account">]: never; }>(object: I): QueryVRFSeedRequest;
+    } & Record<Exclude<keyof I, "account">, never>>(object: I): QueryVRFSeedRequest;
 };
 export declare const QueryVRFSeedResponse: {
+    typeUrl: string;
     encode(message: QueryVRFSeedResponse, writer?: _m0.Writer): _m0.Writer;
     decode(input: _m0.Reader | Uint8Array, length?: number): QueryVRFSeedResponse;
     fromJSON(object: any): QueryVRFSeedResponse;
-    toJSON(message: QueryVRFSeedResponse): unknown;
+    toJSON(message: QueryVRFSeedResponse): JsonSafe<QueryVRFSeedResponse>;
     fromPartial<I extends {
         seed?: Uint8Array | undefined;
     } & {
         seed?: Uint8Array | undefined;
-    } & { [K in Exclude<keyof I, "seed">]: never; }>(object: I): QueryVRFSeedResponse;
+    } & Record<Exclude<keyof I, "seed">, never>>(object: I): QueryVRFSeedResponse;
 };
 export interface Query {
-    Params(request: QueryParamsRequest): Promise<QueryParamsResponse>;
+    Params(request?: QueryParamsRequest): Promise<QueryParamsResponse>;
     InferenceAgentRequest(request: QueryInferenceAgentRequest): Promise<QueryInferenceAgentResponse>;
     AgentByModelRequest(request: QueryAgentByModelRequest): Promise<QueryAgentByModelResponse>;
     SessionRequest(request: QuerySessionRequest): Promise<QuerySessionResponse>;
     SessionByAgentRequest(request: QuerySessionByAgentRequest): Promise<QuerySessionByAgentResponse>;
+    SessionByChallengeRequest(request: QuerySessionByChallengeRequest): Promise<QuerySessionByChallengeResponse>;
     VRFSeedRequest(request: QueryVRFSeedRequest): Promise<QueryVRFSeedResponse>;
 }
 export declare class QueryClientImpl implements Query {
     private readonly rpc;
     constructor(rpc: Rpc);
-    Params(request: QueryParamsRequest): Promise<QueryParamsResponse>;
+    Params(request?: QueryParamsRequest): Promise<QueryParamsResponse>;
     InferenceAgentRequest(request: QueryInferenceAgentRequest): Promise<QueryInferenceAgentResponse>;
     AgentByModelRequest(request: QueryAgentByModelRequest): Promise<QueryAgentByModelResponse>;
     SessionRequest(request: QuerySessionRequest): Promise<QuerySessionResponse>;
     SessionByAgentRequest(request: QuerySessionByAgentRequest): Promise<QuerySessionByAgentResponse>;
+    SessionByChallengeRequest(request: QuerySessionByChallengeRequest): Promise<QuerySessionByChallengeResponse>;
     VRFSeedRequest(request: QueryVRFSeedRequest): Promise<QueryVRFSeedResponse>;
 }
-interface Rpc {
-    request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
-}
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
-export type DeepPartial<T> = T extends Builtin ? T : T extends Long ? string | number | Long : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {
-    [K in keyof T]?: DeepPartial<T[K]>;
-} : Partial<T>;
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P : P & {
-    [K in keyof P]: Exact<P[K], I[K]>;
-} & {
-    [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-};
-export {};
