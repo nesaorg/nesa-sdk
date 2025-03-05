@@ -290,38 +290,38 @@ class ChatClient {
                         messageTimes += 1;
                     }
                     if (!this.isByPass) {
-                        const totalSignedPayment = this.computePaymentAmount({
-                            inputTokens: messageJson?.input_tokens,
-                            outputTokens: messageJson?.output_tokens,
-                        }, this.tokenPrice);
-                        const signedMessage = this.checkSinglePaymentAmount(totalSignedPayment);
-                        const total_payment = {
-                            amount: this.totalSignedPayment,
-                            denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
-                        };
-                        readableStream.push({
-                            code: 200,
-                            message: messageJson?.content,
-                            session_id: messageJson?.session_id || "",
-                            total_payment,
-                        });
-                        this.totalUsedPayment = new bignumber_js_1.BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
-                        if (new bignumber_js_1.BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)) {
-                            readableStream.push({
-                                code: 205,
-                                message: '{"code":1015,"msg":"balance insufficient"}',
-                            });
-                            // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
-                            ws.close();
-                        }
-                        else if (signedMessage) {
-                            const data = JSON.stringify({
-                                chat_seq: this.chatSeq,
-                                total_payment,
-                                signature_payment: signedMessage,
-                            });
-                            ws.send(data);
-                        }
+                        // const totalSignedPayment = this.computePaymentAmount({
+                        //     inputTokens: messageJson?.input_tokens,
+                        //     outputTokens: messageJson?.output_tokens,
+                        // }, this.tokenPrice);
+                        // const signedMessage = this.checkSinglePaymentAmount(totalSignedPayment);
+                        // const total_payment = {
+                        //     amount: this.totalSignedPayment,
+                        //     denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
+                        // };
+                        // readableStream.push({
+                        //     code: 200,
+                        //     message: messageJson?.content,
+                        //     session_id: messageJson?.session_id || "",
+                        //     total_payment,
+                        // });
+                        // this.totalUsedPayment = new bignumber_js_1.BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
+                        // if (new bignumber_js_1.BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)) {
+                        //     readableStream.push({
+                        //         code: 205,
+                        //         message: '{"code":1015,"msg":"balance insufficient"}',
+                        //     });
+                        //     // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
+                        //     ws.close();
+                        // }
+                        // else if (signedMessage) {
+                        //     const data = JSON.stringify({
+                        //         chat_seq: this.chatSeq,
+                        //         total_payment,
+                        //         signature_payment: signedMessage,
+                        //     });
+                        //     ws.send(data);
+                        // }
                     }
                     else {
                         readableStream.push({
