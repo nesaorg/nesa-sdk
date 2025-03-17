@@ -40,7 +40,6 @@ declare class ChatClient {
     private walletName;
     private chatQueue;
     private chatSeq;
-    private totalUsedPayment;
     private totalSignedPayment;
     private isChatting;
     private isRegisteringSession;
