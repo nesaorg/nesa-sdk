@@ -1,7 +1,7 @@
 import EncryptUtils from "./encryptUtils";
 import WalletOperation from "./walletOperation";
 import { Readable } from "stream-browserify";
-import { ChainInfo } from "@keplr-wallet/types";
+import { ChainInfo } from "@leapwallet/cosmos-snap-provider";
 import {
   defaultChainInfo,
   defaultLockAmount,
@@ -10,7 +10,7 @@ import {
   sdkVersion,
 } from "./default.config";
 import { socket } from "./socket";
-import { BigNumber } from "bignumber.js";
+import { BigNumber as impBigNumber } from "bignumber.js";
 import { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
 import {
   DirectSecp256k1HdWallet,
@@ -21,6 +21,8 @@ import { NesaClient } from "./client";
 import { getAgentUrls } from "./helpers/getAgentUrls";
 import { getIsChainInfoValid } from "./helpers/getIsChainInfoValid";
 import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
+
+const BigNumber = impBigNumber!;
 
 interface TokenNumber {
   inputTokens: number;
@@ -257,7 +259,9 @@ class ChatClient {
 
     const signaturePayment = EncryptUtils.signMessage(
       this.chatId,
-      `${this.totalSignedPayment}${this.chainInfo.feeCurrencies[0].coinMinimalDenom}`,
+      `${this.totalSignedPayment}${
+        this.chainInfo.feeCurrencies![0].coinMinimalDenom
+      }`,
       this.chatSeq,
       false
     );

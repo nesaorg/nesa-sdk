@@ -1,7 +1,7 @@
 import { AccountData } from "@cosmjs/proto-signing";
 import { NesaClient } from "./client";
 import { GasPrice } from "@cosmjs/stargate";
-import { ChainInfo } from "@keplr-wallet/types";
+import { ChainInfo } from "@leapwallet/cosmos-snap-provider";
 import EncryptUtils from "./encryptUtils";
 import Long from "long";
 import type { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
@@ -21,6 +21,14 @@ class WalletOperation {
     const { chainId, rpc } = chainInfo;
     const account = (await offlineSigner.getAccounts())[0];
 
+    if (!rpc) {
+      throw new Error(`Missing chainInfo.rpc`);
+    }
+
+    if ((chainInfo.feeCurrencies || []).length === 0) {
+      throw new Error(`Missing feeCurrencies (${chainInfo.feeCurrencies})`);
+    }
+
     return NesaClient.connectWithSigner(
       rpc,
       offlineSigner,
@@ -28,7 +36,7 @@ class WalletOperation {
       chainId,
       {
         gasPrice: GasPrice.fromString(
-          `0.025${chainInfo.feeCurrencies[0].coinMinimalDenom}`
+          `0.025${chainInfo.feeCurrencies![0].coinMinimalDenom}`
         ),
         estimatedBlockTime: 6,
         estimatedIndexerTime: 5,
@@ -64,7 +72,7 @@ class WalletOperation {
     }
     const fee = {
       amount: [
-        { denom: chainInfo.feeCurrencies[0].coinMinimalDenom, amount: "6" },
+        { denom: chainInfo.feeCurrencies![0].coinMinimalDenom, amount: "6" },
       ],
       gas: "200000",
     };
