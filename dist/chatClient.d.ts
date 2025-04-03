@@ -1,6 +1,7 @@
-import { ChainInfo } from "@keplr-wallet/types";
-import { NesaClient } from "./client";
-import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
+import { ChainInfo } from '@leapwallet/cosmos-snap-provider';
+import { BigNumber as impBigNumber } from 'bignumber.js';
+import { NesaClient } from './client';
+import { TokenPrice, InferenceAgent } from './codec/agent/v1/agent';
 interface TokenNumber {
     inputTokens: number;
     outputTokens: number;
@@ -40,6 +41,7 @@ declare class ChatClient {
     private walletName;
     private chatQueue;
     private chatSeq;
+    private totalUsedPayment;
     private totalSignedPayment;
     private isChatting;
     private isRegisteringSession;
@@ -71,6 +73,8 @@ declare class ChatClient {
     getSignaturePayment(): string;
     checkSinglePaymentAmount(totalSignedPayment: string): string;
     computePaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice): string;
+    computeRawPaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice): impBigNumber;
+    rawToProcessedPaymentAmount(amount: impBigNumber): string;
     requestChatQueue(readableStream: any, question: QuestionParams): void;
     requestCloseHeartbeat(): void;
     requestAgentInfo(result: any, readableStream: any): any;

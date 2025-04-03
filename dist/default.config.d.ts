@@ -1,4 +1,4 @@
-import { ChainInfo } from "@keplr-wallet/types";
+import { ChainInfo } from '@leapwallet/cosmos-snap-provider';
 declare const defaultAgentUrl = "wss://agent.nesa.ai/pingws";
 declare const sdkVersion = "1.0.0";
 declare const defaultLockAmount = "1000000";

@@ -1,7 +1,7 @@
 import { Coin } from "../../base/v1beta1/coin";
 import { Input, Output } from "./bank";
 import * as _m0 from "protobufjs/minimal";
-import { Rpc } from "../../../helpers";
+import { DeepPartial, Exact, Rpc } from "../../../helpers";
 import { JsonSafe } from "../../../json-safe";
 export declare const protobufPackage = "cosmos.bank.v1beta1";
 /** MsgSend represents a message to send coins from one account to another. */
@@ -27,30 +27,7 @@ export declare const MsgSend: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgSend;
     fromJSON(object: any): MsgSend;
     toJSON(message: MsgSend): JsonSafe<MsgSend>;
-    fromPartial<I extends {
-        fromAddress?: string | undefined;
-        toAddress?: string | undefined;
-        amount?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] | undefined;
-    } & {
-        fromAddress?: string | undefined;
-        toAddress?: string | undefined;
-        amount?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] & ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["amount"][number], keyof Coin>, never>)[] & Record<Exclude<keyof I["amount"], keyof {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgSend>, never>>(object: I): MsgSend;
+    fromPartial<I extends Exact<DeepPartial<MsgSend>, I>>(object: I): MsgSend;
 };
 export declare const MsgSendResponse: {
     typeUrl: string;
@@ -58,7 +35,7 @@ export declare const MsgSendResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgSendResponse;
     fromJSON(_: any): MsgSendResponse;
     toJSON(_: MsgSendResponse): JsonSafe<MsgSendResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgSendResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgSendResponse>, I>>(_: I): MsgSendResponse;
 };
 export declare const MsgMultiSend: {
     typeUrl: string;
@@ -66,91 +43,7 @@ export declare const MsgMultiSend: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgMultiSend;
     fromJSON(object: any): MsgMultiSend;
     toJSON(message: MsgMultiSend): JsonSafe<MsgMultiSend>;
-    fromPartial<I extends {
-        inputs?: {
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        }[] | undefined;
-        outputs?: {
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        }[] | undefined;
-    } & {
-        inputs?: ({
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        }[] & ({
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        } & {
-            address?: string | undefined;
-            coins?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] & ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["inputs"][number]["coins"][number], keyof Coin>, never>)[] & Record<Exclude<keyof I["inputs"][number]["coins"], keyof {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[]>, never>) | undefined;
-        } & Record<Exclude<keyof I["inputs"][number], keyof Input>, never>)[] & Record<Exclude<keyof I["inputs"], keyof {
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        }[]>, never>) | undefined;
-        outputs?: ({
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        }[] & ({
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        } & {
-            address?: string | undefined;
-            coins?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] & ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["outputs"][number]["coins"][number], keyof Coin>, never>)[] & Record<Exclude<keyof I["outputs"][number]["coins"], keyof {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[]>, never>) | undefined;
-        } & Record<Exclude<keyof I["outputs"][number], keyof Output>, never>)[] & Record<Exclude<keyof I["outputs"], keyof {
-            address?: string | undefined;
-            coins?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            }[] | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgMultiSend>, never>>(object: I): MsgMultiSend;
+    fromPartial<I extends Exact<DeepPartial<MsgMultiSend>, I>>(object: I): MsgMultiSend;
 };
 export declare const MsgMultiSendResponse: {
     typeUrl: string;
@@ -158,7 +51,7 @@ export declare const MsgMultiSendResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgMultiSendResponse;
     fromJSON(_: any): MsgMultiSendResponse;
     toJSON(_: MsgMultiSendResponse): JsonSafe<MsgMultiSendResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgMultiSendResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgMultiSendResponse>, I>>(_: I): MsgMultiSendResponse;
 };
 /** Msg defines the bank Msg service. */
 export interface Msg {

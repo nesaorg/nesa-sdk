@@ -1,10 +1,9 @@
-/// <reference types="long" />
 import { Params } from "./params";
 import { TokenPrice } from "./model";
 import { Availability, InferenceType } from "./orchestrator";
 import { Coin } from "../../cosmos/base/v1beta1/coin";
 import { Reputation } from "./reputation";
-import { Long, Rpc } from "../../helpers";
+import { Long, DeepPartial, Exact, Rpc } from "../../helpers";
 import * as _m0 from "protobufjs/minimal";
 import { JsonSafe } from "../../json-safe";
 export declare const protobufPackage = "dht.v1";
@@ -196,391 +195,7 @@ export declare const MsgUpdateParams: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateParams;
     fromJSON(object: any): MsgUpdateParams;
     toJSON(message: MsgUpdateParams): JsonSafe<MsgUpdateParams>;
-    fromPartial<I extends {
-        authority?: string | undefined;
-        params?: {
-            orchestratorValidTime?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            minerValidTime?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            adminAccount?: string | undefined;
-            orchestratorMinDeposit?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            minerMinDeposit?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            orchestratorUnbondingPeriod?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            minerUnbondingPeriod?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            labelAdminAccount?: string | undefined;
-            reputationAdminAccount?: string | undefined;
-            priceTokenDenoms?: string[] | undefined;
-            modelDefaultTokenPrice?: {
-                inputPrice?: {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } | undefined;
-                outputPrice?: {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } | undefined;
-            } | undefined;
-        } | undefined;
-    } & {
-        authority?: string | undefined;
-        params?: ({
-            orchestratorValidTime?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            minerValidTime?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            adminAccount?: string | undefined;
-            orchestratorMinDeposit?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            minerMinDeposit?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            orchestratorUnbondingPeriod?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            minerUnbondingPeriod?: {
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } | undefined;
-            labelAdminAccount?: string | undefined;
-            reputationAdminAccount?: string | undefined;
-            priceTokenDenoms?: string[] | undefined;
-            modelDefaultTokenPrice?: {
-                inputPrice?: {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } | undefined;
-                outputPrice?: {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } | undefined;
-            } | undefined;
-        } & {
-            orchestratorValidTime?: ({
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } & {
-                seconds?: string | number | (Long.Long & {
-                    high: number;
-                    low: number;
-                    unsigned: boolean;
-                    add: (addend: string | number | Long.Long) => Long.Long;
-                    and: (other: string | number | Long.Long) => Long.Long;
-                    compare: (other: string | number | Long.Long) => number;
-                    comp: (other: string | number | Long.Long) => number;
-                    divide: (divisor: string | number | Long.Long) => Long.Long;
-                    div: (divisor: string | number | Long.Long) => Long.Long;
-                    equals: (other: string | number | Long.Long) => boolean;
-                    eq: (other: string | number | Long.Long) => boolean;
-                    getHighBits: () => number;
-                    getHighBitsUnsigned: () => number;
-                    getLowBits: () => number;
-                    getLowBitsUnsigned: () => number;
-                    getNumBitsAbs: () => number;
-                    greaterThan: (other: string | number | Long.Long) => boolean;
-                    gt: (other: string | number | Long.Long) => boolean;
-                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    gte: (other: string | number | Long.Long) => boolean;
-                    isEven: () => boolean;
-                    isNegative: () => boolean;
-                    isOdd: () => boolean;
-                    isPositive: () => boolean;
-                    isZero: () => boolean;
-                    lessThan: (other: string | number | Long.Long) => boolean;
-                    lt: (other: string | number | Long.Long) => boolean;
-                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    lte: (other: string | number | Long.Long) => boolean;
-                    modulo: (other: string | number | Long.Long) => Long.Long;
-                    mod: (other: string | number | Long.Long) => Long.Long;
-                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                    mul: (multiplier: string | number | Long.Long) => Long.Long;
-                    negate: () => Long.Long;
-                    neg: () => Long.Long;
-                    not: () => Long.Long;
-                    notEquals: (other: string | number | Long.Long) => boolean;
-                    neq: (other: string | number | Long.Long) => boolean;
-                    or: (other: string | number | Long.Long) => Long.Long;
-                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                    shl: (numBits: number | Long.Long) => Long.Long;
-                    shiftRight: (numBits: number | Long.Long) => Long.Long;
-                    shr: (numBits: number | Long.Long) => Long.Long;
-                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                    shru: (numBits: number | Long.Long) => Long.Long;
-                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                    toInt: () => number;
-                    toNumber: () => number;
-                    toBytes: (le?: boolean | undefined) => number[];
-                    toBytesLE: () => number[];
-                    toBytesBE: () => number[];
-                    toSigned: () => Long.Long;
-                    toString: (radix?: number | undefined) => string;
-                    toUnsigned: () => Long.Long;
-                    xor: (other: string | number | Long.Long) => Long.Long;
-                } & Record<Exclude<keyof I["params"]["orchestratorValidTime"]["seconds"], keyof Long.Long>, never>) | undefined;
-                nanos?: number | undefined;
-            } & Record<Exclude<keyof I["params"]["orchestratorValidTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
-            minerValidTime?: ({
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } & {
-                seconds?: string | number | (Long.Long & {
-                    high: number;
-                    low: number;
-                    unsigned: boolean;
-                    add: (addend: string | number | Long.Long) => Long.Long;
-                    and: (other: string | number | Long.Long) => Long.Long;
-                    compare: (other: string | number | Long.Long) => number;
-                    comp: (other: string | number | Long.Long) => number;
-                    divide: (divisor: string | number | Long.Long) => Long.Long;
-                    div: (divisor: string | number | Long.Long) => Long.Long;
-                    equals: (other: string | number | Long.Long) => boolean;
-                    eq: (other: string | number | Long.Long) => boolean;
-                    getHighBits: () => number;
-                    getHighBitsUnsigned: () => number;
-                    getLowBits: () => number;
-                    getLowBitsUnsigned: () => number;
-                    getNumBitsAbs: () => number;
-                    greaterThan: (other: string | number | Long.Long) => boolean;
-                    gt: (other: string | number | Long.Long) => boolean;
-                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    gte: (other: string | number | Long.Long) => boolean;
-                    isEven: () => boolean;
-                    isNegative: () => boolean;
-                    isOdd: () => boolean;
-                    isPositive: () => boolean;
-                    isZero: () => boolean;
-                    lessThan: (other: string | number | Long.Long) => boolean;
-                    lt: (other: string | number | Long.Long) => boolean;
-                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    lte: (other: string | number | Long.Long) => boolean;
-                    modulo: (other: string | number | Long.Long) => Long.Long;
-                    mod: (other: string | number | Long.Long) => Long.Long;
-                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                    mul: (multiplier: string | number | Long.Long) => Long.Long;
-                    negate: () => Long.Long;
-                    neg: () => Long.Long;
-                    not: () => Long.Long;
-                    notEquals: (other: string | number | Long.Long) => boolean;
-                    neq: (other: string | number | Long.Long) => boolean;
-                    or: (other: string | number | Long.Long) => Long.Long;
-                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                    shl: (numBits: number | Long.Long) => Long.Long;
-                    shiftRight: (numBits: number | Long.Long) => Long.Long;
-                    shr: (numBits: number | Long.Long) => Long.Long;
-                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                    shru: (numBits: number | Long.Long) => Long.Long;
-                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                    toInt: () => number;
-                    toNumber: () => number;
-                    toBytes: (le?: boolean | undefined) => number[];
-                    toBytesLE: () => number[];
-                    toBytesBE: () => number[];
-                    toSigned: () => Long.Long;
-                    toString: (radix?: number | undefined) => string;
-                    toUnsigned: () => Long.Long;
-                    xor: (other: string | number | Long.Long) => Long.Long;
-                } & Record<Exclude<keyof I["params"]["minerValidTime"]["seconds"], keyof Long.Long>, never>) | undefined;
-                nanos?: number | undefined;
-            } & Record<Exclude<keyof I["params"]["minerValidTime"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
-            adminAccount?: string | undefined;
-            orchestratorMinDeposit?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["params"]["orchestratorMinDeposit"], keyof Coin>, never>) | undefined;
-            minerMinDeposit?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["params"]["minerMinDeposit"], keyof Coin>, never>) | undefined;
-            orchestratorUnbondingPeriod?: ({
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } & {
-                seconds?: string | number | (Long.Long & {
-                    high: number;
-                    low: number;
-                    unsigned: boolean;
-                    add: (addend: string | number | Long.Long) => Long.Long;
-                    and: (other: string | number | Long.Long) => Long.Long;
-                    compare: (other: string | number | Long.Long) => number;
-                    comp: (other: string | number | Long.Long) => number;
-                    divide: (divisor: string | number | Long.Long) => Long.Long;
-                    div: (divisor: string | number | Long.Long) => Long.Long;
-                    equals: (other: string | number | Long.Long) => boolean;
-                    eq: (other: string | number | Long.Long) => boolean;
-                    getHighBits: () => number;
-                    getHighBitsUnsigned: () => number;
-                    getLowBits: () => number;
-                    getLowBitsUnsigned: () => number;
-                    getNumBitsAbs: () => number;
-                    greaterThan: (other: string | number | Long.Long) => boolean;
-                    gt: (other: string | number | Long.Long) => boolean;
-                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    gte: (other: string | number | Long.Long) => boolean;
-                    isEven: () => boolean;
-                    isNegative: () => boolean;
-                    isOdd: () => boolean;
-                    isPositive: () => boolean;
-                    isZero: () => boolean;
-                    lessThan: (other: string | number | Long.Long) => boolean;
-                    lt: (other: string | number | Long.Long) => boolean;
-                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    lte: (other: string | number | Long.Long) => boolean;
-                    modulo: (other: string | number | Long.Long) => Long.Long;
-                    mod: (other: string | number | Long.Long) => Long.Long;
-                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                    mul: (multiplier: string | number | Long.Long) => Long.Long;
-                    negate: () => Long.Long;
-                    neg: () => Long.Long;
-                    not: () => Long.Long;
-                    notEquals: (other: string | number | Long.Long) => boolean;
-                    neq: (other: string | number | Long.Long) => boolean;
-                    or: (other: string | number | Long.Long) => Long.Long;
-                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                    shl: (numBits: number | Long.Long) => Long.Long;
-                    shiftRight: (numBits: number | Long.Long) => Long.Long;
-                    shr: (numBits: number | Long.Long) => Long.Long;
-                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                    shru: (numBits: number | Long.Long) => Long.Long;
-                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                    toInt: () => number;
-                    toNumber: () => number;
-                    toBytes: (le?: boolean | undefined) => number[];
-                    toBytesLE: () => number[];
-                    toBytesBE: () => number[];
-                    toSigned: () => Long.Long;
-                    toString: (radix?: number | undefined) => string;
-                    toUnsigned: () => Long.Long;
-                    xor: (other: string | number | Long.Long) => Long.Long;
-                } & Record<Exclude<keyof I["params"]["orchestratorUnbondingPeriod"]["seconds"], keyof Long.Long>, never>) | undefined;
-                nanos?: number | undefined;
-            } & Record<Exclude<keyof I["params"]["orchestratorUnbondingPeriod"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
-            minerUnbondingPeriod?: ({
-                seconds?: string | number | Long.Long | undefined;
-                nanos?: number | undefined;
-            } & {
-                seconds?: string | number | (Long.Long & {
-                    high: number;
-                    low: number;
-                    unsigned: boolean;
-                    add: (addend: string | number | Long.Long) => Long.Long;
-                    and: (other: string | number | Long.Long) => Long.Long;
-                    compare: (other: string | number | Long.Long) => number;
-                    comp: (other: string | number | Long.Long) => number;
-                    divide: (divisor: string | number | Long.Long) => Long.Long;
-                    div: (divisor: string | number | Long.Long) => Long.Long;
-                    equals: (other: string | number | Long.Long) => boolean;
-                    eq: (other: string | number | Long.Long) => boolean;
-                    getHighBits: () => number;
-                    getHighBitsUnsigned: () => number;
-                    getLowBits: () => number;
-                    getLowBitsUnsigned: () => number;
-                    getNumBitsAbs: () => number;
-                    greaterThan: (other: string | number | Long.Long) => boolean;
-                    gt: (other: string | number | Long.Long) => boolean;
-                    greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    gte: (other: string | number | Long.Long) => boolean;
-                    isEven: () => boolean;
-                    isNegative: () => boolean;
-                    isOdd: () => boolean;
-                    isPositive: () => boolean;
-                    isZero: () => boolean;
-                    lessThan: (other: string | number | Long.Long) => boolean;
-                    lt: (other: string | number | Long.Long) => boolean;
-                    lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                    lte: (other: string | number | Long.Long) => boolean;
-                    modulo: (other: string | number | Long.Long) => Long.Long;
-                    mod: (other: string | number | Long.Long) => Long.Long;
-                    multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                    mul: (multiplier: string | number | Long.Long) => Long.Long;
-                    negate: () => Long.Long;
-                    neg: () => Long.Long;
-                    not: () => Long.Long;
-                    notEquals: (other: string | number | Long.Long) => boolean;
-                    neq: (other: string | number | Long.Long) => boolean;
-                    or: (other: string | number | Long.Long) => Long.Long;
-                    shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                    shl: (numBits: number | Long.Long) => Long.Long;
-                    shiftRight: (numBits: number | Long.Long) => Long.Long;
-                    shr: (numBits: number | Long.Long) => Long.Long;
-                    shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                    shru: (numBits: number | Long.Long) => Long.Long;
-                    subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                    sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                    toInt: () => number;
-                    toNumber: () => number;
-                    toBytes: (le?: boolean | undefined) => number[];
-                    toBytesLE: () => number[];
-                    toBytesBE: () => number[];
-                    toSigned: () => Long.Long;
-                    toString: (radix?: number | undefined) => string;
-                    toUnsigned: () => Long.Long;
-                    xor: (other: string | number | Long.Long) => Long.Long;
-                } & Record<Exclude<keyof I["params"]["minerUnbondingPeriod"]["seconds"], keyof Long.Long>, never>) | undefined;
-                nanos?: number | undefined;
-            } & Record<Exclude<keyof I["params"]["minerUnbondingPeriod"], keyof import("../../google/protobuf/duration").Duration>, never>) | undefined;
-            labelAdminAccount?: string | undefined;
-            reputationAdminAccount?: string | undefined;
-            priceTokenDenoms?: (string[] & string[] & Record<Exclude<keyof I["params"]["priceTokenDenoms"], keyof string[]>, never>) | undefined;
-            modelDefaultTokenPrice?: ({
-                inputPrice?: {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } | undefined;
-                outputPrice?: {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } | undefined;
-            } & {
-                inputPrice?: ({
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & Record<Exclude<keyof I["params"]["modelDefaultTokenPrice"]["inputPrice"], keyof Coin>, never>) | undefined;
-                outputPrice?: ({
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & {
-                    denom?: string | undefined;
-                    amount?: string | undefined;
-                } & Record<Exclude<keyof I["params"]["modelDefaultTokenPrice"]["outputPrice"], keyof Coin>, never>) | undefined;
-            } & Record<Exclude<keyof I["params"]["modelDefaultTokenPrice"], keyof TokenPrice>, never>) | undefined;
-        } & Record<Exclude<keyof I["params"], keyof Params>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgUpdateParams>, never>>(object: I): MsgUpdateParams;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateParams>, I>>(object: I): MsgUpdateParams;
 };
 export declare const MsgUpdateParamsResponse: {
     typeUrl: string;
@@ -588,7 +203,7 @@ export declare const MsgUpdateParamsResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateParamsResponse;
     fromJSON(_: any): MsgUpdateParamsResponse;
     toJSON(_: MsgUpdateParamsResponse): JsonSafe<MsgUpdateParamsResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgUpdateParamsResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateParamsResponse>, I>>(_: I): MsgUpdateParamsResponse;
 };
 export declare const MsgRegisterModel: {
     typeUrl: string;
@@ -596,52 +211,7 @@ export declare const MsgRegisterModel: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterModel;
     fromJSON(object: any): MsgRegisterModel;
     toJSON(message: MsgRegisterModel): JsonSafe<MsgRegisterModel>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        modelName?: string | undefined;
-        blockCids?: string[] | undefined;
-        allowList?: string[] | undefined;
-        tokenPrice?: {
-            inputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            outputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-        } | undefined;
-    } & {
-        creator?: string | undefined;
-        modelName?: string | undefined;
-        blockCids?: (string[] & string[] & Record<Exclude<keyof I["blockCids"], keyof string[]>, never>) | undefined;
-        allowList?: (string[] & string[] & Record<Exclude<keyof I["allowList"], keyof string[]>, never>) | undefined;
-        tokenPrice?: ({
-            inputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            outputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-        } & {
-            inputPrice?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["tokenPrice"]["inputPrice"], keyof Coin>, never>) | undefined;
-            outputPrice?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["tokenPrice"]["outputPrice"], keyof Coin>, never>) | undefined;
-        } & Record<Exclude<keyof I["tokenPrice"], keyof TokenPrice>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgRegisterModel>, never>>(object: I): MsgRegisterModel;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterModel>, I>>(object: I): MsgRegisterModel;
 };
 export declare const MsgRegisterModelResponse: {
     typeUrl: string;
@@ -649,7 +219,7 @@ export declare const MsgRegisterModelResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterModelResponse;
     fromJSON(_: any): MsgRegisterModelResponse;
     toJSON(_: MsgRegisterModelResponse): JsonSafe<MsgRegisterModelResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgRegisterModelResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterModelResponse>, I>>(_: I): MsgRegisterModelResponse;
 };
 export declare const MsgRegisterNode: {
     typeUrl: string;
@@ -657,86 +227,7 @@ export declare const MsgRegisterNode: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterNode;
     fromJSON(object: any): MsgRegisterNode;
     toJSON(message: MsgRegisterNode): JsonSafe<MsgRegisterNode>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        publicName?: string | undefined;
-        version?: string | undefined;
-        networkAddress?: string | undefined;
-        walletAddress?: string | undefined;
-        vram?: string | number | Long.Long | undefined;
-        networkRps?: number | undefined;
-        usingRelay?: boolean | undefined;
-        nextPings?: Uint8Array[] | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        publicName?: string | undefined;
-        version?: string | undefined;
-        networkAddress?: string | undefined;
-        walletAddress?: string | undefined;
-        vram?: string | number | (Long.Long & {
-            high: number;
-            low: number;
-            unsigned: boolean;
-            add: (addend: string | number | Long.Long) => Long.Long;
-            and: (other: string | number | Long.Long) => Long.Long;
-            compare: (other: string | number | Long.Long) => number;
-            comp: (other: string | number | Long.Long) => number;
-            divide: (divisor: string | number | Long.Long) => Long.Long;
-            div: (divisor: string | number | Long.Long) => Long.Long;
-            equals: (other: string | number | Long.Long) => boolean;
-            eq: (other: string | number | Long.Long) => boolean;
-            getHighBits: () => number;
-            getHighBitsUnsigned: () => number;
-            getLowBits: () => number;
-            getLowBitsUnsigned: () => number;
-            getNumBitsAbs: () => number;
-            greaterThan: (other: string | number | Long.Long) => boolean;
-            gt: (other: string | number | Long.Long) => boolean;
-            greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-            gte: (other: string | number | Long.Long) => boolean;
-            isEven: () => boolean;
-            isNegative: () => boolean;
-            isOdd: () => boolean;
-            isPositive: () => boolean;
-            isZero: () => boolean;
-            lessThan: (other: string | number | Long.Long) => boolean;
-            lt: (other: string | number | Long.Long) => boolean;
-            lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-            lte: (other: string | number | Long.Long) => boolean;
-            modulo: (other: string | number | Long.Long) => Long.Long;
-            mod: (other: string | number | Long.Long) => Long.Long;
-            multiply: (multiplier: string | number | Long.Long) => Long.Long;
-            mul: (multiplier: string | number | Long.Long) => Long.Long;
-            negate: () => Long.Long;
-            neg: () => Long.Long;
-            not: () => Long.Long;
-            notEquals: (other: string | number | Long.Long) => boolean;
-            neq: (other: string | number | Long.Long) => boolean;
-            or: (other: string | number | Long.Long) => Long.Long;
-            shiftLeft: (numBits: number | Long.Long) => Long.Long;
-            shl: (numBits: number | Long.Long) => Long.Long;
-            shiftRight: (numBits: number | Long.Long) => Long.Long;
-            shr: (numBits: number | Long.Long) => Long.Long;
-            shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-            shru: (numBits: number | Long.Long) => Long.Long;
-            subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-            sub: (subtrahend: string | number | Long.Long) => Long.Long;
-            toInt: () => number;
-            toNumber: () => number;
-            toBytes: (le?: boolean | undefined) => number[];
-            toBytesLE: () => number[];
-            toBytesBE: () => number[];
-            toSigned: () => Long.Long;
-            toString: (radix?: number | undefined) => string;
-            toUnsigned: () => Long.Long;
-            xor: (other: string | number | Long.Long) => Long.Long;
-        } & Record<Exclude<keyof I["vram"], keyof Long.Long>, never>) | undefined;
-        networkRps?: number | undefined;
-        usingRelay?: boolean | undefined;
-        nextPings?: (Uint8Array[] & Uint8Array[] & Record<Exclude<keyof I["nextPings"], keyof Uint8Array[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgRegisterNode>, never>>(object: I): MsgRegisterNode;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterNode>, I>>(object: I): MsgRegisterNode;
 };
 export declare const MsgRegisterNodeResponse: {
     typeUrl: string;
@@ -744,7 +235,7 @@ export declare const MsgRegisterNodeResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterNodeResponse;
     fromJSON(_: any): MsgRegisterNodeResponse;
     toJSON(_: MsgRegisterNodeResponse): JsonSafe<MsgRegisterNodeResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgRegisterNodeResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterNodeResponse>, I>>(_: I): MsgRegisterNodeResponse;
 };
 export declare const MsgDeleteNode: {
     typeUrl: string;
@@ -752,13 +243,7 @@ export declare const MsgDeleteNode: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteNode;
     fromJSON(object: any): MsgDeleteNode;
     toJSON(message: MsgDeleteNode): JsonSafe<MsgDeleteNode>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgDeleteNode>, never>>(object: I): MsgDeleteNode;
+    fromPartial<I extends Exact<DeepPartial<MsgDeleteNode>, I>>(object: I): MsgDeleteNode;
 };
 export declare const MsgDeleteNodeResponse: {
     typeUrl: string;
@@ -766,7 +251,7 @@ export declare const MsgDeleteNodeResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteNodeResponse;
     fromJSON(_: any): MsgDeleteNodeResponse;
     toJSON(_: MsgDeleteNodeResponse): JsonSafe<MsgDeleteNodeResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgDeleteNodeResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgDeleteNodeResponse>, I>>(_: I): MsgDeleteNodeResponse;
 };
 export declare const MsgRegisterMiner: {
     typeUrl: string;
@@ -774,200 +259,7 @@ export declare const MsgRegisterMiner: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterMiner;
     fromJSON(object: any): MsgRegisterMiner;
     toJSON(message: MsgRegisterMiner): JsonSafe<MsgRegisterMiner>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        startBlock?: string | number | Long.Long | undefined;
-        endBlock?: string | number | Long.Long | undefined;
-        blockIds?: number[] | undefined;
-        torchDtype?: string | undefined;
-        quantType?: string | undefined;
-        cacheTokensLeft?: string | number | Long.Long | undefined;
-        inferenceRps?: number | undefined;
-        modelName?: string | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        startBlock?: string | number | (Long.Long & {
-            high: number;
-            low: number;
-            unsigned: boolean;
-            add: (addend: string | number | Long.Long) => Long.Long;
-            and: (other: string | number | Long.Long) => Long.Long;
-            compare: (other: string | number | Long.Long) => number;
-            comp: (other: string | number | Long.Long) => number;
-            divide: (divisor: string | number | Long.Long) => Long.Long;
-            div: (divisor: string | number | Long.Long) => Long.Long;
-            equals: (other: string | number | Long.Long) => boolean;
-            eq: (other: string | number | Long.Long) => boolean;
-            getHighBits: () => number;
-            getHighBitsUnsigned: () => number;
-            getLowBits: () => number;
-            getLowBitsUnsigned: () => number;
-            getNumBitsAbs: () => number;
-            greaterThan: (other: string | number | Long.Long) => boolean;
-            gt: (other: string | number | Long.Long) => boolean;
-            greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-            gte: (other: string | number | Long.Long) => boolean;
-            isEven: () => boolean;
-            isNegative: () => boolean;
-            isOdd: () => boolean;
-            isPositive: () => boolean;
-            isZero: () => boolean;
-            lessThan: (other: string | number | Long.Long) => boolean;
-            lt: (other: string | number | Long.Long) => boolean;
-            lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-            lte: (other: string | number | Long.Long) => boolean;
-            modulo: (other: string | number | Long.Long) => Long.Long;
-            mod: (other: string | number | Long.Long) => Long.Long;
-            multiply: (multiplier: string | number | Long.Long) => Long.Long;
-            mul: (multiplier: string | number | Long.Long) => Long.Long;
-            negate: () => Long.Long;
-            neg: () => Long.Long;
-            not: () => Long.Long;
-            notEquals: (other: string | number | Long.Long) => boolean;
-            neq: (other: string | number | Long.Long) => boolean;
-            or: (other: string | number | Long.Long) => Long.Long;
-            shiftLeft: (numBits: number | Long.Long) => Long.Long;
-            shl: (numBits: number | Long.Long) => Long.Long;
-            shiftRight: (numBits: number | Long.Long) => Long.Long;
-            shr: (numBits: number | Long.Long) => Long.Long;
-            shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-            shru: (numBits: number | Long.Long) => Long.Long;
-            subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-            sub: (subtrahend: string | number | Long.Long) => Long.Long;
-            toInt: () => number;
-            toNumber: () => number;
-            toBytes: (le?: boolean | undefined) => number[];
-            toBytesLE: () => number[];
-            toBytesBE: () => number[];
-            toSigned: () => Long.Long;
-            toString: (radix?: number | undefined) => string;
-            toUnsigned: () => Long.Long;
-            xor: (other: string | number | Long.Long) => Long.Long;
-        } & Record<Exclude<keyof I["startBlock"], keyof Long.Long>, never>) | undefined;
-        endBlock?: string | number | (Long.Long & {
-            high: number;
-            low: number;
-            unsigned: boolean;
-            add: (addend: string | number | Long.Long) => Long.Long;
-            and: (other: string | number | Long.Long) => Long.Long;
-            compare: (other: string | number | Long.Long) => number;
-            comp: (other: string | number | Long.Long) => number;
-            divide: (divisor: string | number | Long.Long) => Long.Long;
-            div: (divisor: string | number | Long.Long) => Long.Long;
-            equals: (other: string | number | Long.Long) => boolean;
-            eq: (other: string | number | Long.Long) => boolean;
-            getHighBits: () => number;
-            getHighBitsUnsigned: () => number;
-            getLowBits: () => number;
-            getLowBitsUnsigned: () => number;
-            getNumBitsAbs: () => number;
-            greaterThan: (other: string | number | Long.Long) => boolean;
-            gt: (other: string | number | Long.Long) => boolean;
-            greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-            gte: (other: string | number | Long.Long) => boolean;
-            isEven: () => boolean;
-            isNegative: () => boolean;
-            isOdd: () => boolean;
-            isPositive: () => boolean;
-            isZero: () => boolean;
-            lessThan: (other: string | number | Long.Long) => boolean;
-            lt: (other: string | number | Long.Long) => boolean;
-            lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-            lte: (other: string | number | Long.Long) => boolean;
-            modulo: (other: string | number | Long.Long) => Long.Long;
-            mod: (other: string | number | Long.Long) => Long.Long;
-            multiply: (multiplier: string | number | Long.Long) => Long.Long;
-            mul: (multiplier: string | number | Long.Long) => Long.Long;
-            negate: () => Long.Long;
-            neg: () => Long.Long;
-            not: () => Long.Long;
-            notEquals: (other: string | number | Long.Long) => boolean;
-            neq: (other: string | number | Long.Long) => boolean;
-            or: (other: string | number | Long.Long) => Long.Long;
-            shiftLeft: (numBits: number | Long.Long) => Long.Long;
-            shl: (numBits: number | Long.Long) => Long.Long;
-            shiftRight: (numBits: number | Long.Long) => Long.Long;
-            shr: (numBits: number | Long.Long) => Long.Long;
-            shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-            shru: (numBits: number | Long.Long) => Long.Long;
-            subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-            sub: (subtrahend: string | number | Long.Long) => Long.Long;
-            toInt: () => number;
-            toNumber: () => number;
-            toBytes: (le?: boolean | undefined) => number[];
-            toBytesLE: () => number[];
-            toBytesBE: () => number[];
-            toSigned: () => Long.Long;
-            toString: (radix?: number | undefined) => string;
-            toUnsigned: () => Long.Long;
-            xor: (other: string | number | Long.Long) => Long.Long;
-        } & Record<Exclude<keyof I["endBlock"], keyof Long.Long>, never>) | undefined;
-        blockIds?: (number[] & number[] & Record<Exclude<keyof I["blockIds"], keyof number[]>, never>) | undefined;
-        torchDtype?: string | undefined;
-        quantType?: string | undefined;
-        cacheTokensLeft?: string | number | (Long.Long & {
-            high: number;
-            low: number;
-            unsigned: boolean;
-            add: (addend: string | number | Long.Long) => Long.Long;
-            and: (other: string | number | Long.Long) => Long.Long;
-            compare: (other: string | number | Long.Long) => number;
-            comp: (other: string | number | Long.Long) => number;
-            divide: (divisor: string | number | Long.Long) => Long.Long;
-            div: (divisor: string | number | Long.Long) => Long.Long;
-            equals: (other: string | number | Long.Long) => boolean;
-            eq: (other: string | number | Long.Long) => boolean;
-            getHighBits: () => number;
-            getHighBitsUnsigned: () => number;
-            getLowBits: () => number;
-            getLowBitsUnsigned: () => number;
-            getNumBitsAbs: () => number;
-            greaterThan: (other: string | number | Long.Long) => boolean;
-            gt: (other: string | number | Long.Long) => boolean;
-            greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-            gte: (other: string | number | Long.Long) => boolean;
-            isEven: () => boolean;
-            isNegative: () => boolean;
-            isOdd: () => boolean;
-            isPositive: () => boolean;
-            isZero: () => boolean;
-            lessThan: (other: string | number | Long.Long) => boolean;
-            lt: (other: string | number | Long.Long) => boolean;
-            lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-            lte: (other: string | number | Long.Long) => boolean;
-            modulo: (other: string | number | Long.Long) => Long.Long;
-            mod: (other: string | number | Long.Long) => Long.Long;
-            multiply: (multiplier: string | number | Long.Long) => Long.Long;
-            mul: (multiplier: string | number | Long.Long) => Long.Long;
-            negate: () => Long.Long;
-            neg: () => Long.Long;
-            not: () => Long.Long;
-            notEquals: (other: string | number | Long.Long) => boolean;
-            neq: (other: string | number | Long.Long) => boolean;
-            or: (other: string | number | Long.Long) => Long.Long;
-            shiftLeft: (numBits: number | Long.Long) => Long.Long;
-            shl: (numBits: number | Long.Long) => Long.Long;
-            shiftRight: (numBits: number | Long.Long) => Long.Long;
-            shr: (numBits: number | Long.Long) => Long.Long;
-            shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-            shru: (numBits: number | Long.Long) => Long.Long;
-            subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-            sub: (subtrahend: string | number | Long.Long) => Long.Long;
-            toInt: () => number;
-            toNumber: () => number;
-            toBytes: (le?: boolean | undefined) => number[];
-            toBytesLE: () => number[];
-            toBytesBE: () => number[];
-            toSigned: () => Long.Long;
-            toString: (radix?: number | undefined) => string;
-            toUnsigned: () => Long.Long;
-            xor: (other: string | number | Long.Long) => Long.Long;
-        } & Record<Exclude<keyof I["cacheTokensLeft"], keyof Long.Long>, never>) | undefined;
-        inferenceRps?: number | undefined;
-        modelName?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgRegisterMiner>, never>>(object: I): MsgRegisterMiner;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterMiner>, I>>(object: I): MsgRegisterMiner;
 };
 export declare const MsgRegisterMinerResponse: {
     typeUrl: string;
@@ -975,7 +267,7 @@ export declare const MsgRegisterMinerResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterMinerResponse;
     fromJSON(_: any): MsgRegisterMinerResponse;
     toJSON(_: MsgRegisterMinerResponse): JsonSafe<MsgRegisterMinerResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgRegisterMinerResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterMinerResponse>, I>>(_: I): MsgRegisterMinerResponse;
 };
 export declare const MsgDeleteMiner: {
     typeUrl: string;
@@ -983,13 +275,7 @@ export declare const MsgDeleteMiner: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteMiner;
     fromJSON(object: any): MsgDeleteMiner;
     toJSON(message: MsgDeleteMiner): JsonSafe<MsgDeleteMiner>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgDeleteMiner>, never>>(object: I): MsgDeleteMiner;
+    fromPartial<I extends Exact<DeepPartial<MsgDeleteMiner>, I>>(object: I): MsgDeleteMiner;
 };
 export declare const MsgDeleteMinerResponse: {
     typeUrl: string;
@@ -997,7 +283,7 @@ export declare const MsgDeleteMinerResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteMinerResponse;
     fromJSON(_: any): MsgDeleteMinerResponse;
     toJSON(_: MsgDeleteMinerResponse): JsonSafe<MsgDeleteMinerResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgDeleteMinerResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgDeleteMinerResponse>, I>>(_: I): MsgDeleteMinerResponse;
 };
 export declare const MsgRegisterOrchestrator: {
     typeUrl: string;
@@ -1005,80 +291,7 @@ export declare const MsgRegisterOrchestrator: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterOrchestrator;
     fromJSON(object: any): MsgRegisterOrchestrator;
     toJSON(message: MsgRegisterOrchestrator): JsonSafe<MsgRegisterOrchestrator>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        status?: Availability | undefined;
-        blockCount?: (string | number | Long.Long)[] | undefined;
-        minerIds?: string[] | undefined;
-        inferenceType?: InferenceType | undefined;
-        modelName?: string | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        status?: Availability | undefined;
-        blockCount?: ((string | number | Long.Long)[] & (string | number | (Long.Long & {
-            high: number;
-            low: number;
-            unsigned: boolean;
-            add: (addend: string | number | Long.Long) => Long.Long;
-            and: (other: string | number | Long.Long) => Long.Long;
-            compare: (other: string | number | Long.Long) => number;
-            comp: (other: string | number | Long.Long) => number;
-            divide: (divisor: string | number | Long.Long) => Long.Long;
-            div: (divisor: string | number | Long.Long) => Long.Long;
-            equals: (other: string | number | Long.Long) => boolean;
-            eq: (other: string | number | Long.Long) => boolean;
-            getHighBits: () => number;
-            getHighBitsUnsigned: () => number;
-            getLowBits: () => number;
-            getLowBitsUnsigned: () => number;
-            getNumBitsAbs: () => number;
-            greaterThan: (other: string | number | Long.Long) => boolean;
-            gt: (other: string | number | Long.Long) => boolean;
-            greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-            gte: (other: string | number | Long.Long) => boolean;
-            isEven: () => boolean;
-            isNegative: () => boolean;
-            isOdd: () => boolean;
-            isPositive: () => boolean;
-            isZero: () => boolean;
-            lessThan: (other: string | number | Long.Long) => boolean;
-            lt: (other: string | number | Long.Long) => boolean;
-            lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-            lte: (other: string | number | Long.Long) => boolean;
-            modulo: (other: string | number | Long.Long) => Long.Long;
-            mod: (other: string | number | Long.Long) => Long.Long;
-            multiply: (multiplier: string | number | Long.Long) => Long.Long;
-            mul: (multiplier: string | number | Long.Long) => Long.Long;
-            negate: () => Long.Long;
-            neg: () => Long.Long;
-            not: () => Long.Long;
-            notEquals: (other: string | number | Long.Long) => boolean;
-            neq: (other: string | number | Long.Long) => boolean;
-            or: (other: string | number | Long.Long) => Long.Long;
-            shiftLeft: (numBits: number | Long.Long) => Long.Long;
-            shl: (numBits: number | Long.Long) => Long.Long;
-            shiftRight: (numBits: number | Long.Long) => Long.Long;
-            shr: (numBits: number | Long.Long) => Long.Long;
-            shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-            shru: (numBits: number | Long.Long) => Long.Long;
-            subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-            sub: (subtrahend: string | number | Long.Long) => Long.Long;
-            toInt: () => number;
-            toNumber: () => number;
-            toBytes: (le?: boolean | undefined) => number[];
-            toBytesLE: () => number[];
-            toBytesBE: () => number[];
-            toSigned: () => Long.Long;
-            toString: (radix?: number | undefined) => string;
-            toUnsigned: () => Long.Long;
-            xor: (other: string | number | Long.Long) => Long.Long;
-        } & Record<Exclude<keyof I["blockCount"][number], keyof Long.Long>, never>))[] & Record<Exclude<keyof I["blockCount"], keyof (string | number | Long.Long)[]>, never>) | undefined;
-        minerIds?: (string[] & string[] & Record<Exclude<keyof I["minerIds"], keyof string[]>, never>) | undefined;
-        inferenceType?: InferenceType | undefined;
-        modelName?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgRegisterOrchestrator>, never>>(object: I): MsgRegisterOrchestrator;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterOrchestrator>, I>>(object: I): MsgRegisterOrchestrator;
 };
 export declare const MsgRegisterOrchestratorResponse: {
     typeUrl: string;
@@ -1086,7 +299,7 @@ export declare const MsgRegisterOrchestratorResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgRegisterOrchestratorResponse;
     fromJSON(_: any): MsgRegisterOrchestratorResponse;
     toJSON(_: MsgRegisterOrchestratorResponse): JsonSafe<MsgRegisterOrchestratorResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgRegisterOrchestratorResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgRegisterOrchestratorResponse>, I>>(_: I): MsgRegisterOrchestratorResponse;
 };
 export declare const MsgDeleteOrchestrator: {
     typeUrl: string;
@@ -1094,13 +307,7 @@ export declare const MsgDeleteOrchestrator: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteOrchestrator;
     fromJSON(object: any): MsgDeleteOrchestrator;
     toJSON(message: MsgDeleteOrchestrator): JsonSafe<MsgDeleteOrchestrator>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgDeleteOrchestrator>, never>>(object: I): MsgDeleteOrchestrator;
+    fromPartial<I extends Exact<DeepPartial<MsgDeleteOrchestrator>, I>>(object: I): MsgDeleteOrchestrator;
 };
 export declare const MsgDeleteOrchestratorResponse: {
     typeUrl: string;
@@ -1108,7 +315,7 @@ export declare const MsgDeleteOrchestratorResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgDeleteOrchestratorResponse;
     fromJSON(_: any): MsgDeleteOrchestratorResponse;
     toJSON(_: MsgDeleteOrchestratorResponse): JsonSafe<MsgDeleteOrchestratorResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgDeleteOrchestratorResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgDeleteOrchestratorResponse>, I>>(_: I): MsgDeleteOrchestratorResponse;
 };
 export declare const MsgOrchestratorHeartbeat: {
     typeUrl: string;
@@ -1116,13 +323,7 @@ export declare const MsgOrchestratorHeartbeat: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgOrchestratorHeartbeat;
     fromJSON(object: any): MsgOrchestratorHeartbeat;
     toJSON(message: MsgOrchestratorHeartbeat): JsonSafe<MsgOrchestratorHeartbeat>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgOrchestratorHeartbeat>, never>>(object: I): MsgOrchestratorHeartbeat;
+    fromPartial<I extends Exact<DeepPartial<MsgOrchestratorHeartbeat>, I>>(object: I): MsgOrchestratorHeartbeat;
 };
 export declare const MsgOrchestratorHeartbeatResponse: {
     typeUrl: string;
@@ -1130,7 +331,7 @@ export declare const MsgOrchestratorHeartbeatResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgOrchestratorHeartbeatResponse;
     fromJSON(_: any): MsgOrchestratorHeartbeatResponse;
     toJSON(_: MsgOrchestratorHeartbeatResponse): JsonSafe<MsgOrchestratorHeartbeatResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgOrchestratorHeartbeatResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgOrchestratorHeartbeatResponse>, I>>(_: I): MsgOrchestratorHeartbeatResponse;
 };
 export declare const MsgMinerHeartbeat: {
     typeUrl: string;
@@ -1138,13 +339,7 @@ export declare const MsgMinerHeartbeat: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgMinerHeartbeat;
     fromJSON(object: any): MsgMinerHeartbeat;
     toJSON(message: MsgMinerHeartbeat): JsonSafe<MsgMinerHeartbeat>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgMinerHeartbeat>, never>>(object: I): MsgMinerHeartbeat;
+    fromPartial<I extends Exact<DeepPartial<MsgMinerHeartbeat>, I>>(object: I): MsgMinerHeartbeat;
 };
 export declare const MsgMinerHeartbeatResponse: {
     typeUrl: string;
@@ -1152,7 +347,7 @@ export declare const MsgMinerHeartbeatResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgMinerHeartbeatResponse;
     fromJSON(_: any): MsgMinerHeartbeatResponse;
     toJSON(_: MsgMinerHeartbeatResponse): JsonSafe<MsgMinerHeartbeatResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgMinerHeartbeatResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgMinerHeartbeatResponse>, I>>(_: I): MsgMinerHeartbeatResponse;
 };
 export declare const MsgAddMinerDeposit: {
     typeUrl: string;
@@ -1160,24 +355,7 @@ export declare const MsgAddMinerDeposit: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgAddMinerDeposit;
     fromJSON(object: any): MsgAddMinerDeposit;
     toJSON(message: MsgAddMinerDeposit): JsonSafe<MsgAddMinerDeposit>;
-    fromPartial<I extends {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } | undefined;
-    } & {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["amount"], keyof Coin>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgAddMinerDeposit>, never>>(object: I): MsgAddMinerDeposit;
+    fromPartial<I extends Exact<DeepPartial<MsgAddMinerDeposit>, I>>(object: I): MsgAddMinerDeposit;
 };
 export declare const MsgAddMinerDepositResponse: {
     typeUrl: string;
@@ -1185,7 +363,7 @@ export declare const MsgAddMinerDepositResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgAddMinerDepositResponse;
     fromJSON(_: any): MsgAddMinerDepositResponse;
     toJSON(_: MsgAddMinerDepositResponse): JsonSafe<MsgAddMinerDepositResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgAddMinerDepositResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgAddMinerDepositResponse>, I>>(_: I): MsgAddMinerDepositResponse;
 };
 export declare const MsgWithdrawMiner: {
     typeUrl: string;
@@ -1193,26 +371,7 @@ export declare const MsgWithdrawMiner: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgWithdrawMiner;
     fromJSON(object: any): MsgWithdrawMiner;
     toJSON(message: MsgWithdrawMiner): JsonSafe<MsgWithdrawMiner>;
-    fromPartial<I extends {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } | undefined;
-        receiver?: string | undefined;
-    } & {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["amount"], keyof Coin>, never>) | undefined;
-        receiver?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgWithdrawMiner>, never>>(object: I): MsgWithdrawMiner;
+    fromPartial<I extends Exact<DeepPartial<MsgWithdrawMiner>, I>>(object: I): MsgWithdrawMiner;
 };
 export declare const MsgWithdrawMinerResponse: {
     typeUrl: string;
@@ -1220,7 +379,7 @@ export declare const MsgWithdrawMinerResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgWithdrawMinerResponse;
     fromJSON(_: any): MsgWithdrawMinerResponse;
     toJSON(_: MsgWithdrawMinerResponse): JsonSafe<MsgWithdrawMinerResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgWithdrawMinerResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgWithdrawMinerResponse>, I>>(_: I): MsgWithdrawMinerResponse;
 };
 export declare const MsgAddOrchestratorDeposit: {
     typeUrl: string;
@@ -1228,24 +387,7 @@ export declare const MsgAddOrchestratorDeposit: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgAddOrchestratorDeposit;
     fromJSON(object: any): MsgAddOrchestratorDeposit;
     toJSON(message: MsgAddOrchestratorDeposit): JsonSafe<MsgAddOrchestratorDeposit>;
-    fromPartial<I extends {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } | undefined;
-    } & {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["amount"], keyof Coin>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgAddOrchestratorDeposit>, never>>(object: I): MsgAddOrchestratorDeposit;
+    fromPartial<I extends Exact<DeepPartial<MsgAddOrchestratorDeposit>, I>>(object: I): MsgAddOrchestratorDeposit;
 };
 export declare const MsgAddOrchestratorDepositResponse: {
     typeUrl: string;
@@ -1253,7 +395,7 @@ export declare const MsgAddOrchestratorDepositResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgAddOrchestratorDepositResponse;
     fromJSON(_: any): MsgAddOrchestratorDepositResponse;
     toJSON(_: MsgAddOrchestratorDepositResponse): JsonSafe<MsgAddOrchestratorDepositResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgAddOrchestratorDepositResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgAddOrchestratorDepositResponse>, I>>(_: I): MsgAddOrchestratorDepositResponse;
 };
 export declare const MsgWithdrawOrchestrator: {
     typeUrl: string;
@@ -1261,26 +403,7 @@ export declare const MsgWithdrawOrchestrator: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgWithdrawOrchestrator;
     fromJSON(object: any): MsgWithdrawOrchestrator;
     toJSON(message: MsgWithdrawOrchestrator): JsonSafe<MsgWithdrawOrchestrator>;
-    fromPartial<I extends {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } | undefined;
-        receiver?: string | undefined;
-    } & {
-        depositor?: string | undefined;
-        nodeId?: string | undefined;
-        amount?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["amount"], keyof Coin>, never>) | undefined;
-        receiver?: string | undefined;
-    } & Record<Exclude<keyof I, keyof MsgWithdrawOrchestrator>, never>>(object: I): MsgWithdrawOrchestrator;
+    fromPartial<I extends Exact<DeepPartial<MsgWithdrawOrchestrator>, I>>(object: I): MsgWithdrawOrchestrator;
 };
 export declare const MsgWithdrawOrchestratorResponse: {
     typeUrl: string;
@@ -1288,7 +411,7 @@ export declare const MsgWithdrawOrchestratorResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgWithdrawOrchestratorResponse;
     fromJSON(_: any): MsgWithdrawOrchestratorResponse;
     toJSON(_: MsgWithdrawOrchestratorResponse): JsonSafe<MsgWithdrawOrchestratorResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgWithdrawOrchestratorResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgWithdrawOrchestratorResponse>, I>>(_: I): MsgWithdrawOrchestratorResponse;
 };
 export declare const MsgUpdateNodeLabel: {
     typeUrl: string;
@@ -1296,15 +419,7 @@ export declare const MsgUpdateNodeLabel: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateNodeLabel;
     fromJSON(object: any): MsgUpdateNodeLabel;
     toJSON(message: MsgUpdateNodeLabel): JsonSafe<MsgUpdateNodeLabel>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        labels?: string[] | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        labels?: (string[] & string[] & Record<Exclude<keyof I["labels"], keyof string[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgUpdateNodeLabel>, never>>(object: I): MsgUpdateNodeLabel;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateNodeLabel>, I>>(object: I): MsgUpdateNodeLabel;
 };
 export declare const MsgUpdateNodeLabelResponse: {
     typeUrl: string;
@@ -1312,7 +427,7 @@ export declare const MsgUpdateNodeLabelResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateNodeLabelResponse;
     fromJSON(_: any): MsgUpdateNodeLabelResponse;
     toJSON(_: MsgUpdateNodeLabelResponse): JsonSafe<MsgUpdateNodeLabelResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgUpdateNodeLabelResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateNodeLabelResponse>, I>>(_: I): MsgUpdateNodeLabelResponse;
 };
 export declare const MsgUpdateModel: {
     typeUrl: string;
@@ -1320,50 +435,7 @@ export declare const MsgUpdateModel: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateModel;
     fromJSON(object: any): MsgUpdateModel;
     toJSON(message: MsgUpdateModel): JsonSafe<MsgUpdateModel>;
-    fromPartial<I extends {
-        account?: string | undefined;
-        modelName?: string | undefined;
-        allowList?: string[] | undefined;
-        tokenPrice?: {
-            inputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            outputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-        } | undefined;
-    } & {
-        account?: string | undefined;
-        modelName?: string | undefined;
-        allowList?: (string[] & string[] & Record<Exclude<keyof I["allowList"], keyof string[]>, never>) | undefined;
-        tokenPrice?: ({
-            inputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-            outputPrice?: {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } | undefined;
-        } & {
-            inputPrice?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["tokenPrice"]["inputPrice"], keyof Coin>, never>) | undefined;
-            outputPrice?: ({
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & {
-                denom?: string | undefined;
-                amount?: string | undefined;
-            } & Record<Exclude<keyof I["tokenPrice"]["outputPrice"], keyof Coin>, never>) | undefined;
-        } & Record<Exclude<keyof I["tokenPrice"], keyof TokenPrice>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgUpdateModel>, never>>(object: I): MsgUpdateModel;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateModel>, I>>(object: I): MsgUpdateModel;
 };
 export declare const MsgUpdateModelResponse: {
     typeUrl: string;
@@ -1371,7 +443,7 @@ export declare const MsgUpdateModelResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateModelResponse;
     fromJSON(_: any): MsgUpdateModelResponse;
     toJSON(_: MsgUpdateModelResponse): JsonSafe<MsgUpdateModelResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgUpdateModelResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateModelResponse>, I>>(_: I): MsgUpdateModelResponse;
 };
 export declare const MsgUpdateModelCreatorAllowList: {
     typeUrl: string;
@@ -1379,13 +451,7 @@ export declare const MsgUpdateModelCreatorAllowList: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateModelCreatorAllowList;
     fromJSON(object: any): MsgUpdateModelCreatorAllowList;
     toJSON(message: MsgUpdateModelCreatorAllowList): JsonSafe<MsgUpdateModelCreatorAllowList>;
-    fromPartial<I extends {
-        account?: string | undefined;
-        modelCreators?: string[] | undefined;
-    } & {
-        account?: string | undefined;
-        modelCreators?: (string[] & string[] & Record<Exclude<keyof I["modelCreators"], keyof string[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgUpdateModelCreatorAllowList>, never>>(object: I): MsgUpdateModelCreatorAllowList;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateModelCreatorAllowList>, I>>(object: I): MsgUpdateModelCreatorAllowList;
 };
 export declare const MsgModelCreatorAllowListResponse: {
     typeUrl: string;
@@ -1393,7 +459,7 @@ export declare const MsgModelCreatorAllowListResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgModelCreatorAllowListResponse;
     fromJSON(_: any): MsgModelCreatorAllowListResponse;
     toJSON(_: MsgModelCreatorAllowListResponse): JsonSafe<MsgModelCreatorAllowListResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgModelCreatorAllowListResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgModelCreatorAllowListResponse>, I>>(_: I): MsgModelCreatorAllowListResponse;
 };
 export declare const MsgUpdateMinerReputation: {
     typeUrl: string;
@@ -1401,87 +467,7 @@ export declare const MsgUpdateMinerReputation: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateMinerReputation;
     fromJSON(object: any): MsgUpdateMinerReputation;
     toJSON(message: MsgUpdateMinerReputation): JsonSafe<MsgUpdateMinerReputation>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        reputations?: {
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        }[] | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        reputations?: ({
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        }[] & ({
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        } & {
-            name?: string | undefined;
-            score?: string | number | (Long.Long & {
-                high: number;
-                low: number;
-                unsigned: boolean;
-                add: (addend: string | number | Long.Long) => Long.Long;
-                and: (other: string | number | Long.Long) => Long.Long;
-                compare: (other: string | number | Long.Long) => number;
-                comp: (other: string | number | Long.Long) => number;
-                divide: (divisor: string | number | Long.Long) => Long.Long;
-                div: (divisor: string | number | Long.Long) => Long.Long;
-                equals: (other: string | number | Long.Long) => boolean;
-                eq: (other: string | number | Long.Long) => boolean;
-                getHighBits: () => number;
-                getHighBitsUnsigned: () => number;
-                getLowBits: () => number;
-                getLowBitsUnsigned: () => number;
-                getNumBitsAbs: () => number;
-                greaterThan: (other: string | number | Long.Long) => boolean;
-                gt: (other: string | number | Long.Long) => boolean;
-                greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                gte: (other: string | number | Long.Long) => boolean;
-                isEven: () => boolean;
-                isNegative: () => boolean;
-                isOdd: () => boolean;
-                isPositive: () => boolean;
-                isZero: () => boolean;
-                lessThan: (other: string | number | Long.Long) => boolean;
-                lt: (other: string | number | Long.Long) => boolean;
-                lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                lte: (other: string | number | Long.Long) => boolean;
-                modulo: (other: string | number | Long.Long) => Long.Long;
-                mod: (other: string | number | Long.Long) => Long.Long;
-                multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                mul: (multiplier: string | number | Long.Long) => Long.Long;
-                negate: () => Long.Long;
-                neg: () => Long.Long;
-                not: () => Long.Long;
-                notEquals: (other: string | number | Long.Long) => boolean;
-                neq: (other: string | number | Long.Long) => boolean;
-                or: (other: string | number | Long.Long) => Long.Long;
-                shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                shl: (numBits: number | Long.Long) => Long.Long;
-                shiftRight: (numBits: number | Long.Long) => Long.Long;
-                shr: (numBits: number | Long.Long) => Long.Long;
-                shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                shru: (numBits: number | Long.Long) => Long.Long;
-                subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                toInt: () => number;
-                toNumber: () => number;
-                toBytes: (le?: boolean | undefined) => number[];
-                toBytesLE: () => number[];
-                toBytesBE: () => number[];
-                toSigned: () => Long.Long;
-                toString: (radix?: number | undefined) => string;
-                toUnsigned: () => Long.Long;
-                xor: (other: string | number | Long.Long) => Long.Long;
-            } & Record<Exclude<keyof I["reputations"][number]["score"], keyof Long.Long>, never>) | undefined;
-        } & Record<Exclude<keyof I["reputations"][number], keyof Reputation>, never>)[] & Record<Exclude<keyof I["reputations"], keyof {
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgUpdateMinerReputation>, never>>(object: I): MsgUpdateMinerReputation;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateMinerReputation>, I>>(object: I): MsgUpdateMinerReputation;
 };
 export declare const MsgUpdateMinerReputationResponse: {
     typeUrl: string;
@@ -1489,7 +475,7 @@ export declare const MsgUpdateMinerReputationResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateMinerReputationResponse;
     fromJSON(_: any): MsgUpdateMinerReputationResponse;
     toJSON(_: MsgUpdateMinerReputationResponse): JsonSafe<MsgUpdateMinerReputationResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgUpdateMinerReputationResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateMinerReputationResponse>, I>>(_: I): MsgUpdateMinerReputationResponse;
 };
 export declare const MsgUpdateOrchestratorReputation: {
     typeUrl: string;
@@ -1497,87 +483,7 @@ export declare const MsgUpdateOrchestratorReputation: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateOrchestratorReputation;
     fromJSON(object: any): MsgUpdateOrchestratorReputation;
     toJSON(message: MsgUpdateOrchestratorReputation): JsonSafe<MsgUpdateOrchestratorReputation>;
-    fromPartial<I extends {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        reputations?: {
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        }[] | undefined;
-    } & {
-        creator?: string | undefined;
-        nodeId?: string | undefined;
-        reputations?: ({
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        }[] & ({
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        } & {
-            name?: string | undefined;
-            score?: string | number | (Long.Long & {
-                high: number;
-                low: number;
-                unsigned: boolean;
-                add: (addend: string | number | Long.Long) => Long.Long;
-                and: (other: string | number | Long.Long) => Long.Long;
-                compare: (other: string | number | Long.Long) => number;
-                comp: (other: string | number | Long.Long) => number;
-                divide: (divisor: string | number | Long.Long) => Long.Long;
-                div: (divisor: string | number | Long.Long) => Long.Long;
-                equals: (other: string | number | Long.Long) => boolean;
-                eq: (other: string | number | Long.Long) => boolean;
-                getHighBits: () => number;
-                getHighBitsUnsigned: () => number;
-                getLowBits: () => number;
-                getLowBitsUnsigned: () => number;
-                getNumBitsAbs: () => number;
-                greaterThan: (other: string | number | Long.Long) => boolean;
-                gt: (other: string | number | Long.Long) => boolean;
-                greaterThanOrEqual: (other: string | number | Long.Long) => boolean;
-                gte: (other: string | number | Long.Long) => boolean;
-                isEven: () => boolean;
-                isNegative: () => boolean;
-                isOdd: () => boolean;
-                isPositive: () => boolean;
-                isZero: () => boolean;
-                lessThan: (other: string | number | Long.Long) => boolean;
-                lt: (other: string | number | Long.Long) => boolean;
-                lessThanOrEqual: (other: string | number | Long.Long) => boolean;
-                lte: (other: string | number | Long.Long) => boolean;
-                modulo: (other: string | number | Long.Long) => Long.Long;
-                mod: (other: string | number | Long.Long) => Long.Long;
-                multiply: (multiplier: string | number | Long.Long) => Long.Long;
-                mul: (multiplier: string | number | Long.Long) => Long.Long;
-                negate: () => Long.Long;
-                neg: () => Long.Long;
-                not: () => Long.Long;
-                notEquals: (other: string | number | Long.Long) => boolean;
-                neq: (other: string | number | Long.Long) => boolean;
-                or: (other: string | number | Long.Long) => Long.Long;
-                shiftLeft: (numBits: number | Long.Long) => Long.Long;
-                shl: (numBits: number | Long.Long) => Long.Long;
-                shiftRight: (numBits: number | Long.Long) => Long.Long;
-                shr: (numBits: number | Long.Long) => Long.Long;
-                shiftRightUnsigned: (numBits: number | Long.Long) => Long.Long;
-                shru: (numBits: number | Long.Long) => Long.Long;
-                subtract: (subtrahend: string | number | Long.Long) => Long.Long;
-                sub: (subtrahend: string | number | Long.Long) => Long.Long;
-                toInt: () => number;
-                toNumber: () => number;
-                toBytes: (le?: boolean | undefined) => number[];
-                toBytesLE: () => number[];
-                toBytesBE: () => number[];
-                toSigned: () => Long.Long;
-                toString: (radix?: number | undefined) => string;
-                toUnsigned: () => Long.Long;
-                xor: (other: string | number | Long.Long) => Long.Long;
-            } & Record<Exclude<keyof I["reputations"][number]["score"], keyof Long.Long>, never>) | undefined;
-        } & Record<Exclude<keyof I["reputations"][number], keyof Reputation>, never>)[] & Record<Exclude<keyof I["reputations"], keyof {
-            name?: string | undefined;
-            score?: string | number | Long.Long | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof MsgUpdateOrchestratorReputation>, never>>(object: I): MsgUpdateOrchestratorReputation;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateOrchestratorReputation>, I>>(object: I): MsgUpdateOrchestratorReputation;
 };
 export declare const MsgUpdateOrchestratorReputationResponse: {
     typeUrl: string;
@@ -1585,7 +491,7 @@ export declare const MsgUpdateOrchestratorReputationResponse: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MsgUpdateOrchestratorReputationResponse;
     fromJSON(_: any): MsgUpdateOrchestratorReputationResponse;
     toJSON(_: MsgUpdateOrchestratorReputationResponse): JsonSafe<MsgUpdateOrchestratorReputationResponse>;
-    fromPartial<I extends {} & {} & Record<Exclude<keyof I, never>, never>>(_: I): MsgUpdateOrchestratorReputationResponse;
+    fromPartial<I extends Exact<DeepPartial<MsgUpdateOrchestratorReputationResponse>, I>>(_: I): MsgUpdateOrchestratorReputationResponse;
 };
 /** Msg defines the Msg service. */
 export interface Msg {

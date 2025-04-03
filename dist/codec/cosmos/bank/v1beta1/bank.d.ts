@@ -1,5 +1,6 @@
 import { Coin } from "../../base/v1beta1/coin";
 import * as _m0 from "protobufjs/minimal";
+import { DeepPartial, Exact } from "../../../helpers";
 import { JsonSafe } from "../../../json-safe";
 export declare const protobufPackage = "cosmos.bank.v1beta1";
 /** Params defines the parameters for the bank module. */
@@ -81,28 +82,7 @@ export declare const Params: {
     decode(input: _m0.Reader | Uint8Array, length?: number): Params;
     fromJSON(object: any): Params;
     toJSON(message: Params): JsonSafe<Params>;
-    fromPartial<I extends {
-        sendEnabled?: {
-            denom?: string | undefined;
-            enabled?: boolean | undefined;
-        }[] | undefined;
-        defaultSendEnabled?: boolean | undefined;
-    } & {
-        sendEnabled?: ({
-            denom?: string | undefined;
-            enabled?: boolean | undefined;
-        }[] & ({
-            denom?: string | undefined;
-            enabled?: boolean | undefined;
-        } & {
-            denom?: string | undefined;
-            enabled?: boolean | undefined;
-        } & Record<Exclude<keyof I["sendEnabled"][number], keyof SendEnabled>, never>)[] & Record<Exclude<keyof I["sendEnabled"], keyof {
-            denom?: string | undefined;
-            enabled?: boolean | undefined;
-        }[]>, never>) | undefined;
-        defaultSendEnabled?: boolean | undefined;
-    } & Record<Exclude<keyof I, keyof Params>, never>>(object: I): Params;
+    fromPartial<I extends Exact<DeepPartial<Params>, I>>(object: I): Params;
 };
 export declare const SendEnabled: {
     typeUrl: string;
@@ -110,13 +90,7 @@ export declare const SendEnabled: {
     decode(input: _m0.Reader | Uint8Array, length?: number): SendEnabled;
     fromJSON(object: any): SendEnabled;
     toJSON(message: SendEnabled): JsonSafe<SendEnabled>;
-    fromPartial<I extends {
-        denom?: string | undefined;
-        enabled?: boolean | undefined;
-    } & {
-        denom?: string | undefined;
-        enabled?: boolean | undefined;
-    } & Record<Exclude<keyof I, keyof SendEnabled>, never>>(object: I): SendEnabled;
+    fromPartial<I extends Exact<DeepPartial<SendEnabled>, I>>(object: I): SendEnabled;
 };
 export declare const Input: {
     typeUrl: string;
@@ -124,28 +98,7 @@ export declare const Input: {
     decode(input: _m0.Reader | Uint8Array, length?: number): Input;
     fromJSON(object: any): Input;
     toJSON(message: Input): JsonSafe<Input>;
-    fromPartial<I extends {
-        address?: string | undefined;
-        coins?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] | undefined;
-    } & {
-        address?: string | undefined;
-        coins?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] & ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["coins"][number], keyof Coin>, never>)[] & Record<Exclude<keyof I["coins"], keyof {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof Input>, never>>(object: I): Input;
+    fromPartial<I extends Exact<DeepPartial<Input>, I>>(object: I): Input;
 };
 export declare const Output: {
     typeUrl: string;
@@ -153,28 +106,7 @@ export declare const Output: {
     decode(input: _m0.Reader | Uint8Array, length?: number): Output;
     fromJSON(object: any): Output;
     toJSON(message: Output): JsonSafe<Output>;
-    fromPartial<I extends {
-        address?: string | undefined;
-        coins?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] | undefined;
-    } & {
-        address?: string | undefined;
-        coins?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] & ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["coins"][number], keyof Coin>, never>)[] & Record<Exclude<keyof I["coins"], keyof {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof Output>, never>>(object: I): Output;
+    fromPartial<I extends Exact<DeepPartial<Output>, I>>(object: I): Output;
 };
 export declare const Supply: {
     typeUrl: string;
@@ -182,26 +114,7 @@ export declare const Supply: {
     decode(input: _m0.Reader | Uint8Array, length?: number): Supply;
     fromJSON(object: any): Supply;
     toJSON(message: Supply): JsonSafe<Supply>;
-    fromPartial<I extends {
-        total?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] | undefined;
-    } & {
-        total?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] & ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["total"][number], keyof Coin>, never>)[] & Record<Exclude<keyof I["total"], keyof {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, "total">, never>>(object: I): Supply;
+    fromPartial<I extends Exact<DeepPartial<Supply>, I>>(object: I): Supply;
 };
 export declare const DenomUnit: {
     typeUrl: string;
@@ -209,15 +122,7 @@ export declare const DenomUnit: {
     decode(input: _m0.Reader | Uint8Array, length?: number): DenomUnit;
     fromJSON(object: any): DenomUnit;
     toJSON(message: DenomUnit): JsonSafe<DenomUnit>;
-    fromPartial<I extends {
-        denom?: string | undefined;
-        exponent?: number | undefined;
-        aliases?: string[] | undefined;
-    } & {
-        denom?: string | undefined;
-        exponent?: number | undefined;
-        aliases?: (string[] & string[] & Record<Exclude<keyof I["aliases"], keyof string[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof DenomUnit>, never>>(object: I): DenomUnit;
+    fromPartial<I extends Exact<DeepPartial<DenomUnit>, I>>(object: I): DenomUnit;
 };
 export declare const Metadata: {
     typeUrl: string;
@@ -225,39 +130,5 @@ export declare const Metadata: {
     decode(input: _m0.Reader | Uint8Array, length?: number): Metadata;
     fromJSON(object: any): Metadata;
     toJSON(message: Metadata): JsonSafe<Metadata>;
-    fromPartial<I extends {
-        description?: string | undefined;
-        denomUnits?: {
-            denom?: string | undefined;
-            exponent?: number | undefined;
-            aliases?: string[] | undefined;
-        }[] | undefined;
-        base?: string | undefined;
-        display?: string | undefined;
-        name?: string | undefined;
-        symbol?: string | undefined;
-    } & {
-        description?: string | undefined;
-        denomUnits?: ({
-            denom?: string | undefined;
-            exponent?: number | undefined;
-            aliases?: string[] | undefined;
-        }[] & ({
-            denom?: string | undefined;
-            exponent?: number | undefined;
-            aliases?: string[] | undefined;
-        } & {
-            denom?: string | undefined;
-            exponent?: number | undefined;
-            aliases?: (string[] & string[] & Record<Exclude<keyof I["denomUnits"][number]["aliases"], keyof string[]>, never>) | undefined;
-        } & Record<Exclude<keyof I["denomUnits"][number], keyof DenomUnit>, never>)[] & Record<Exclude<keyof I["denomUnits"], keyof {
-            denom?: string | undefined;
-            exponent?: number | undefined;
-            aliases?: string[] | undefined;
-        }[]>, never>) | undefined;
-        base?: string | undefined;
-        display?: string | undefined;
-        name?: string | undefined;
-        symbol?: string | undefined;
-    } & Record<Exclude<keyof I, keyof Metadata>, never>>(object: I): Metadata;
+    fromPartial<I extends Exact<DeepPartial<Metadata>, I>>(object: I): Metadata;
 };
