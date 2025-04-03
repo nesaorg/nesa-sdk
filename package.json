@@ -17,7 +17,6 @@
     "@cosmjs/proto-signing": "^0.32.3",
     "@cosmjs/stargate": "^0.32.3",
     "@cosmjs/tendermint-rpc": "^0.32.3",
-    "@keplr-wallet/types": "^0.12.80",
     "@leapwallet/cosmos-snap-provider": "^0.1.26",
     "@lionello/secp256k1-js": "^1.1.0",
     "bignumber.js": "^9.1.2",
@@ -29,8 +28,9 @@
     "ws": "^7.5.9"
   },
   "devDependencies": {
-    "@types/crypto-js": "^4.2.2",
     "@cosmology/telescope": "^1.0.7",
-    "ts-node": "^10.9.2"
+    "@types/crypto-js": "^4.2.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
   }
 }

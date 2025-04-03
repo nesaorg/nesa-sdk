@@ -1,4 +1,3 @@
-/// <reference types="node" />
 interface ISocket {
     webSocket: WebSocket | null;
     wsUrl: string;

@@ -1,4 +1,5 @@
 import * as _m0 from "protobufjs/minimal";
+import { DeepPartial, Exact } from "../../../helpers";
 import { JsonSafe } from "../../../json-safe";
 export declare const protobufPackage = "cosmos.base.v1beta1";
 /**
@@ -27,13 +28,7 @@ export declare const Coin: {
     decode(input: _m0.Reader | Uint8Array, length?: number): Coin;
     fromJSON(object: any): Coin;
     toJSON(message: Coin): JsonSafe<Coin>;
-    fromPartial<I extends {
-        denom?: string | undefined;
-        amount?: string | undefined;
-    } & {
-        denom?: string | undefined;
-        amount?: string | undefined;
-    } & Record<Exclude<keyof I, keyof Coin>, never>>(object: I): Coin;
+    fromPartial<I extends Exact<DeepPartial<Coin>, I>>(object: I): Coin;
 };
 export declare const DecCoin: {
     typeUrl: string;
@@ -41,11 +36,5 @@ export declare const DecCoin: {
     decode(input: _m0.Reader | Uint8Array, length?: number): DecCoin;
     fromJSON(object: any): DecCoin;
     toJSON(message: DecCoin): JsonSafe<DecCoin>;
-    fromPartial<I extends {
-        denom?: string | undefined;
-        amount?: string | undefined;
-    } & {
-        denom?: string | undefined;
-        amount?: string | undefined;
-    } & Record<Exclude<keyof I, keyof DecCoin>, never>>(object: I): DecCoin;
+    fromPartial<I extends Exact<DeepPartial<DecCoin>, I>>(object: I): DecCoin;
 };

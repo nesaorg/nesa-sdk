@@ -1,4 +1,5 @@
 import * as _m0 from "protobufjs/minimal";
+import { DeepPartial, Exact } from "../../../helpers";
 import { JsonSafe } from "../../../json-safe";
 export declare const protobufPackage = "cosmos.app.v1alpha1";
 /** ModuleDescriptor describes an app module. */
@@ -87,40 +88,7 @@ export declare const ModuleDescriptor: {
     decode(input: _m0.Reader | Uint8Array, length?: number): ModuleDescriptor;
     fromJSON(object: any): ModuleDescriptor;
     toJSON(message: ModuleDescriptor): JsonSafe<ModuleDescriptor>;
-    fromPartial<I extends {
-        goImport?: string | undefined;
-        usePackage?: {
-            name?: string | undefined;
-            revision?: number | undefined;
-        }[] | undefined;
-        canMigrateFrom?: {
-            module?: string | undefined;
-        }[] | undefined;
-    } & {
-        goImport?: string | undefined;
-        usePackage?: ({
-            name?: string | undefined;
-            revision?: number | undefined;
-        }[] & ({
-            name?: string | undefined;
-            revision?: number | undefined;
-        } & {
-            name?: string | undefined;
-            revision?: number | undefined;
-        } & Record<Exclude<keyof I["usePackage"][number], keyof PackageReference>, never>)[] & Record<Exclude<keyof I["usePackage"], keyof {
-            name?: string | undefined;
-            revision?: number | undefined;
-        }[]>, never>) | undefined;
-        canMigrateFrom?: ({
-            module?: string | undefined;
-        }[] & ({
-            module?: string | undefined;
-        } & {
-            module?: string | undefined;
-        } & Record<Exclude<keyof I["canMigrateFrom"][number], "module">, never>)[] & Record<Exclude<keyof I["canMigrateFrom"], keyof {
-            module?: string | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, keyof ModuleDescriptor>, never>>(object: I): ModuleDescriptor;
+    fromPartial<I extends Exact<DeepPartial<ModuleDescriptor>, I>>(object: I): ModuleDescriptor;
 };
 export declare const PackageReference: {
     typeUrl: string;
@@ -128,13 +96,7 @@ export declare const PackageReference: {
     decode(input: _m0.Reader | Uint8Array, length?: number): PackageReference;
     fromJSON(object: any): PackageReference;
     toJSON(message: PackageReference): JsonSafe<PackageReference>;
-    fromPartial<I extends {
-        name?: string | undefined;
-        revision?: number | undefined;
-    } & {
-        name?: string | undefined;
-        revision?: number | undefined;
-    } & Record<Exclude<keyof I, keyof PackageReference>, never>>(object: I): PackageReference;
+    fromPartial<I extends Exact<DeepPartial<PackageReference>, I>>(object: I): PackageReference;
 };
 export declare const MigrateFromInfo: {
     typeUrl: string;
@@ -142,9 +104,5 @@ export declare const MigrateFromInfo: {
     decode(input: _m0.Reader | Uint8Array, length?: number): MigrateFromInfo;
     fromJSON(object: any): MigrateFromInfo;
     toJSON(message: MigrateFromInfo): JsonSafe<MigrateFromInfo>;
-    fromPartial<I extends {
-        module?: string | undefined;
-    } & {
-        module?: string | undefined;
-    } & Record<Exclude<keyof I, "module">, never>>(object: I): MigrateFromInfo;
+    fromPartial<I extends Exact<DeepPartial<MigrateFromInfo>, I>>(object: I): MigrateFromInfo;
 };

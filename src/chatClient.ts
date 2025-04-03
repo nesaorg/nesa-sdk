@@ -1,7 +1,7 @@
 import EncryptUtils from "./encryptUtils";
 import WalletOperation from "./walletOperation";
 import { Readable } from "stream-browserify";
-import { ChainInfo } from "@keplr-wallet/types";
+import { ChainInfo } from "@leapwallet/cosmos-snap-provider";
 import {
   defaultChainInfo,
   defaultLockAmount,
@@ -10,7 +10,7 @@ import {
   sdkVersion,
 } from "./default.config";
 import { socket } from "./socket";
-import { BigNumber } from "bignumber.js";
+import { BigNumber as impBigNumber } from "bignumber.js";
 import { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
 import {
   DirectSecp256k1HdWallet,
@@ -21,6 +21,8 @@ import { NesaClient } from "./client";
 import { getAgentUrls } from "./helpers/getAgentUrls";
 import { getIsChainInfoValid } from "./helpers/getIsChainInfoValid";
 import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
+
+const BigNumber = impBigNumber!;
 
 interface TokenNumber {
   inputTokens: number;
@@ -64,7 +66,7 @@ class ChatClient {
   private walletName: string;
   private chatQueue: any = [];
   private chatSeq = 0;
-  // private totalUsedPayment = 0;
+  private totalUsedPayment = new BigNumber(0);
   private totalSignedPayment = 0;
   private isChatting = false;
   private isRegisteringSession = false;
@@ -106,7 +108,7 @@ class ChatClient {
     this.chatId = options.chatId || Date.now().toString();
     this.minerSessionId = "";
     this.isByPass = options.isByPass || false;
-    this.agentUrl = options.isByPass ? (options.agentUrl || "") : "";
+    this.agentUrl = options.isByPass ? options.agentUrl || "" : "";
     this.authToken = options.authToken;
     // console.log("client options", options, this.chatId);
     if (!this.isByPass) {
@@ -182,7 +184,10 @@ class ChatClient {
             if (this.mnemonic) {
               const wallet = await DirectSecp256k1HdWallet.fromMnemonic(
                 this.mnemonic,
-                { prefix: "nesa", hdPaths: [stringToPath("m/44'/118'/0'/0/0")] }
+                {
+                  prefix: "nesa",
+                  hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
+                }
               );
               // console.log("private key wallet", wallet);
               this.offlineSigner = wallet;
@@ -257,7 +262,9 @@ class ChatClient {
 
     const signaturePayment = EncryptUtils.signMessage(
       this.chatId,
-      `${this.totalSignedPayment}${this.chainInfo.feeCurrencies[0].coinMinimalDenom}`,
+      `${this.totalSignedPayment}${
+        this.chainInfo.feeCurrencies![0].coinMinimalDenom
+      }`,
       this.chatSeq,
       false
     );
@@ -277,10 +284,28 @@ class ChatClient {
     return this.getSignaturePayment();
   }
 
-  computePaymentAmount(tokenNumber: TokenNumber,tokenPrice: TokenPrice) {
-    const inputAmount = new BigNumber(tokenNumber.inputTokens).multipliedBy(tokenPrice.inputPrice.amount);
-    const outputAmount = new BigNumber(tokenNumber.outputTokens).multipliedBy(tokenPrice.outputPrice.amount);
-    return inputAmount.plus(outputAmount).dividedBy(this.priceUnit).toFixed(0, 1);
+  computePaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice) {
+    const inputAmount = new BigNumber(tokenNumber.inputTokens).multipliedBy(
+      tokenPrice.inputPrice.amount
+    );
+    const outputAmount = new BigNumber(tokenNumber.outputTokens).multipliedBy(
+      tokenPrice.outputPrice.amount
+    );
+    return inputAmount.plus(outputAmount).div(this.priceUnit).toFixed(0, 1);
+  }
+
+  computeRawPaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice) {
+    const inputAmount = new BigNumber(tokenNumber.inputTokens).multipliedBy(
+      tokenPrice.inputPrice.amount
+    );
+    const outputAmount = new BigNumber(tokenNumber.outputTokens).multipliedBy(
+      tokenPrice.outputPrice.amount
+    );
+    return inputAmount.plus(outputAmount);
+  }
+
+  rawToProcessedPaymentAmount(amount: impBigNumber) {
+    return amount.div(this.priceUnit).toFixed(0, 1);
   }
 
   requestChatQueue(readableStream: any, question: QuestionParams) {
@@ -303,7 +328,7 @@ class ChatClient {
             stream: true,
             ...question,
             model: question?.model?.toLowerCase(),
-            miner_session_id: this.minerSessionId
+            miner_session_id: this.minerSessionId,
           });
 
           if (question.messages && this.assistantRoleName) {
@@ -322,7 +347,7 @@ class ChatClient {
               this.chatSeq,
               true
             );
-  
+
             if (signedMessage) {
               ws.send(
                 JSON.stringify({
@@ -399,39 +424,54 @@ class ChatClient {
           }
 
           if (!this.isByPass) {
-            // const totalSignedPayment = this.computePaymentAmount({
-            //   inputTokens: messageJson?.input_tokens,
-            //   outputTokens: messageJson?.output_tokens,
-            // },this.tokenPrice!);
-            // const signedMessage = this.checkSinglePaymentAmount(totalSignedPayment);
-            // const total_payment = {
-            //   amount: this.totalSignedPayment,
-            //   denom: this.chainInfo.feeCurrencies[0].coinMinimalDenom,
-            // };
-            // readableStream.push({
-            //   code: 200,
-            //   message: messageJson?.content,
-            //   session_id: messageJson?.session_id || "",
-            //   total_payment,
-            // });
-            // this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(totalSignedPayment).toNumber();
-            // if (
-            //   new BigNumber(this.totalUsedPayment).isGreaterThan(this.lockAmount)
-            // ) {
-            //   readableStream.push({
-            //     code: 205,
-            //     message: '{"code":1015,"msg":"balance insufficient"}',
-            //   });
-            //   // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
-            //   ws.close();
-            // } else if (signedMessage) {
-            //   const data = JSON.stringify({
-            //     chat_seq: this.chatSeq,
-            //     total_payment,
-            //     signature_payment: signedMessage,
-            //   });
-            //   ws.send(data);
-            // }
+            const thisPaymentAmount = this.computeRawPaymentAmount(
+              {
+                inputTokens: messageJson?.input_tokens,
+                outputTokens: messageJson?.output_tokens,
+              },
+              this.tokenPrice!
+            );
+            this.totalUsedPayment = new BigNumber(this.totalUsedPayment).plus(
+              thisPaymentAmount
+            );
+
+            const thisProcessedPaymentAmount =
+              this.rawToProcessedPaymentAmount(thisPaymentAmount);
+            const thisSessionProcessedAmount = this.rawToProcessedPaymentAmount(
+              this.totalUsedPayment
+            );
+
+            const payment = {
+              this: thisProcessedPaymentAmount,
+              session: thisSessionProcessedAmount,
+              denom: this.chainInfo.feeCurrencies![0].coinMinimalDenom,
+            };
+            readableStream.push({
+              code: 200,
+              message: messageJson?.content,
+              session_id: messageJson?.session_id || "",
+              payment,
+            });
+
+            if (
+              new BigNumber(thisSessionProcessedAmount).isGreaterThan(
+                this.lockAmount
+              )
+            ) {
+              this.totalUsedPayment = new BigNumber(0);
+
+              readableStream.push({
+                code: 205,
+                message: JSON.stringify({
+                  code: 1015,
+                  msg: `balance insufficient`,
+                  info: ` (${thisSessionProcessedAmount} > ${this.lockAmount})`,
+                }),
+              });
+              // TODO If the amount used is greater than lockAmount, the connection is closed, but no signature information is sent.
+
+              ws.close();
+            }
           } else {
             readableStream.push({
               code: 200,
@@ -526,7 +566,7 @@ class ChatClient {
               })
               .catch((err: any) => {
                 reject(err);
-            });
+              });
           } else {
             this.isRegisteringSession = false;
             readableStream?.push({
@@ -569,9 +609,11 @@ class ChatClient {
         this.nesaClient
           .broadcastRegisterSession()
           .then(async (result: any) => {
-            await this.requestAgentInfo(result, readableStream).catch((err: any) => {
-              reject(err);
-            });
+            await this.requestAgentInfo(result, readableStream).catch(
+              (err: any) => {
+                reject(err);
+              }
+            );
             resolve(result);
           })
           .catch((error: any) => {
@@ -599,7 +641,6 @@ class ChatClient {
   }
 
   async requestSession() {
-
     if (!this.modelName) {
       throw new Error("ModelName is null");
     }
@@ -615,16 +656,11 @@ class ChatClient {
         throw new Error("Registering session, please wait");
       }
 
-      if (
-        !this.lockAmount ||
-        new BigNumber(this.lockAmount).isNaN()
-      ) {
-        throw new Error(
-        "LockAmount invalid value"
-      );
+      if (!this.lockAmount || new BigNumber(this.lockAmount).isNaN()) {
+        throw new Error("LockAmount invalid value");
       }
     }
-    
+
     this.isEverRequestSession = true;
     const readableStream = new Readable({ objectMode: true });
     readableStream._read = () => {};
@@ -690,7 +726,7 @@ class ChatClient {
               this.chainInfo,
               this.offlineSigner
             );
-            
+
             console.log("registerSession-result: ", result);
             if (result?.transactionHash) {
               this.chatProgressReadable?.push({
@@ -702,9 +738,11 @@ class ChatClient {
                 message: result?.transactionHash,
               });
               this.tokenPrice = result?.tokenPrice;
-              this.checkSignBroadcastResult(readableStream).catch((err: any) => {
-                console.error("checkSignBroadcastResult error", err);
-              });
+              this.checkSignBroadcastResult(readableStream).catch(
+                (err: any) => {
+                  console.error("checkSignBroadcastResult error", err);
+                }
+              );
 
               return readableStream;
             }
@@ -762,17 +800,17 @@ class ChatClient {
         );
       }
 
-      if(!this.tokenPrice) {
-        throw new Error("Please wait for the session registration to complete before requesting chat");
+      if (!this.tokenPrice) {
+        throw new Error(
+          "Please wait for the session registration to complete before requesting chat"
+        );
       }
 
       if (!this.agentChatUrl) {
         const result = await this.checkSignBroadcastResult();
         console.log("checkSignBroadcastResult-result: ", result);
       }
-    }
-
-    else if (!this.agentChatUrl) {
+    } else if (!this.agentChatUrl) {
       const selectAgent = {
         url: this.agentUrl,
       } as InferenceAgent;
@@ -796,7 +834,11 @@ class ChatClient {
   async connectAgent(selectAgent: InferenceAgent, readableStream?: any) {
     return new Promise((resolve, reject) => {
       let firstInitHeartbeat = true;
-      const { agentChatUrl, agentHeartbeatUrl } = getAgentUrls(selectAgent, this.chatId, this.agentSessionId);
+      const { agentChatUrl, agentHeartbeatUrl } = getAgentUrls(
+        selectAgent,
+        this.chatId,
+        this.agentSessionId
+      );
       this.chatProgressReadable?.push({
         code: 303,
         message: "Connecting to the validator",
@@ -827,7 +869,12 @@ class ChatClient {
             message: "Agent connection error: " + selectAgent.url,
           });
           readableStream?.push(null);
-          reject(new Error("Agent heartbeat packet connection failed, " + (e as Error)?.message));
+          reject(
+            new Error(
+              "Agent heartbeat packet connection failed, " +
+                (e as Error)?.message
+            )
+          );
         },
       });
     });

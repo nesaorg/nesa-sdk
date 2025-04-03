@@ -1,6 +1,7 @@
 import { Coin } from "../../base/v1beta1/coin";
 import * as _m0 from "protobufjs/minimal";
 import { JsonSafe } from "../../../json-safe";
+import { DeepPartial, Exact } from "../../../helpers";
 export declare const protobufPackage = "cosmos.bank.v1beta1";
 /**
  * SendAuthorization allows the grantee to spend up to spend_limit coins from
@@ -15,24 +16,5 @@ export declare const SendAuthorization: {
     decode(input: _m0.Reader | Uint8Array, length?: number): SendAuthorization;
     fromJSON(object: any): SendAuthorization;
     toJSON(message: SendAuthorization): JsonSafe<SendAuthorization>;
-    fromPartial<I extends {
-        spendLimit?: {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] | undefined;
-    } & {
-        spendLimit?: ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[] & ({
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        } & Record<Exclude<keyof I["spendLimit"][number], keyof Coin>, never>)[] & Record<Exclude<keyof I["spendLimit"], keyof {
-            denom?: string | undefined;
-            amount?: string | undefined;
-        }[]>, never>) | undefined;
-    } & Record<Exclude<keyof I, "spendLimit">, never>>(object: I): SendAuthorization;
+    fromPartial<I extends Exact<DeepPartial<SendAuthorization>, I>>(object: I): SendAuthorization;
 };

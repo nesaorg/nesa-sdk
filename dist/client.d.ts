@@ -1,4 +1,3 @@
-/// <reference types="long" />
 import { OfflineSigner } from "@cosmjs/proto-signing";
 import { SigningStargateClient, SigningStargateClientOptions, GasPrice, Event, QueryClient } from "@cosmjs/stargate";
 import { CometClient } from "@cosmjs/tendermint-rpc";
