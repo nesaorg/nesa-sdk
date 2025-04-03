@@ -32,5 +32,6 @@
     "@types/crypto-js": "^4.2.2",
     "@cosmology/telescope": "^1.0.7",
     "ts-node": "^10.9.2"
+    "typescript": "^5.8.2"
   }
 }
