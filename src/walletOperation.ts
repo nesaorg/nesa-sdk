@@ -56,8 +56,8 @@ class WalletOperation {
     EncryptUtils.generateKey(recordId);
     const [resVrf, resModel] = await Promise.all([
       EncryptUtils.requestVrf(recordId, client, offlineSigner),
-      this.requestModel(client, modelName)
-    ])
+      this.requestModel(client, modelName),
+    ]);
     if (!resVrf?.vrf) {
       throw new Error("Vrf is null");
     }
@@ -65,10 +65,10 @@ class WalletOperation {
       throw new Error("SessionId is null");
     }
     if (!resModel?.model) {
-      throw new Error('Model is null');
+      throw new Error("Model is null");
     }
     if (!resModel?.model?.tokenPrice) {
-      throw new Error('Model token price is null');
+      throw new Error("Model token price is null");
     }
     const fee = {
       amount: [
@@ -77,7 +77,14 @@ class WalletOperation {
       gas: "200000",
     };
     const lockBalance = { denom: denom, amount: lockAmount };
-    return client.signRegisterSession(resVrf.sessionId, modelName, fee, lockBalance, resVrf.vrf, resModel.model.tokenPrice);
+    return client.signRegisterSession(
+      resVrf.sessionId,
+      modelName,
+      fee,
+      lockBalance,
+      resVrf.vrf,
+      resModel.model.tokenPrice
+    );
   }
 
   static requestAgentInfo(
@@ -115,7 +122,10 @@ class WalletOperation {
     return client.getVRFSeed(account.address);
   }
 
-  static requestModel(client: NesaClient, modelName: string): Promise<QueryGetModelResponse> {
+  static requestModel(
+    client: NesaClient,
+    modelName: string
+  ): Promise<QueryGetModelResponse> {
     return client.getModel(modelName);
   }
 }
