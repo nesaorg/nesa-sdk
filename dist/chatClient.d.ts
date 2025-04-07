@@ -1,7 +1,7 @@
-import { ChainInfo } from '@leapwallet/cosmos-snap-provider';
-import { BigNumber as impBigNumber } from 'bignumber.js';
-import { NesaClient } from './client';
-import { TokenPrice, InferenceAgent } from './codec/agent/v1/agent';
+import { ChainInfo } from "@leapwallet/cosmos-snap-provider";
+import { BigNumber as impBigNumber } from "bignumber.js";
+import { NesaClient } from "./client";
+import { TokenPrice, InferenceAgent } from "./codec/agent/v1/agent";
 interface TokenNumber {
     inputTokens: number;
     outputTokens: number;
@@ -24,11 +24,18 @@ interface QuestionParams {
     messages: any;
     model: string;
     stream?: boolean;
+    model_params?: Map<string, any>;
+    additional_params?: Map<string, any>;
+    low_rank_adaptation?: {
+        lora_name: string;
+        lora_path: string;
+        lora_scale: number;
+        base_model_name?: string;
+    };
     frequency_penalty?: any;
     presence_penalty?: any;
     temperature?: any;
     top_p?: any;
-    session_id?: string;
 }
 declare class ChatClient {
     modelName: string;

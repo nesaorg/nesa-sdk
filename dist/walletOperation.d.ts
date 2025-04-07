@@ -1,7 +1,7 @@
-import { NesaClient } from './client';
-import { ChainInfo } from '@leapwallet/cosmos-snap-provider';
-import type { CosmjsOfflineSigner } from '@leapwallet/cosmos-snap-provider';
-import { QueryGetModelResponse } from './codec/dht/v1/query';
+import { NesaClient } from "./client";
+import { ChainInfo } from "@leapwallet/cosmos-snap-provider";
+import type { CosmjsOfflineSigner } from "@leapwallet/cosmos-snap-provider";
+import { QueryGetModelResponse } from "./codec/dht/v1/query";
 declare class WalletOperation {
     static getNesaClient(chainInfo: ChainInfo, offlineSigner: CosmjsOfflineSigner | undefined): Promise<NesaClient>;
     static registerSession(recordId: string, client: NesaClient, modelName: string, lockAmount: string, denom: string, chainInfo: ChainInfo, offlineSigner: CosmjsOfflineSigner): Promise<{
