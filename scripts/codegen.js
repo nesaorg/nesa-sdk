@@ -1,10 +1,33 @@
 #!/usr/bin/env node
 
 const { join } = require("path");
-const { writeFileSync } = require("fs");
+const { readdirSync, readFileSync, writeFileSync } = require("fs");
 const telescope = require("@cosmology/telescope").default;
 
+const protoPath = join(__dirname, "/../proto");
 const outPath = join(__dirname, "/../src/codec");
+
+function addNewlineToEndOfFile(filePath) {
+  let data = readFileSync(filePath, 'utf8');
+  if (!data.endsWith('\n')) {
+      writeFileSync(filePath, data + '\n', 'utf8');
+  }
+}
+
+function processDirectory(directory) {
+  const items = readdirSync(directory, { withFileTypes: true });
+  items.forEach(item => {
+      const fullPath = join(directory, item.name);
+      if (item.isDirectory()) {
+          processDirectory(fullPath);
+      } else {
+          addNewlineToEndOfFile(fullPath);
+      }
+  });
+}
+
+// handle proto files, add newline to the end of each file
+processDirectory(protoPath);
 
 telescope({
   protoDirs: ["proto"],
@@ -67,11 +90,12 @@ telescope({
 }).then(
   () => {
     // Create index.ts
-    const index_ts = `
-    // Auto-generated, see scripts/codegen.js!
-    `;
+    const index_ts = `// Auto-generated, see scripts/codegen.js!`;
     writeFileSync(`${outPath}/index.ts`, index_ts);
 
+    // handle generated ts files, add newline to the end of each file
+    processDirectory(outPath);
+    
     console.log("✨ All Done!");
   },
   (e) => {

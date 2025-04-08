@@ -48,11 +48,20 @@ interface QuestionParams {
   messages: any;
   model: string;
   stream?: boolean;
+  model_params?: Map<string, any>;
+  additional_params?: Map<string, any>;
+  low_rank_adaptation?: {
+    lora_name: string;
+    lora_path: string;
+    lora_scale: number;
+    base_model_name?: string;
+  }
+
+  // TODO: deprecated
   frequency_penalty?: any;
   presence_penalty?: any;
   temperature?: any;
   top_p?: any;
-  session_id?: string;
 }
 
 class ChatClient {

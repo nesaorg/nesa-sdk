@@ -1,54 +1,54 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultLowBalance = exports.defaultPriceUnit = exports.sdkVersion = exports.defaultChainInfo = exports.defaultLockAmount = exports.defaultAgentUrl = void 0;
-const defaultAgentUrl = 'wss://agent.nesa.ai/pingws';
+const defaultAgentUrl = "wss://agent.nesa.ai/pingws";
 exports.defaultAgentUrl = defaultAgentUrl;
-const sdkVersion = '1.0.0';
+const sdkVersion = "1.0.0";
 exports.sdkVersion = sdkVersion;
-const defaultLockAmount = '1000000';
+const defaultLockAmount = "1000000";
 exports.defaultLockAmount = defaultLockAmount;
-const defaultPriceUnit = '1000000';
+const defaultPriceUnit = "1000000";
 exports.defaultPriceUnit = defaultPriceUnit;
-const defaultLowBalance = '10000';
+const defaultLowBalance = "10000";
 exports.defaultLowBalance = defaultLowBalance;
 const defaultChainInfo = {
-    chainId: 'nesa-testnet-3',
-    chainName: 'Nesa Testnet',
-    chainSymbolImageUrl: 'https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/chain.png',
-    rest: 'https://lcd.test.nesa.ai',
-    rpc: 'https://rpc.test.nesa.ai',
+    chainId: "nesa-testnet-3",
+    chainName: "Nesa Testnet",
+    chainSymbolImageUrl: "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/chain.png",
+    rest: "https://lcd.test.nesa.ai",
+    rpc: "https://rpc.test.nesa.ai",
     nodeProvider: {
-        name: 'Nesa',
-        email: 'dev@nesa.ai',
-        website: 'https://nesa.ai/',
+        name: "Nesa",
+        email: "dev@nesa.ai",
+        website: "https://nesa.ai/",
     },
     bip44: {
         coinType: 118,
     },
     bech32Config: {
-        bech32PrefixAccAddr: 'nesa',
-        bech32PrefixAccPub: 'nesa' + 'pub',
-        bech32PrefixValAddr: 'nesa' + 'valoper',
-        bech32PrefixValPub: 'nesa' + 'valoperpub',
-        bech32PrefixConsAddr: 'nesa' + 'valcons',
-        bech32PrefixConsPub: 'nesa' + 'valconspub',
+        bech32PrefixAccAddr: "nesa",
+        bech32PrefixAccPub: "nesa" + "pub",
+        bech32PrefixValAddr: "nesa" + "valoper",
+        bech32PrefixValPub: "nesa" + "valoperpub",
+        bech32PrefixConsAddr: "nesa" + "valcons",
+        bech32PrefixConsPub: "nesa" + "valconspub",
     },
     currencies: [
         {
-            coinDenom: 'NES',
-            coinMinimalDenom: 'unes',
+            coinDenom: "NES",
+            coinMinimalDenom: "unes",
             coinDecimals: 6,
-            coinGeckoId: 'nesa',
-            coinImageUrl: 'https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png',
+            coinGeckoId: "nesa",
+            coinImageUrl: "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
         },
     ],
     feeCurrencies: [
         {
-            coinDenom: 'NES',
-            coinMinimalDenom: 'unes',
+            coinDenom: "NES",
+            coinMinimalDenom: "unes",
             coinDecimals: 6,
-            coinGeckoId: 'nesa',
-            coinImageUrl: 'https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png',
+            coinGeckoId: "nesa",
+            coinImageUrl: "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
             gasPriceStep: {
                 low: 0.01,
                 average: 0.02,
@@ -57,14 +57,14 @@ const defaultChainInfo = {
         },
     ],
     stakeCurrency: {
-        coinDenom: 'NES',
-        coinMinimalDenom: 'unes',
+        coinDenom: "NES",
+        coinMinimalDenom: "unes",
         coinDecimals: 6,
-        coinGeckoId: 'nesa',
-        coinImageUrl: 'https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png',
+        coinGeckoId: "nesa",
+        coinImageUrl: "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/nesa/nes.png",
         //@ts-ignore
         gasPriceStep: {},
-        features: ['cosmwasm'],
+        features: ["cosmwasm"],
     },
 };
 exports.defaultChainInfo = defaultChainInfo;

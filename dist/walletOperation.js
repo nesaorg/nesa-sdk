@@ -10,7 +10,7 @@ const long_1 = __importDefault(require("long"));
 class WalletOperation {
     static async getNesaClient(chainInfo, offlineSigner) {
         if (!offlineSigner) {
-            throw new Error('No wallet installed, please install keplr or metamask wallet first');
+            throw new Error("No wallet installed, please install keplr or metamask wallet first");
         }
         const { chainId, rpc } = chainInfo;
         const account = (await offlineSigner.getAccounts())[0];
@@ -33,22 +33,22 @@ class WalletOperation {
             this.requestModel(client, modelName),
         ]);
         if (!resVrf?.vrf) {
-            throw new Error('Vrf is null');
+            throw new Error("Vrf is null");
         }
         if (!resVrf?.sessionId) {
-            throw new Error('SessionId is null');
+            throw new Error("SessionId is null");
         }
         if (!resModel?.model) {
-            throw new Error('Model is null');
+            throw new Error("Model is null");
         }
         if (!resModel?.model?.tokenPrice) {
-            throw new Error('Model token price is null');
+            throw new Error("Model token price is null");
         }
         const fee = {
             amount: [
-                { denom: chainInfo.feeCurrencies[0].coinMinimalDenom, amount: '6' },
+                { denom: chainInfo.feeCurrencies[0].coinMinimalDenom, amount: "6" },
             ],
-            gas: '200000',
+            gas: "200000",
         };
         const lockBalance = { denom: denom, amount: lockAmount };
         return client.signRegisterSession(resVrf.sessionId, modelName, fee, lockBalance, resVrf.vrf, resModel.model.tokenPrice);
@@ -56,13 +56,13 @@ class WalletOperation {
     static requestAgentInfo(client, agentName, modelName) {
         // console.log("modelName: ", modelName);
         if (!client) {
-            throw 'Client init failed';
+            throw "Client init failed";
         }
         return client.getInferenceAgent(agentName, modelName, long_1.default.fromNumber(0), new Uint8Array());
     }
     static requestParams(client) {
         if (!client) {
-            throw new Error('Client init failed');
+            throw new Error("Client init failed");
         }
         return client.getParams();
     }
