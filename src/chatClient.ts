@@ -51,9 +51,10 @@ interface QuestionParams {
   model_params?: Map<string, any>;
   additional_params?: Map<string, any>;
   low_rank_adaptation?: {
-    lora_name: string;
-    lora_path: string;
-    lora_scale: number;
+    lora_id: string;
+    lora_name?: string;
+    lora_path?: string;
+    lora_scale?: number;
     base_model_name?: string;
   }
 
@@ -317,7 +318,26 @@ class ChatClient {
     return amount.div(this.priceUnit).toFixed(0, 1);
   }
 
+
+  handleQuestionParams(question: QuestionParams) {
+    const handleData = (value: any, defaultValue: any) => {
+      if (typeof value === 'undefined') {
+        return defaultValue;
+      } 
+      return value;
+    }
+    if (question.low_rank_adaptation) {
+      const { lora_name, lora_path, lora_scale, base_model_name } = question.low_rank_adaptation;
+      question.low_rank_adaptation.lora_name = handleData(lora_name, 'None');
+      question.low_rank_adaptation.lora_path = handleData(lora_path, 'None');
+      question.low_rank_adaptation.lora_scale = handleData(lora_scale, 1.0);
+      question.low_rank_adaptation.base_model_name = handleData(base_model_name, 'None');
+    }
+    return question;
+  }
+
   requestChatQueue(readableStream: any, question: QuestionParams) {
+    question = this.handleQuestionParams(question);
     this.isChatting = true;
     this.chatSeq += 1;
     let messageTimes = 0;
@@ -794,6 +814,7 @@ class ChatClient {
   }
 
   async requestChat(question: QuestionParams) {
+    question = this.handleQuestionParams(question);
     if (!question?.model) {
       throw new Error("Model is required");
     }
