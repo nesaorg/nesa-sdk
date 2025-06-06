@@ -27,9 +27,10 @@ interface QuestionParams {
     model_params?: Map<string, any>;
     additional_params?: Map<string, any>;
     low_rank_adaptation?: {
-        lora_name: string;
-        lora_path: string;
-        lora_scale: number;
+        lora_id: string;
+        lora_name?: string;
+        lora_path?: string;
+        lora_scale?: number;
         base_model_name?: string;
     };
     frequency_penalty?: any;
@@ -82,6 +83,7 @@ declare class ChatClient {
     computePaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice): string;
     computeRawPaymentAmount(tokenNumber: TokenNumber, tokenPrice: TokenPrice): impBigNumber;
     rawToProcessedPaymentAmount(amount: impBigNumber): string;
+    handleQuestionParams(question: QuestionParams): QuestionParams;
     requestChatQueue(readableStream: any, question: QuestionParams): void;
     requestCloseHeartbeat(): void;
     requestAgentInfo(result: any, readableStream: any): any;
